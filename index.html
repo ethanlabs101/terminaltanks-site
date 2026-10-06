@@ -1,0 +1,1610 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<title>TerminalTanks - play in your browser</title>
+<meta name="description" content="Play TerminalTanks - a turn-based tank artillery game - right in your browser. No install: it runs the real Python game on any device, and your progress is saved on your own device.">
+<meta name="theme-color" content="#05090f">
+<meta name="color-scheme" content="dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta property="og:type" content="website">
+<meta property="og:title" content="TerminalTanks - tank artillery in your terminal, in your browser">
+<meta property="og:description" content="Play TerminalTanks - a turn-based tank artillery game - right in your browser. No install: it runs the real Python game on any device, and your progress is saved on your own device.">
+<meta name="twitter:card" content="summary">
+<style>
+:root {
+  --bg: #05090f; --panel: #09101a; --panel-hi: #102634; --line: #267680; --line-dim: #17414a;
+  --primary: #60e8d4; --primary-dim: #2c7470; --amber: #ffb840; --text: #d0dee8; --muted: #687c8c;
+  --danger: #ff5c5c; --ok: #7cf098; --gold: #ffce64;
+  --mono: "JetBrains Mono", "Cascadia Mono", "Fira Code", "DejaVu Sans Mono", "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+}
+[hidden] { display: none !important; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; margin: 0; background: var(--bg); color: var(--text); font-family: var(--mono); overflow: hidden; }
+body { font-size: 13px; line-height: 1.45; }
+a { color: var(--primary); text-decoration: none; border-bottom: 1px dotted var(--primary-dim); }
+a:hover { color: #fff; border-bottom-color: #fff; }
+::selection { background: var(--primary-dim); color: #fff; }
+
+/* ---- backdrop: dusk sky, stars, ridge ------------------------------------------------------ */
+.sky { position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: radial-gradient(ellipse 80% 55% at 50% 118%, rgba(38,140,150,.45), transparent 70%),
+              radial-gradient(ellipse 60% 40% at 85% 10%, rgba(60,40,120,.22), transparent 70%),
+              linear-gradient(#03060b 0%, #06101a 55%, #0a2530 100%); }
+.stars, .stars2 { position: absolute; left: 0; top: 0; width: 1px; height: 1px; background: transparent; }
+.stars { animation: twinkle 5s ease-in-out infinite; } .stars2 { animation: twinkle 7s ease-in-out infinite reverse; }
+@keyframes twinkle { 0%, 100% { opacity: .95; } 50% { opacity: .35; } }
+.ridge { position: absolute; left: 0; right: 0; bottom: 0; height: 22vh; opacity: .9;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 200' preserveAspectRatio='none'><path d='M0 200V120l60-18 70 26 80-44 70 30 90-60 70 40 90-28 80 36 110-70 90 52 80-24 100 42 110-56 90 38 80-20 60 20 40-8v120z' fill='%2308131c'/><path d='M0 200v-60l90 20 100-34 90 30 110-40 120 34 100-26 110 32 120-30 90 24 110-22 70 12v90z' fill='%23050b12'/></svg>") center bottom / 100% 100% no-repeat; }
+
+/* ---- layout ------------------------------------------------------------------------------- */
+#app { position: relative; z-index: 1; height: 100%; height: 100dvh; display: flex; flex-direction: column; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+.bar { flex: none; display: flex; align-items: center; gap: 12px; padding: 8px 14px; border-bottom: 1px solid var(--line-dim); background: linear-gradient(rgba(9,16,26,.92), rgba(9,16,26,.72)); backdrop-filter: blur(4px); }
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.brand svg { width: 44px; height: 32px; flex: none; image-rendering: pixelated; filter: drop-shadow(0 0 6px rgba(96,232,212,.45)); }
+.brand h1 { margin: 0; font-size: 15px; letter-spacing: .32em; font-weight: 800; white-space: nowrap;
+  background: linear-gradient(90deg, #96ffeb, #3296eb); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.brand small { display: block; color: var(--muted); letter-spacing: .22em; font-size: 9.5px; white-space: nowrap; margin-top: 1px; }
+.tools { margin-left: auto; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+.btn { appearance: none; font: inherit; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); background: var(--panel);
+  border: 1px solid var(--line-dim); padding: 6px 10px; border-radius: 2px; cursor: pointer; transition: .12s; white-space: nowrap; }
+.btn:hover, .btn:focus-visible { color: var(--primary); border-color: var(--line); background: var(--panel-hi); outline: none; box-shadow: 0 0 10px rgba(96,232,212,.18); }
+.btn:active { transform: translateY(1px); }
+.btn.on { color: var(--primary); border-color: var(--primary-dim); }
+.btn.hot { color: var(--amber); border-color: rgba(255,184,64,.45); }
+.btn.danger { color: var(--danger); border-color: rgba(255,92,92,.45); }
+.btn.big { padding: 10px 18px; font-size: 12px; }
+.btn[hidden] { display: none; }
+
+.stage { position: relative; flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 14px 6px; }
+.bezel { position: relative; flex: 1 1 auto; min-height: 0; width: 100%; max-width: 1760px; display: flex; flex-direction: column;
+  background: var(--panel); border: 1px solid var(--line); box-shadow: 0 0 0 1px #02050a, 0 0 40px rgba(38,118,128,.28), inset 0 0 30px rgba(0,0,0,.6); }
+.bezel .c { position: absolute; width: 14px; height: 14px; border: 0 solid var(--primary); z-index: 5; pointer-events: none; }
+.c.tl { left: -3px; top: -3px; border-width: 2px 0 0 2px; } .c.tr { right: -3px; top: -3px; border-width: 2px 2px 0 0; }
+.c.bl { left: -3px; bottom: -3px; border-width: 0 0 2px 2px; } .c.br { right: -3px; bottom: -3px; border-width: 0 2px 2px 0; }
+.titlebar { flex: none; display: flex; align-items: center; gap: 10px; padding: 4px 10px; font-size: 10.5px; letter-spacing: .2em; color: var(--muted); border-bottom: 1px solid var(--line-dim); background: rgba(5,9,15,.7); }
+.titlebar .name { color: var(--primary-dim); } .titlebar .sp { flex: 1; }
+.chip { display: inline-flex; align-items: center; gap: 6px; color: var(--amber); }
+.chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; animation: blink 1.2s infinite; }
+.chip.ok { color: var(--ok); } .chip.ok::before { animation: none; } .chip.bad { color: var(--danger); } .chip.bad::before { animation: none; }
+@keyframes blink { 50% { opacity: .25; } }
+.titlebar .ver { color: var(--muted); letter-spacing: .12em; }
+
+.termwrap { position: relative; flex: 1 1 auto; min-height: 0; background: var(--bg); overflow: hidden; }
+#terminal { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+#terminal .xterm { padding: 0 !important; }
+#terminal .xterm-viewport { overflow: hidden !important; background: transparent !important; }
+.xterm .xterm-helper-textarea { opacity: 0; }
+.crtfx { position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(0,0,0,.10) 0 1px, transparent 1px 3px),
+              radial-gradient(ellipse at center, transparent 62%, rgba(0,0,0,.42) 100%); mix-blend-mode: multiply; }
+body.no-crt .crtfx { display: none; }
+
+/* ---- loader / ended overlays ----------------------------------------------------------------- */
+.overlay { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 18px;
+  background: radial-gradient(ellipse at 50% 100%, rgba(30,110,120,.22), transparent 65%), rgba(5,9,15,.97); text-align: center; overflow: auto; transition: opacity .5s; }
+.overlay[hidden] { display: none; }
+.overlay.fade { opacity: 0; pointer-events: none; }
+.logo { margin: 0; line-height: 1.02; font-size: clamp(4px, 1.45vw, 11px); white-space: pre; text-align: left; font-weight: 700; filter: drop-shadow(0 0 8px rgba(96,232,212,.25)); }
+.logo i { font-style: normal; color: #1b4a60; }
+.tag { color: var(--amber); letter-spacing: .38em; font-size: 10.5px; }
+.bootlog { width: min(560px, 92%); text-align: left; font-size: 12px; color: var(--text); }
+.bootlog div { display: flex; gap: 8px; padding: 1px 0; opacity: 0; transform: translateX(-6px); transition: .3s; white-space: nowrap; }
+.bootlog div.show { opacity: 1; transform: none; }
+.bootlog .dots { flex: 1; overflow: hidden; color: var(--line-dim); } .bootlog .dots::after { content: " ........................................................................"; }
+.bootlog .st { color: var(--muted); } .bootlog .st.ok { color: var(--ok); } .bootlog .st.err { color: var(--danger); }
+.progress { width: min(560px, 92%); height: 8px; border: 1px solid var(--line-dim); background: #070d14; position: relative; overflow: hidden; }
+.progress > b { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: linear-gradient(90deg, var(--primary-dim), var(--primary)); transition: width .5s; }
+.progress.indet > b { width: 30% !important; animation: slide 1.3s linear infinite; }
+@keyframes slide { from { left: -30%; } to { left: 100%; } }
+.tip { color: var(--muted); font-size: 11.5px; min-height: 2.6em; max-width: 520px; }
+.tip b { color: var(--primary); font-weight: 600; }
+.errbox { max-width: 560px; color: var(--danger); font-size: 12px; white-space: pre-wrap; word-break: break-word; text-align: left; border: 1px solid rgba(255,92,92,.4); padding: 10px 12px; background: rgba(60,12,12,.35); }
+.errbox small { color: var(--muted); display: block; margin-top: 6px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+
+/* ---- touch pad ------------------------------------------------------------------------------- */
+#pad { display: none; flex: none; width: 100%; max-width: 1760px; padding: 8px 6px 4px; user-select: none; -webkit-user-select: none; touch-action: none; }
+body.pad-on #pad { display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; }
+#pad .cluster { display: grid; gap: 6px; }
+#pad .dpad { grid-template-columns: repeat(3, 56px); grid-template-rows: repeat(3, 48px); }
+#pad .act { grid-template-columns: repeat(3, auto); align-items: end; justify-items: end; }
+#pad .mid { display: grid; gap: 6px; grid-template-columns: repeat(2, auto); align-self: center; }
+.pb { appearance: none; font: inherit; color: var(--primary); background: rgba(9,16,26,.86); border: 1px solid var(--line); border-radius: 6px; min-width: 56px; min-height: 46px; padding: 0 12px;
+  font-size: 15px; font-weight: 700; letter-spacing: .08em; touch-action: none; user-select: none; -webkit-user-select: none; box-shadow: 0 0 12px rgba(38,118,128,.25); }
+.pb.small { min-width: 48px; min-height: 36px; font-size: 11px; color: var(--muted); }
+.pb.fire { min-width: 96px; min-height: 64px; color: #05090f; background: linear-gradient(#ffd27a, #ffb840); border-color: #ffe0a0; font-size: 15px; }
+.pb.on { color: #05090f; background: var(--primary); }
+.pb.down, .pb:active { transform: scale(.95); filter: brightness(1.4); }
+@media (max-width: 520px) {
+  body.pad-on #pad { gap: 6px; padding: 6px 4px 2px; flex-wrap: nowrap; }
+  #pad .dpad { grid-template-columns: repeat(3, 46px); grid-template-rows: repeat(3, 42px); gap: 4px; }
+  #pad .mid { gap: 4px; grid-template-columns: repeat(2, 44px); }
+  #pad .act { gap: 4px; grid-template-columns: repeat(2, 46px) !important; }
+  .pb { min-width: 44px; min-height: 40px; padding: 0 4px; font-size: 14px; }
+  .pb.small { min-width: 44px; min-height: 34px; font-size: 10px; letter-spacing: 0; }
+  .pb.fire { min-width: 96px; min-height: 56px; }
+}
+@media (max-height: 520px) and (orientation: landscape) {
+  .tools { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; } .tools::-webkit-scrollbar { display: none; }
+  .btn { padding: 4px 7px; font-size: 10px; letter-spacing: .06em; } .brand h1 { font-size: 12px; letter-spacing: .2em; } .brand svg { width: 34px; height: 24px; }
+  body.pad-on #pad .mid { grid-template-columns: repeat(4, auto); align-self: flex-end; }
+  body.pad-on #pad { position: absolute; left: 0; right: 0; bottom: 6px; padding: 0 12px; pointer-events: none; z-index: 8; max-width: none; }
+  body.pad-on #pad .cluster, body.pad-on #pad .mid { pointer-events: auto; opacity: .62; }
+  #pad .dpad { grid-template-columns: repeat(3, 46px); grid-template-rows: repeat(3, 40px); }
+  .pb { min-width: 46px; min-height: 40px; } .pb.fire { min-width: 84px; min-height: 56px; }
+  .bar { padding: 4px 10px; } .brand small { display: none; } .stage { padding: 4px 8px 2px; } footer.foot { display: none !important; }
+}
+
+/* ---- footer / modals / toast ----------------------------------------------------------------- */
+footer.foot { flex: none; display: flex; flex-wrap: wrap; gap: 4px 18px; align-items: center; justify-content: space-between; padding: 6px 14px 8px; font-size: 11px; color: var(--muted); border-top: 1px solid var(--line-dim); background: rgba(5,9,15,.72); }
+footer.foot .gh { color: var(--text); } footer.foot .gh a { color: var(--amber); border-bottom-color: rgba(255,184,64,.4); font-weight: 700; }
+footer.foot .fine { font-size: 10px; color: #4d6070; }
+.modal { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(2,5,9,.78); backdrop-filter: blur(3px); }
+.modal[hidden] { display: none; }
+.card { width: min(640px, 100%); max-height: 100%; overflow: auto; background: var(--panel); border: 3px double var(--line); box-shadow: 0 0 50px rgba(38,118,128,.35); padding: 16px 20px 18px; position: relative; }
+.card h2 { margin: 0 0 10px; font-size: 13px; letter-spacing: .3em; color: var(--primary); }
+.card h3 { margin: 14px 0 4px; font-size: 11px; letter-spacing: .22em; color: var(--amber); }
+.card p, .card li { color: var(--text); font-size: 12.5px; margin: 4px 0; } .card ul { padding-left: 18px; margin: 4px 0; }
+.card kbd { font: inherit; font-size: 11px; color: var(--amber); border: 1px solid var(--line-dim); padding: 0 5px; background: var(--bg); }
+.card .x { position: absolute; right: 8px; top: 6px; }
+.card .row { justify-content: flex-start; margin-top: 12px; }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 3px 14px; margin: 6px 0; font-size: 12px; } .kv span:nth-child(odd) { color: var(--muted); }
+.good { color: var(--ok); } .warn { color: var(--amber); } .bad { color: var(--danger); }
+#toast { position: fixed; left: 50%; bottom: calc(60px + env(safe-area-inset-bottom)); transform: translate(-50%, 20px); z-index: 80; opacity: 0; pointer-events: none; transition: .3s;
+  background: var(--panel-hi); border: 1px solid var(--line); color: var(--text); padding: 8px 14px; font-size: 12px; max-width: 92vw; text-align: center; }
+#toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+@media (max-width: 760px) {
+  .brand small { display: none; } .brand h1 { font-size: 12.5px; letter-spacing: .22em; } .btn { padding: 5px 7px; font-size: 10px; letter-spacing: .06em; }
+  .bar { gap: 8px; padding: 6px 8px; flex-wrap: wrap; } .tools { margin-left: 0; width: 100%; justify-content: flex-start; }
+  .stage { padding: 6px 6px 4px; } footer.foot .fine { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .stars, .stars2, .chip::before, .progress.indet > b { animation: none; } }
+
+#dbg { position: absolute; left: 8px; top: 8px; z-index: 12; margin: 0; padding: 6px 9px; font: 11px/1.45 var(--mono); color: var(--ok); background: rgba(5,9,15,.82); border: 1px solid var(--line-dim); pointer-events: none; white-space: pre; }
+
+.ct-canvas { display: block; image-rendering: pixelated; image-rendering: crisp-edges; background: var(--bg); box-shadow: 0 0 0 1px rgba(38,118,128,.25); }
+.ct-input { position: absolute; left: 0; top: 0; width: 2px; height: 2px; opacity: 0; border: 0; padding: 0; resize: none; overflow: hidden; caret-color: transparent; font-size: 16px; }
+</style>
+</head>
+<body>
+<div class="sky" aria-hidden="true"><div class="stars" id="stars"></div><div class="stars2" id="stars2"></div><div class="ridge"></div></div>
+
+<div id="app">
+  <header class="bar">
+    <div class="brand">
+      <svg id="brand-tank" viewBox="0 0 14 9" aria-hidden="true"></svg>
+      <div><h1>TERMINALTANKS</h1><small>TACTICAL ARTILLERY SIMULATION &middot; PLAY IN YOUR BROWSER</small></div>
+    </div>
+    <nav class="tools" aria-label="Controls">
+      <button class="btn" id="b-pad" title="Show or hide the on-screen controls" aria-pressed="false">Touch pad</button>
+      <button class="btn" id="b-fdn" title="Smaller text" aria-label="Smaller text">A&minus;</button>
+      <button class="btn" id="b-fup" title="Larger text" aria-label="Larger text">A+</button>
+      <button class="btn" id="b-crt" title="Toggle the CRT scanline effect" aria-pressed="false">CRT</button>
+      <button class="btn" id="b-full" title="Fullscreen">Fullscreen</button>
+      <button class="btn hot" id="b-save" title="Where your progress is stored">Save data</button>
+      <button class="btn" id="b-help" title="Controls and help">Help</button>
+      <button class="btn" id="b-restart" title="Restart the game">Restart</button>
+    </nav>
+  </header>
+
+  <main class="stage">
+    <section class="bezel" aria-label="TerminalTanks game terminal">
+      <i class="c tl"></i><i class="c tr"></i><i class="c bl"></i><i class="c br"></i>
+      <div class="titlebar">
+        <span class="name">&#9670; TERMINALTANKS.PY</span>
+        <span class="sp"></span>
+        <span class="chip" id="chip">BOOTING</span>
+        <span class="ver" id="ver"></span>
+      </div>
+      <div class="termwrap" id="termwrap">
+        <div id="terminal"></div>
+        <div class="crtfx"></div>
+
+        <div class="overlay" id="loader" role="status" aria-live="polite">
+          <pre class="logo" id="logo" aria-label="Terminal Tanks"></pre>
+          <div class="tag">TACTICAL ARTILLERY SIMULATION</div>
+          <div class="bootlog" id="bootlog"></div>
+          <div class="progress indet" id="progress"><b></b></div>
+          <div class="tip" id="tip"></div>
+          <div class="errbox" id="loaderr" hidden></div>
+          <div class="row" id="loadbtns" hidden>
+            <button class="btn big hot" id="b-retry">Try again</button>
+          </div>
+        </div>
+
+        <div class="overlay fade" id="ended" hidden>
+          <div class="tag" id="ended-title">SESSION ENDED</div>
+          <div class="errbox" id="ended-err" hidden></div>
+          <div class="row">
+            <button class="btn big hot" id="b-again">Play again</button>
+            <button class="btn big" id="b-copyerr" hidden>Copy error</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div id="pad" aria-label="On-screen controls"></div>
+  </main>
+
+  <footer class="foot">
+    <div class="gh">&#9670; The GitHub for this game is at <a href="https://github.com/ethanlabs101/TerminalTanks" target="_blank" rel="noopener">github.com/ethanlabs101/TerminalTanks</a> &middot; created by <a href="https://github.com/ethanlabs101" target="_blank" rel="noopener">ethanlabs101</a></div>
+    <div class="fine">Runs fully in your browser (Pyodide + a canvas renderer) &middot; your progress stays on this device</div>
+  </footer>
+</div>
+
+<div class="modal" id="m-save" hidden role="dialog" aria-modal="true" aria-labelledby="m-save-h">
+  <div class="card">
+    <button class="btn x" data-close aria-label="Close">&times;</button>
+    <h2 id="m-save-h">SAVE DATA</h2>
+    <p>Your progress &mdash; tournament levels, unlocks, loadouts, settings and anything the game stores &mdash; is saved <b>on this device, in this browser</b>, using the browser's built-in IndexedDB storage. There is no account and no server: nothing is uploaded, and every player on every device has their own separate save.</p>
+    <div class="kv" id="save-kv"></div>
+    <h3>KEEP IT SAFE</h3>
+    <ul>
+      <li>Clearing site data or using a private window deletes the save. Safari may also clear it after a week without a visit.</li>
+      <li>To move to another browser or device, <b>Export</b> a backup file and <b>Import</b> it there.</li>
+    </ul>
+    <div class="row">
+      <button class="btn big" id="b-export">Export backup</button>
+      <button class="btn big" id="b-import">Import backup</button>
+      <button class="btn big" id="b-persist">Protect from eviction</button>
+      <button class="btn big danger" id="b-reset">Reset progress</button>
+    </div>
+    <input type="file" id="f-import" accept="application/json,.json" hidden>
+  </div>
+</div>
+
+<div class="modal" id="m-help" hidden role="dialog" aria-modal="true" aria-labelledby="m-help-h">
+  <div class="card">
+    <button class="btn x" data-close aria-label="Close">&times;</button>
+    <h2 id="m-help-h">HOW TO PLAY</h2>
+    <h3>KEYBOARD</h3>
+    <p><kbd>A</kbd>/<kbd>D</kbd> or <kbd>&larr;</kbd><kbd>&rarr;</kbd> aim &middot; <kbd>W</kbd>/<kbd>S</kbd> or <kbd>&uarr;</kbd><kbd>&darr;</kbd> power &middot; <kbd>Shift</kbd> bigger steps &middot; <kbd>Space</kbd> fire &middot; <kbd>Enter</kbd> select &middot; <kbd>Esc</kbd> pause / back &middot; <kbd>H</kbd> switch home screen.</p>
+    <h3>TOUCH</h3>
+    <p>Phones and tablets get an on-screen pad (toggle it with <b>Touch pad</b>). <b>SHIFT</b> makes arrows take big steps, and <b>KEY</b> opens the keyboard for typing. Landscape gives the biggest battlefield.</p>
+    <h3>GAMEPAD</h3>
+    <p>Plug in or pair a controller and press a button: D-pad / stick aim, <b>A</b> fire / select, <b>B</b> back, <b>X</b> enter, <b>LB</b> hold for big steps.</p>
+    <h3>GOOD TO KNOW</h3>
+    <ul>
+      <li>The game needs a terminal of at least 96&times;28 &mdash; the page picks a font size to fit; use <b>A&minus;</b> / <b>A+</b> to tune.</li>
+      <li>The first visit downloads the Python runtime (about 10&nbsp;MB). After that it loads from cache.</li>
+      <li>Turn the game's <b>SOUND</b> setting to BELL for impact sounds.</li>
+    </ul>
+  </div>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+<noscript><div style="position:fixed;inset:0;z-index:99;background:#05090f;color:#ffb840;display:flex;align-items:center;justify-content:center;font-family:monospace;padding:24px;text-align:center">TerminalTanks runs in your browser and needs JavaScript enabled.</div></noscript>
+
+<script type="text/plain" id="worker-src">
+'use strict';
+// TerminalTanks worker: hosts Pyodide, the bridge and the persistent save storage.
+const HOME = '/home/terminaltanks';
+const ROOT = '/opt/tt';          // where the game's own files live (re-fetched on every start; never persisted)
+const FRAME_MS = 1000 / 30;
+let pyodide = null, FS = null, fns = {}, persistent = false;
+let running = false, paused = false, pending = 0, timer = 0, lastSig = '', syncing = false, firstFrame = true;
+
+const post = (t, d) => self.postMessage(Object.assign({ t }, d || {}));
+const stat = { n: 0, ms: 0, max: 0, bytes: 0, t0: performance.now(), mode: '' };
+self.ttWrite = (s) => { pending++; stat.bytes += s.length; post('out', { d: s }); };
+self.ttCells = (cols, rows, full, d) => { pending++; stat.bytes += d.length; post('cells', { cols, rows, full: !!full, d }); };
+self.ttBell = () => post('bell');
+
+async function loadRuntime(bases) {
+  let last = null;
+  for (const base of bases) {
+    try {
+      importScripts(base + 'pyodide.js');
+      return await self.loadPyodide({ indexURL: base, stdout: () => {}, stderr: () => {} });
+    } catch (e) { last = e; }
+  }
+  throw last || new Error('could not load the Python runtime');
+}
+
+// ---- persistent storage (IndexedDB through Emscripten IDBFS) ----------------------------------
+function sig(dir) {
+  let s = '';
+  for (const name of FS.readdir(dir)) {
+    if (name === '.' || name === '..') continue;
+    const p = dir + '/' + name, st = FS.stat(p);
+    s += FS.isDir(st.mode) ? name + '/{' + sig(p) + '}' : name + ':' + st.size + ':' + Number(st.mtime) + ';';
+  }
+  return s;
+}
+const syncFS = (populate) => new Promise((res, rej) => FS.syncfs(populate, (err) => (err ? rej(err) : res())));
+async function persistTick(force) {
+  if (!persistent || syncing) return;
+  const s = sig(HOME);
+  if (s === lastSig && !force) return;
+  syncing = true;
+  try { await syncFS(false); lastSig = s; post('saved'); } catch (e) { post('saveerr', { msg: String(e) }); }
+  syncing = false;
+}
+function files(dir, base, out) {
+  for (const name of FS.readdir(dir)) {
+    if (name === '.' || name === '..') continue;
+    const p = dir + '/' + name, st = FS.stat(p);
+    if (FS.isDir(st.mode)) files(p, base + name + '/', out);
+    else out.push({ path: base + name, size: st.size });
+  }
+  return out;
+}
+const toB64 = (u8) => { let s = ''; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s); };
+const fromB64 = (b) => { const s = atob(b), u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return u; };
+function wipe(dir) {
+  for (const name of FS.readdir(dir)) {
+    if (name === '.' || name === '..') continue;
+    const p = dir + '/' + name;
+    if (FS.isDir(FS.stat(p).mode)) { wipe(p); FS.rmdir(p); } else FS.unlink(p);
+  }
+}
+const SAFE_REL = /^(?!\/)(?!.*(^|\/)\.\.(\/|$))[\w.\-\/]{1,160}$/;
+async function getFile(base, rel) {
+  try { const r = await fetch(base + rel, { cache: 'no-cache' }); return r.ok ? new Uint8Array(await r.arrayBuffer()) : null; } catch (e) { return null; }
+}
+// A game can be one file or many. Starting from the entry point we follow its imports and fetch whichever
+// <module>.py / <package>/__init__.py exist next to it; an optional terminaltanks.json {"files": [...]} lists
+// anything else (data files, assets, dynamically imported modules).
+async function gather(entrySource, base) {
+  const files = new Map(), tried = new Set(['terminaltanks']), dec = new TextDecoder();
+  const mf = await getFile(base, 'terminaltanks.json');
+  if (mf) {
+    try {
+      for (const p of (JSON.parse(dec.decode(mf)).files || [])) {
+        if (!SAFE_REL.test(p)) continue;
+        const d = await getFile(base, p);
+        if (d) files.set(p, d); else post('log', { msg: 'manifest file not found: ' + p });
+      }
+    } catch (e) { post('log', { msg: 'bad terminaltanks.json: ' + e }); }
+  }
+  let queue = [['terminaltanks.py', entrySource]];
+  while (queue.length && files.size < 400) {
+    const batch = queue; queue = [];
+    for (const [path, text] of batch) {
+      const dir = path.includes('/') ? path.slice(0, path.lastIndexOf('/')) : '';
+      let stems = [];
+      try { const p = fns.imports(text, dir); stems = p.toJs(); p.destroy(); } catch (e) { /* unparsable file: the game will report it */ }
+      const todo = stems.filter((s) => SAFE_REL.test(s) && !tried.has(s));
+      todo.forEach((s) => tried.add(s));
+      const found = await Promise.all(todo.map(async (stem) => {
+        let rel = stem + '.py', d = await getFile(base, rel);
+        if (!d) { rel = stem + '/__init__.py'; d = await getFile(base, rel); }
+        return d ? [rel, d] : null;
+      }));
+      for (const f of found) if (f) { files.set(f[0], f[1]); if (f[0].endsWith('.py')) queue.push([f[0], dec.decode(f[1])]); }
+    }
+  }
+  return files;
+}
+function installFiles(files) {
+  FS.mkdirTree(ROOT); wipe(ROOT);
+  for (const [rel, data] of files) { const full = ROOT + '/' + rel; FS.mkdirTree(full.slice(0, full.lastIndexOf('/'))); FS.writeFile(full, data); }
+}
+const DEP_ALIAS = { PIL: 'pillow', yaml: 'pyyaml', cv2: 'opencv-python', sklearn: 'scikit-learn', bs4: 'beautifulsoup4' };
+const depTried = new Set();
+// If an upgraded game imports third-party packages, fetch them (Pyodide bundle first, then PyPI wheels via micropip).
+async function ensureDeps(source, exclude) {
+  try { await pyodide.loadPackagesFromImports(source); } catch (e) { /* not fatal */ }
+  let missing = [];
+  try { const p = fns.missing(source, exclude || []); missing = p.toJs(); p.destroy(); } catch (e) { /* ignore */ }
+  const need = missing.filter((n) => !depTried.has(n));
+  if (!need.length) return;
+  post('stage', { id: 'game', state: 'run', msg: 'installing ' + need.join(', ') });
+  try {
+    await pyodide.loadPackage('micropip');
+    const mp = pyodide.pyimport('micropip');
+    for (const n of need) {
+      depTried.add(n);
+      try { await mp.install(DEP_ALIAS[n] || n); } catch (e) { post('stage', { id: 'game', state: 'warn', msg: 'could not install ' + n + ' - the game may not start' }); }
+    }
+  } catch (e) { post('stage', { id: 'game', state: 'warn', msg: 'package installer unavailable' }); }
+}
+const SAFE_PATH = /^(?!\/)(?!.*(^|\/)\.\.(\/|$))[\w .@+\-\/]{1,200}$/;
+
+// ---- the frame loop -----------------------------------------------------------------------
+function schedule(delay) { clearTimeout(timer); if (running && !paused) timer = setTimeout(frame, delay); }
+function frame() {
+  if (!running || paused) return;
+  if (pending > 3) { schedule(8); return; }          // the page is still painting: don't flood it
+  const t0 = performance.now();
+  let st = 2;
+  try { st = fns.step(); } catch (e) { post('log', { msg: String(e) }); }
+  const spent = performance.now() - t0;
+  stat.n++; stat.ms += spent; stat.max = Math.max(stat.max, spent);
+  if (t0 - stat.t0 >= 1000) {
+    const sec = (t0 - stat.t0) / 1000;
+    post('stats', { fps: Math.round(stat.n / sec), avg: stat.ms / Math.max(1, stat.n), max: stat.max, kbs: stat.bytes / 1024 / sec, pending, mode: stat.mode });
+    stat.n = 0; stat.ms = 0; stat.max = 0; stat.bytes = 0; stat.t0 = t0;
+  }
+  if (st !== 0) { running = false; finish(st); return; }
+  if (firstFrame) { firstFrame = false; const i = info(); stat.mode = i.mode; post('running', { version: i.version, mode: i.mode }); }
+  schedule(Math.max(0, FRAME_MS - (performance.now() - t0)));
+}
+function info() {
+  const p = fns.info();
+  const o = p.toJs({ dict_converter: Object.fromEntries });
+  p.destroy();
+  return o;
+}
+function finish(status) { const o = info(); post('ended', { status, code: o.code, error: o.error }); }
+
+async function boot(source, argv, base) {
+  running = false; clearTimeout(timer); firstFrame = true; pending = 0;
+  fns.stop();
+  const files = await gather(source, base);
+  installFiles(files);
+  const local = ['terminaltanks', ...new Set([...files.keys()].map((p) => p.split('/')[0].replace(/\.py$/, '')))];
+  const dec = new TextDecoder(), all = source + '\n' + [...files].filter(([p]) => p.endsWith('.py')).map(([, d]) => dec.decode(d)).join('\n');
+  await ensureDeps(all, local);
+  post('stage', { id: 'game', state: 'ok' });
+  const rc = fns.boot(source, argv);
+  if (rc !== 0) { finish(2); return; }
+  running = true; schedule(0);
+}
+
+async function init(m) {
+  try {
+    post('stage', { id: 'runtime', state: 'run' });
+    pyodide = await loadRuntime(m.pyBases);
+    post('stage', { id: 'runtime', state: 'ok' });
+    FS = pyodide.FS;
+    post('stage', { id: 'storage', state: 'run' });
+    FS.mkdirTree(HOME);
+    try {
+      FS.mount(FS.filesystems.IDBFS, {}, HOME);
+      await syncFS(true);
+      persistent = true;
+      post('stage', { id: 'storage', state: 'ok' });
+    } catch (e) {
+      persistent = false;
+      post('stage', { id: 'storage', state: 'warn', msg: 'private mode? progress will not persist' });
+    }
+    lastSig = sig(HOME);
+    setInterval(() => persistTick(false), 1500);
+    pyodide.runPython(m.bridge);
+    const g = pyodide.globals;
+    fns = { boot: g.get('tt_boot'), step: g.get('tt_step'), stop: g.get('tt_stop'), feed: g.get('tt_feed'), resize: g.get('tt_resize'), info: g.get('tt_info'), missing: g.get('tt_missing'), imports: g.get('tt_imports'), redraw: g.get('tt_redraw') };
+    fns.resize(m.cols, m.rows);
+    post('persist', { persistent });
+    await boot(m.source, m.argv || [], m.base);
+  } catch (e) {
+    post('fatal', { msg: String((e && e.message) || e) });
+  }
+}
+
+self.onmessage = (e) => {
+  const m = e.data;
+  try {
+    switch (m.t) {
+      case 'init': init(m); break;
+      case 'in': if (fns.feed) fns.feed(m.d); break;
+      case 'size': if (fns.resize) fns.resize(m.cols, m.rows); break;
+      case 'ack': pending = Math.max(0, pending - 1); break;
+      case 'vis': paused = !!m.hidden; if (!paused) { if (fns.redraw) fns.redraw(); schedule(0); } break;
+      case 'redraw': if (fns.redraw) fns.redraw(); break;
+      case 'restart': boot(m.source, m.argv || [], m.base).catch((err) => post('fatal', { msg: String((err && err.message) || err) })); break;
+      case 'flush': persistTick(true); break;
+      case 'info': post('info', { files: files(HOME, '', []), persistent }); break;
+      case 'export': {
+        const list = files(HOME, '', []).map((f) => ({ path: f.path, b64: toB64(FS.readFile(HOME + '/' + f.path)) }));
+        post('exported', { bundle: { app: 'TerminalTanks', format: 1, exported: new Date().toISOString(), files: list } });
+        break;
+      }
+      case 'import': {
+        const b = m.bundle;
+        if (!b || b.app !== 'TerminalTanks' || !Array.isArray(b.files)) throw new Error('not a TerminalTanks save file');
+        if (b.files.some((f) => !f || typeof f.path !== 'string' || !SAFE_PATH.test(f.path) || typeof f.b64 !== 'string')) throw new Error('save file contains unsafe paths');
+        wipe(HOME);
+        for (const f of b.files) {
+          const full = HOME + '/' + f.path, dir = full.slice(0, full.lastIndexOf('/'));
+          FS.mkdirTree(dir); FS.writeFile(full, fromB64(f.b64));
+        }
+        persistTick(true).then(() => post('imported', { ok: true, count: b.files.length }));
+        break;
+      }
+      case 'reset': wipe(HOME); persistTick(true).then(() => post('resetDone')); break;
+    }
+  } catch (err) {
+    post(m.t === 'import' ? 'imported' : 'log', { ok: false, msg: String((err && err.message) || err) });
+  }
+};
+</script>
+<script type="text/x-python" id="bridge-src">
+# TerminalTanks web bridge.
+# Runs the *unmodified* terminaltanks.py inside Pyodide by emulating the few OS-level
+# terminal facilities a TUI needs (tty/termios/select/os.read/stdout/terminal size) and by
+# turning the game's blocking main loop into a generator that yields once per frame, so the
+# browser (JS) can pace frames, deliver keystrokes and paint output between them.
+import ast
+import importlib
+import inspect
+import os
+import signal
+import sys
+import textwrap
+import time
+import traceback
+import types
+
+import js  # the worker's global scope (Pyodide)
+
+HOME = "/home/terminaltanks"
+APP_DIR = "/opt/tt"
+
+_inbuf = bytearray()
+_state = {"gen": None, "code": None, "error": "", "version": "", "mode": "", "mod": None, "size": (100, 30)}
+
+
+# ---------------------------------------------------------------------------
+# JS -> Python entry points
+# ---------------------------------------------------------------------------
+def _native():
+    """The game module, if it ships its own web backend (WEB_API); None for compatibility mode."""
+    mod = _state.get("mod")
+    return mod if mod is not None and getattr(mod, "WEB_API", 0) >= 1 else None
+
+
+def tt_feed(text):
+    """Keystrokes (already ANSI sequences, straight from xterm.js) go to the game."""
+    mod = _native()
+    if mod is not None:
+        mod.web_feed(text)
+    else:                                   # compatibility mode: they appear as bytes on the fake stdin
+        _inbuf.extend(text.encode("utf-8", "ignore"))
+
+
+def tt_resize(cols, rows):
+    """Native mode: pushed to the game. Compatibility mode: shutil.get_terminal_size() honours these variables."""
+    cols, rows = int(cols), int(rows)
+    _state["size"] = (cols, rows)
+    os.environ["COLUMNS"], os.environ["LINES"] = str(cols), str(rows)
+    mod = _native()
+    if mod is not None:
+        mod.web_resize(cols, rows)
+
+
+def tt_redraw():
+    """Ask the game to repaint everything (tab visible again, terminal reset)."""
+    mod = _native()
+    if mod is not None and hasattr(mod, "web_redraw"):
+        mod.web_redraw()
+
+
+# ---------------------------------------------------------------------------
+# A fake terminal: stdin/stdout/stderr, termios, tty, select
+# ---------------------------------------------------------------------------
+class _Buffer:
+    def write(self, data):
+        if isinstance(data, (bytes, bytearray, memoryview)):
+            data = bytes(data).decode("utf-8", "replace")
+        js.ttWrite(data)
+        return len(data)
+
+    def flush(self):
+        pass
+
+
+class _Console:
+    encoding = "utf-8"
+    errors = "replace"
+
+    def __init__(self, fd, prefix=""):
+        self._fd, self._prefix = fd, prefix
+        self.buffer = _Buffer()
+
+    def isatty(self):
+        return True
+
+    def fileno(self):
+        return self._fd
+
+    def write(self, text):
+        text = str(text).replace("\r\n", "\n").replace("\n", "\r\n")
+        if self._prefix:
+            text = self._prefix + text + "\x1b[0m"
+        js.ttWrite(text)
+        return len(text)
+
+    def flush(self):
+        pass
+
+    def readable(self):
+        return self._fd == 0
+
+    def writable(self):
+        return self._fd != 0
+
+    def read(self, n=-1):
+        return ""
+
+    def readline(self, n=-1):
+        return ""
+
+
+def _fd_of(f):
+    return f if isinstance(f, int) else f.fileno()
+
+
+def _make_fakes():
+    termios = types.ModuleType("termios")
+    termios.TCSANOW, termios.TCSADRAIN, termios.TCSAFLUSH = 0, 1, 2
+    termios.error = type("error", (Exception,), {})
+    termios.tcgetattr = lambda fd: [0, 0, 0, 0, 0, 0, [0] * 32]
+    termios.tcsetattr = lambda fd, when, attrs: None
+    tty = types.ModuleType("tty")
+    tty.setcbreak = lambda fd, when=None: None
+    tty.setraw = lambda fd, when=None: None
+    sel = types.ModuleType("select")
+
+    def select(rlist, wlist, xlist, timeout=None):
+        return [f for f in rlist if _fd_of(f) == 0 and _inbuf], [], []
+
+    sel.select = select
+    return {"termios": termios, "tty": tty, "select": sel}
+
+
+_real_os_read = os.read
+_real_signal = signal.signal
+
+
+def _os_read(fd, n):
+    if fd == 0:
+        data = bytes(_inbuf[:n])
+        del _inbuf[:n]
+        return data
+    return _real_os_read(fd, n)
+
+
+def _signal(num, handler):
+    try:
+        return _real_signal(num, handler)
+    except Exception:
+        return None
+
+
+def _install_runtime_patches():
+    os.read = _os_read
+    signal.signal = _signal
+    time.sleep = lambda seconds: None        # JS paces the frames; sleeping would only stall the tab
+    sys.dont_write_bytecode = True
+    sys.stdin, sys.stdout = _Console(0), _Console(1)
+    sys.stderr = _Console(2, "\x1b[38;2;255;120;120m")
+
+
+# ---------------------------------------------------------------------------
+# Cooperative scheduling: blocking entry points -> generators
+# ---------------------------------------------------------------------------
+def _tt_coop(result):
+    """`yield from _tt_coop(x.run())` works whether run() became a generator or not."""
+    if inspect.isgenerator(result):
+        return (yield from result)
+    return result
+
+
+_LOOP_NAMES = frozenset({"run", "loop", "mainloop", "main_loop", "game_loop", "run_loop"})
+
+
+class _Coop(ast.NodeTransformer):
+    """Inserts a `yield` at the top of the outermost loop(s) and turns calls to the known loop functions
+    into `yield from`. Nested functions/classes are left alone."""
+
+    def __init__(self, wrap_names):
+        self.wrap_names, self.fn_depth, self.loop_depth = wrap_names, 0, 0
+
+    def visit_FunctionDef(self, node):
+        if self.fn_depth:
+            return node
+        self.fn_depth += 1
+        self.generic_visit(node)
+        self.fn_depth -= 1
+        return node
+
+    def visit_AsyncFunctionDef(self, node):
+        return node
+
+    def visit_ClassDef(self, node):
+        return node
+
+    def visit_Lambda(self, node):
+        return node
+
+    def visit_While(self, node):
+        top = self.loop_depth == 0
+        self.loop_depth += 1
+        self.generic_visit(node)
+        self.loop_depth -= 1
+        if top:
+            node.body.insert(0, ast.Expr(ast.Yield(None)))
+        return node
+
+    def visit_Call(self, node):
+        self.generic_visit(node)
+        f = node.func
+        name = f.attr if isinstance(f, ast.Attribute) else f.id if isinstance(f, ast.Name) else None
+        if name in self.wrap_names:
+            return ast.YieldFrom(ast.Call(ast.Name("_tt_coop", ast.Load()), [node], []))
+        return node
+
+
+def _own_nodes(fn):
+    """AST nodes of fn's own body (not nested functions/classes)."""
+    try:
+        root = ast.parse(textwrap.dedent(inspect.getsource(fn))).body[0]
+    except (OSError, TypeError, SyntaxError, IndentationError):
+        return
+    stack = list(root.body)
+    while stack:
+        node = stack.pop()
+        yield node
+        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda)):
+            stack.extend(ast.iter_child_nodes(node))
+
+
+def _has_loop(fn):
+    return any(isinstance(n, ast.While) for n in _own_nodes(fn))
+
+
+def _calls(fn, names):
+    for n in _own_nodes(fn):
+        if isinstance(n, ast.Call):
+            f = n.func
+            if (f.attr if isinstance(f, ast.Attribute) else f.id if isinstance(f, ast.Name) else None) in names:
+                return True
+    return False
+
+
+def _coopify(fn, wrap_names):
+    src = textwrap.dedent(inspect.getsource(fn))
+    tree = ast.parse(src)
+    root = tree.body[0]
+    root.decorator_list = []
+    _Coop(wrap_names).visit(root)
+    ast.increment_lineno(tree, fn.__code__.co_firstlineno - 1)
+    ast.fix_missing_locations(tree)
+    ns = {}
+    exec(compile(tree, fn.__code__.co_filename, "exec"), fn.__globals__, ns)
+    new = ns[root.name]
+    if not inspect.isgeneratorfunction(new):
+        raise RuntimeError(f"{root.name}() has no loop to yield from")
+    return new
+
+
+def _game_modules():
+    """Every loaded module that was imported from the game's own files (entry point and any siblings)."""
+    mods = []
+    for m in list(sys.modules.values()):
+        f = getattr(m, "__file__", None)
+        if f and str(f).startswith(APP_DIR + "/"):
+            mods.append(m)
+    return mods
+
+
+def _functions(mods):
+    """(owner, name, function) for every function and method the game defines, across all its modules."""
+    for mod in mods:
+        for name, obj in list(vars(mod).items()):
+            if inspect.isfunction(obj) and obj.__module__ == mod.__name__:
+                yield mod, name, obj
+            elif inspect.isclass(obj) and obj.__module__ == mod.__name__:
+                for mname, m in list(vars(obj).items()):
+                    if inspect.isfunction(m):
+                        yield obj, mname, m
+
+
+def _find_entry(entry):
+    """Make the game's blocking loop(s) cooperative. Returns the (generator) entry point."""
+    mods = _game_modules()
+    for m in mods:
+        m._tt_coop = _tt_coop
+    names, done = set(), set()
+    for owner, name, fn in _functions(mods):                  # 1. the loops themselves: run()/loop()/...
+        if name in _LOOP_NAMES and _has_loop(fn):
+            names.add(name)
+    pending = [t for t in _functions(mods) if t[1] in names and _has_loop(t[2])]
+    for _ in range(4):                                         # 2. then whatever drives them, up to main()
+        for owner, name, fn in pending:
+            if (owner, name) not in done:
+                setattr(owner, name, _coopify(fn, names))
+                done.add((owner, name))
+        pending = [t for t in _functions(mods) if (t[0], t[1]) not in done and t[1] != "main" and _calls(t[2], names)]
+        if not pending:
+            break
+        names |= {t[1] for t in pending}
+    main = getattr(entry, "main", None)
+    if not inspect.isfunction(main):
+        raise RuntimeError("terminaltanks.py has no main() function")
+    if not names and not _has_loop(main):
+        raise RuntimeError("could not find the game loop (expected a run()/loop() method or a loop in main())")
+    new_main = _coopify(main, names)
+    return new_main if inspect.signature(new_main).parameters else (lambda argv: new_main())
+
+
+def tt_imports(source, pkgdir=""):
+    """Candidate local module files (relative stems like 'game/app') that `source` may import.
+    The page fetches whichever of <stem>.py / <stem>/__init__.py exist next to the game."""
+    skip = set(getattr(sys, "stdlib_module_names", ())) | {"termios", "tty", "select", "msvcrt", "winreg", "_winapi", "js", "pyodide", "curses", "__future__"}
+    here = [p for p in pkgdir.split("/") if p]
+    out = set()
+
+    def add(parts):
+        if parts and parts[0] not in skip:
+            out.add("/".join(parts))
+
+    for node in ast.walk(ast.parse(source)):
+        if isinstance(node, ast.Import):
+            for a in node.names:
+                parts = a.name.split(".")
+                for i in range(1, len(parts) + 1):
+                    add(parts[:i])
+        elif isinstance(node, ast.ImportFrom):
+            if node.level:
+                base = here[: len(here) - (node.level - 1)] if node.level - 1 <= len(here) else []
+            else:
+                base = []
+            mod = node.module.split(".") if node.module else []
+            for i in range(1, len(mod) + 1):
+                add(base + mod[:i])
+            for a in node.names:
+                if a.name != "*":
+                    add(base + mod + [a.name])
+    return sorted(out)
+
+
+def tt_missing(source, exclude=()):
+    """Third-party modules the game imports that are not installed (the page tries to install them)."""
+    import importlib.util
+    skip = set(getattr(sys, "stdlib_module_names", ())) | {"termios", "tty", "select", "msvcrt", "winreg", "_winapi", "js", "pyodide", "curses"}
+    names = set()
+    for node in ast.walk(ast.parse(source)):
+        if isinstance(node, ast.Import):
+            names.update(a.name.split(".")[0] for a in node.names)
+        elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
+            names.add(node.module.split(".")[0])
+    out = []
+    for n in sorted(names - skip - set(exclude)):
+        try:
+            if importlib.util.find_spec(n) is None:
+                out.append(n)
+        except Exception:
+            out.append(n)
+    return out
+
+
+def tt_boot(source, argv):
+    """(Re)loads the game from source and prepares the frame generator. Returns 0 on success."""
+    _state.update(gen=None, code=None, error="", version="", mode="", mod=None)
+    try:
+        os.makedirs(APP_DIR, exist_ok=True)
+        os.makedirs(HOME, exist_ok=True)
+        with open(APP_DIR + "/terminaltanks.py", "w", encoding="utf-8") as f:
+            f.write(source)
+        if APP_DIR not in sys.path:
+            sys.path.insert(0, APP_DIR)
+        os.environ.update(HOME=HOME, TERM="xterm-256color", COLORTERM="truecolor", LANG="C.UTF-8",
+                          PYTHONIOENCODING="utf-8")
+        os.environ.pop("TERMINALTANKS_SAVE", None)        # default per-user save location lives under HOME
+        os.environ.pop("XDG_CONFIG_HOME", None)
+        os.chdir(HOME)
+        sys.argv = ["terminaltanks.py"] + list(argv)
+        _install_runtime_patches()
+        for name, m in list(sys.modules.items()):             # a restart must re-import every game file fresh
+            f = getattr(m, "__file__", None)
+            if name == "terminaltanks" or (f and str(f).startswith(APP_DIR + "/")):
+                sys.modules.pop(name, None)
+        importlib.invalidate_caches()
+        real = {k: sys.modules.get(k) for k in ("termios", "tty", "select")}
+        sys.modules.update(_make_fakes())                  # only visible while the game module imports
+        try:
+            mod = importlib.import_module("terminaltanks")
+        finally:
+            for k, v in real.items():
+                if v is None:
+                    sys.modules.pop(k, None)
+                else:
+                    sys.modules[k] = v
+        _state["version"] = str(getattr(mod, "__version__", ""))
+        _state["mod"] = mod
+        if _native() is not None:           # the game has its own browser backend: use it as designed
+            _state["mode"] = "native"
+            if getattr(mod, "WEB_API", 0) >= 2:     # cell protocol: the page's canvas renderer paints the grid
+                present = lambda cols, rows, full, data: js.ttCells(cols, rows, 1 if full else 0, data.decode("latin-1"))
+                _state["gen"] = mod.web_frames(list(argv), present, js.ttBell, _state["size"])
+            else:                                   # ANSI text backend
+                _state["gen"] = mod.web_frames(list(argv), js.ttWrite, _state["size"])
+        else:                               # any other terminal program: emulate a tty and make its loop cooperative
+            _state["mode"] = "compat"
+            _state["gen"] = _find_entry(mod)([])
+        return 0
+    except BaseException:
+        _state["error"] += traceback.format_exc()
+        try:
+            sys.stderr.write(_state["error"])
+        except Exception:
+            pass
+        return 2
+
+
+def tt_stop():
+    """Closes the running game (its `with TerminalIO()` block restores the screen)."""
+    gen, _state["gen"] = _state["gen"], None
+    if gen is not None:
+        try:
+            gen.close()
+        except BaseException:
+            pass
+
+
+def tt_step():
+    """Runs one frame. 0 = running, 1 = the game exited, 2 = it crashed."""
+    gen = _state["gen"]
+    if gen is None:
+        return 1
+    try:
+        next(gen)
+        return 0
+    except StopIteration as stop:
+        _state["code"] = stop.value
+        _state["gen"] = None
+        return 1
+    except BaseException:
+        _state["error"] = traceback.format_exc()
+        _state["gen"] = None
+        try:
+            sys.stderr.write("\n" + _state["error"])
+        except Exception:
+            pass
+        return 2
+
+
+def tt_info():
+    return {"version": _state["version"], "code": -1 if _state["code"] is None else int(_state["code"] or 0),
+            "error": _state["error"], "mode": _state["mode"]}
+</script>
+<script>
+// CanvasTerm: the web renderer. A character-cell grid painted on a <canvas> with square, pixel-perfect half-block
+// "pixels" (the game draws its battlefield with U+2580 cells), vector box-drawing/shape glyphs (font independent),
+// and a small ANSI emulator so plain terminal programs still work. It exposes the few terminal-like hooks the page uses.
+class CanvasTerm {
+  constructor(opts) {
+    this.o = Object.assign({ targetCols: 110, targetRows: 30, minCols: 96, minRows: 28, maxCols: 150, maxRows: 44, font: 'monospace' }, opts || {});
+    this.options = { fontSize: 8 };
+    this.cols = 110; this.rows = 31; this.cw = 8; this.chh = 16; this.dpr = 1;
+    this._data = []; this._resize = []; this._bell = [];
+    this._acks = []; this._raf = 0; this._ratio = 0.6;
+    this._css = new Map();
+    this._alloc(this.cols, this.rows);
+    this.ta = this.textarea = document.createElement('textarea');
+    this.ta.setAttribute('autocapitalize', 'off'); this.ta.setAttribute('autocomplete', 'off'); this.ta.setAttribute('autocorrect', 'off');
+    this.ta.setAttribute('spellcheck', 'false'); this.ta.setAttribute('aria-label', 'Game input'); this.ta.className = 'ct-input';
+    this.ansi = { x: 0, y: 0, fg: 0xd0dee8, bg: 0x05090f, carry: '' };
+  }
+
+  // ---- DOM --------------------------------------------------------------------------------------------
+  open(host) {
+    this.host = this.element = host;
+    this.canvas = document.createElement('canvas'); this.canvas.className = 'ct-canvas';
+    this.ctx = this.canvas.getContext('2d', { alpha: false });
+    host.append(this.canvas, this.ta);
+    const probe = document.createElement('span');
+    probe.style.cssText = `position:absolute;visibility:hidden;white-space:pre;font:100px ${this.o.font}`; probe.textContent = 'M'.repeat(50);
+    document.body.appendChild(probe); const w = probe.getBoundingClientRect().width / 5000; probe.remove();
+    if (w > 0.3 && w < 1) this._ratio = w;
+    this.ta.addEventListener('keydown', (e) => this._onKey(e));
+    this.ta.addEventListener('input', (e) => this._onInput(e));
+    this.ta.addEventListener('compositionend', () => { this.ta.value = ''; });
+    this.canvas.addEventListener('pointerdown', () => this.focus());
+  }
+  focus() { try { this.ta.focus({ preventScroll: true }); } catch (e) { this.ta.focus(); } }
+  onData(cb) { this._data.push(cb); } onResize(cb) { this._resize.push(cb); } onBell(cb) { this._bell.push(cb); }
+  emit(d) { this._data.forEach((cb) => cb(d)); }
+
+  // ---- input ---------------------------------------------------------------------------------------------
+  static keySeq(e) {
+    if (e.ctrlKey || e.metaKey || (e.altKey && !e.getModifierState('AltGraph'))) return null;
+    const k = e.key;
+    if (k.startsWith('Arrow')) return '\x1b[' + (e.shiftKey ? '1;2' : '') + { Up: 'A', Down: 'B', Right: 'C', Left: 'D' }[k.slice(5)];
+    if (k === 'Enter') return '\r'; if (k === 'Escape') return '\x1b'; if (k === 'Backspace') return '\x7f'; if (k === 'Tab') return '\t';
+    if (k === ' ') return ' ';
+    return k.length === 1 ? k : null;
+  }
+  _onKey(e) {
+    if (e.isComposing || e.key === 'Unidentified' || e.keyCode === 229) return;     // soft keyboards: handled by 'input'
+    const d = CanvasTerm.keySeq(e);
+    if (d !== null) { e.preventDefault(); this.emit(d); }
+  }
+  _onInput(e) {
+    if (e.isComposing) return;
+    const t = e.inputType || '';
+    if (t === 'deleteContentBackward') this.emit('\x7f');
+    else if (t === 'insertLineBreak' || t === 'insertParagraph') this.emit('\r');
+    else if (e.data) this.emit(e.data);
+    this.ta.value = '';
+  }
+
+  // ---- geometry ------------------------------------------------------------------------------------------
+  _alloc(cols, rows) {
+    this.cols = cols; this.rows = rows; const n = cols * rows;
+    this.cp = new Uint32Array(n).fill(32); this.fg = new Uint32Array(n).fill(0xd0dee8); this.bg = new Uint32Array(n).fill(0x05090f);
+    this.dirty = new Uint8Array(n).fill(1); this.anyDirty = true;
+  }
+  /** Picks the biggest square-pixel cell size that gives at least the recommended grid, and tells the game. */
+  layout(wCss, hCss, adjust) {
+    if (!this.canvas || wCss < 40 || hCss < 40) return;
+    const dpr = window.devicePixelRatio || 1, W = Math.floor(wCss * dpr), H = Math.floor(hCss * dpr), o = this.o;
+    let cw = 3;
+    for (let c = 48; c >= 3; c--) { if (Math.floor(W / c) >= o.targetCols && Math.floor(H / (2 * c)) >= o.targetRows) { cw = c; break; } }
+    if (cw === 3) for (let c = 48; c >= 3; c--) { if (Math.floor(W / c) >= o.minCols && Math.floor(H / (2 * c)) >= o.minRows) { cw = c; break; } }
+    cw = Math.max(3, Math.min(60, cw + (adjust || 0)));
+    const cols = Math.max(2, Math.min(o.maxCols, Math.floor(W / cw))), rows = Math.max(2, Math.min(o.maxRows, Math.floor(H / (2 * cw))));
+    this.cw = cw; this.chh = 2 * cw; this.dpr = dpr; this.options.fontSize = cw;
+    this.canvas.width = cols * cw; this.canvas.height = rows * this.chh;
+    this.canvas.style.width = (this.canvas.width / dpr) + 'px'; this.canvas.style.height = (this.canvas.height / dpr) + 'px';
+    const changed = cols !== this.cols || rows !== this.rows;
+    if (changed) this._alloc(cols, rows); else { this.dirty.fill(1); this.anyDirty = true; }
+    this._font = `${Math.max(6, Math.round(cw / this._ratio))}px ${this.o.font}`;
+    this._t = Math.max(1, Math.round(cw / 7));
+    this.ctx.imageSmoothingEnabled = false;
+    this._schedule();
+    if (changed) this._resize.forEach((cb) => cb({ cols, rows }));
+  }
+  reset() { this._alloc(this.cols, this.rows); this.ansi.x = this.ansi.y = 0; this._schedule(); }
+
+  // ---- fed by the game ---------------------------------------------------------------------------------
+  /** Structured updates from the game: 14-byte records (x, y, codepoint, fg rgb, bg rgb) packed in a latin-1 string. */
+  applyCells(m, ack) {
+    if (m.cols !== this.cols || m.rows !== this.rows) { if (ack) ack(); return; }        // stale frame from before a resize
+    const s = m.d, n = s.length / 14 | 0, cols = this.cols, rows = this.rows;
+    for (let i = 0, p = 0; i < n; i++, p += 14) {
+      const x = s.charCodeAt(p) | (s.charCodeAt(p + 1) << 8), y = s.charCodeAt(p + 2) | (s.charCodeAt(p + 3) << 8);
+      if (x >= cols || y >= rows) continue;
+      const k = y * cols + x;
+      this.cp[k] = s.charCodeAt(p + 4) | (s.charCodeAt(p + 5) << 8) | (s.charCodeAt(p + 6) << 16);
+      this.fg[k] = (s.charCodeAt(p + 8) << 16) | (s.charCodeAt(p + 9) << 8) | s.charCodeAt(p + 10);
+      this.bg[k] = (s.charCodeAt(p + 11) << 16) | (s.charCodeAt(p + 12) << 8) | s.charCodeAt(p + 13);
+      this.dirty[k] = 1;
+    }
+    this.anyDirty = true; if (ack) this._acks.push(ack); this._schedule();
+  }
+  /** Plain ANSI text (terminal programs that do not use the cell protocol). */
+  write(data, ack) { this._ansi(data); this.anyDirty = true; if (ack) this._acks.push(ack); this._schedule(); }
+  plain() { const out = []; for (let y = 0; y < this.rows; y++) { let r = ''; for (let x = 0; x < this.cols; x++) { const c = this.cp[y * this.cols + x]; r += c === 0x2580 ? ' ' : String.fromCodePoint(c || 32); } out.push(r); } return out.join('\n'); }
+
+  _set(x, y, cp) { if (x < 0 || y < 0 || x >= this.cols || y >= this.rows) return; const k = y * this.cols + x; this.cp[k] = cp; this.fg[k] = this.ansi.fg; this.bg[k] = this.ansi.bg; this.dirty[k] = 1; }
+  _scroll() {
+    const c = this.cols, n = c * (this.rows - 1);
+    this.cp.copyWithin(0, c); this.fg.copyWithin(0, c); this.bg.copyWithin(0, c);
+    this.cp.fill(32, n); this.fg.fill(this.ansi.fg, n); this.bg.fill(this.ansi.bg, n); this.dirty.fill(1);
+  }
+  _ansi(data) {
+    const a = this.ansi; let s = a.carry + data, i = 0; a.carry = '';
+    const P256 = (n) => { if (n < 16) { const b = [0x000000, 0xcd3131, 0x0dbc79, 0xe5e510, 0x2472c8, 0xbc3fbc, 0x11a8cd, 0xe5e5e5, 0x666666, 0xf14c4c, 0x23d18b, 0xf5f543, 0x3b8eea, 0xd670d6, 0x29b8db, 0xffffff]; return b[n]; }
+      if (n >= 232) { const v = 8 + (n - 232) * 10; return (v << 16) | (v << 8) | v; } n -= 16; const q = [0, 95, 135, 175, 215, 255]; return (q[(n / 36) | 0] << 16) | (q[((n / 6) | 0) % 6] << 8) | q[n % 6]; };
+    while (i < s.length) {
+      const ch = s[i];
+      if (ch === '\x1b') {
+        const m = /^\x1b\[([0-9;?]*)([A-Za-z])/.exec(s.slice(i, i + 64));
+        if (!m) { if (s.length - i < 64) { a.carry = s.slice(i); break; } i++; continue; }
+        i += m[0].length; const f = m[2], p = m[1].replace('?', ''), nums = p === '' ? [] : p.split(';').map((v) => parseInt(v || '0', 10));
+        const n1 = nums[0] || 1;
+        if (f === 'H' || f === 'f') { a.y = Math.max(0, (nums[0] || 1) - 1); a.x = Math.max(0, (nums[1] || 1) - 1); }
+        else if (f === 'A') a.y = Math.max(0, a.y - n1); else if (f === 'B') a.y = Math.min(this.rows - 1, a.y + n1);
+        else if (f === 'C') a.x = Math.min(this.cols - 1, a.x + n1); else if (f === 'D') a.x = Math.max(0, a.x - n1);
+        else if (f === 'J') { if ((nums[0] || 0) === 2 || nums[0] === 3) { this.cp.fill(32); this.fg.fill(a.fg); this.bg.fill(a.bg); this.dirty.fill(1); } }
+        else if (f === 'K') { for (let x = (nums[0] === 1 ? 0 : a.x); x < (nums[0] === 1 ? a.x + 1 : this.cols); x++) this._set(x, a.y, 32); }
+        else if (f === 'm') {
+          const L = nums.length ? nums : [0];
+          for (let k = 0; k < L.length; k++) {
+            const v = L[k];
+            if (v === 0) { a.fg = 0xd0dee8; a.bg = 0x05090f; } else if (v >= 30 && v <= 37) a.fg = P256(v - 30); else if (v >= 90 && v <= 97) a.fg = P256(v - 90 + 8);
+            else if (v >= 40 && v <= 47) a.bg = P256(v - 40); else if (v >= 100 && v <= 107) a.bg = P256(v - 100 + 8); else if (v === 39) a.fg = 0xd0dee8; else if (v === 49) a.bg = 0x05090f;
+            else if (v === 38 || v === 48) {
+              let c = 0;
+              if (L[k + 1] === 2) { c = (L[k + 2] << 16) | (L[k + 3] << 8) | L[k + 4]; k += 4; } else if (L[k + 1] === 5) { c = P256(L[k + 2]); k += 2; }
+              if (v === 38) a.fg = c; else a.bg = c;
+            }
+          }
+        }
+        continue;
+      }
+      i++;
+      if (ch === '\x07') { this._bell.forEach((cb) => cb()); continue; }
+      if (ch === '\r') { a.x = 0; continue; }
+      if (ch === '\n') { a.y++; if (a.y >= this.rows) { this._scroll(); a.y = this.rows - 1; } continue; }
+      if (ch === '\b') { a.x = Math.max(0, a.x - 1); continue; }
+      if (ch === '\t') { a.x = Math.min(this.cols - 1, (a.x + 8) & ~7); continue; }
+      const cp = ch.codePointAt(0); if (cp > 0xffff) i++;
+      this._set(a.x, a.y, cp); a.x++;
+    }
+  }
+
+  // ---- painting -----------------------------------------------------------------------------------------------
+  _schedule() { if (!this._raf) this._raf = requestAnimationFrame(() => { this._raf = 0; this.draw(); }); }
+  _c(n) { let v = this._css.get(n); if (v === undefined) { if (this._css.size > 8000) this._css.clear(); v = '#' + (n | 0x1000000).toString(16).slice(1); this._css.set(n, v); } return v; }
+  _mix(a, b, t) { const r = (((a >> 16) & 255) * (1 - t) + ((b >> 16) & 255) * t) | 0, g = (((a >> 8) & 255) * (1 - t) + ((b >> 8) & 255) * t) | 0, bl = ((a & 255) * (1 - t) + (b & 255) * t) | 0; return (r << 16) | (g << 8) | bl; }
+  draw() {
+    if (!this.ctx) return;
+    if (this.anyDirty) {
+      const n = this.cols * this.rows, d = this.dirty;
+      for (let k = 0; k < n; k++) if (d[k]) { d[k] = 0; this._cell(k); }
+      this.anyDirty = false;
+    }
+    if (this._acks.length) { const a = this._acks; this._acks = []; a.forEach((f) => f()); }
+  }
+  _cell(k) {
+    const ctx = this.ctx, cw = this.cw, ch = this.chh, x = (k % this.cols) * cw, y = ((k / this.cols) | 0) * ch;
+    const cp = this.cp[k], f = this.fg[k], b = this.bg[k];
+    ctx.fillStyle = this._c(b); ctx.fillRect(x, y, cw, ch);
+    if (cp === 32 || cp === 0) return;
+    if (cp === 0x2580) { ctx.fillStyle = this._c(f); ctx.fillRect(x, y, cw, ch >> 1); return; }               // the game's pixels
+    if (cp >= 0x2580 && cp <= 0x259f) { this._block(cp, x, y, f, b); return; }
+    const box = CanvasTerm.BOX[cp];
+    if (box !== undefined) { this._box(box, x, y, f, cp); return; }
+    if (this._shape(cp, x, y, f)) return;
+    ctx.fillStyle = this._c(f); ctx.font = this._font; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+    ctx.fillText(String.fromCodePoint(cp), x + cw / 2, y + ch * 0.76);
+  }
+  _block(cp, x, y, f, b) {
+    const ctx = this.ctx, cw = this.cw, ch = this.chh; ctx.fillStyle = this._c(f);
+    if (cp === 0x2588) ctx.fillRect(x, y, cw, ch);
+    else if (cp === 0x2584) ctx.fillRect(x, y + (ch >> 1), cw, ch >> 1);
+    else if (cp >= 0x2581 && cp <= 0x2587) { const h = Math.round(ch * (cp - 0x2580) / 8); ctx.fillRect(x, y + ch - h, cw, h); }
+    else if (cp >= 0x2589 && cp <= 0x258f) ctx.fillRect(x, y, Math.max(1, Math.round(cw * (0x2590 - cp) / 8)), ch);
+    else if (cp === 0x2590) ctx.fillRect(x + (cw >> 1), y, cw - (cw >> 1), ch);
+    else if (cp === 0x2594) ctx.fillRect(x, y, cw, Math.max(1, ch >> 3));
+    else if (cp === 0x2595) ctx.fillRect(x + cw - Math.max(1, cw >> 3), y, Math.max(1, cw >> 3), ch);
+    else if (cp >= 0x2591 && cp <= 0x2593) { ctx.fillStyle = this._c(this._mix(b, f, (cp - 0x2590) * 0.25)); ctx.fillRect(x, y, cw, ch); }
+    else if (cp >= 0x2596 && cp <= 0x259f) { const q = CanvasTerm.QUAD[cp - 0x2596], hw = cw >> 1, hh = ch >> 1; if (q & 1) ctx.fillRect(x, y, hw, hh); if (q & 2) ctx.fillRect(x + hw, y, cw - hw, hh); if (q & 4) ctx.fillRect(x, y + hh, hw, ch - hh); if (q & 8) ctx.fillRect(x + hw, y + hh, cw - hw, ch - hh); }
+  }
+  _box(spec, x, y, f, cp) {
+    const ctx = this.ctx, cw = this.cw, ch = this.chh, t = this._t; ctx.fillStyle = this._c(f);
+    if (spec === 'X') { ctx.strokeStyle = this._c(f); ctx.lineWidth = t; ctx.beginPath(); ctx.moveTo(x + 1, y + 1); ctx.lineTo(x + cw - 1, y + ch - 1); ctx.moveTo(x + cw - 1, y + 1); ctx.lineTo(x + 1, y + ch - 1); ctx.stroke(); return; }
+    const cx = x + (cw >> 1), cy = y + (ch >> 1), [l, r, u, d] = spec;
+    const seg = (dir, w) => {                              // w: 1 light, 2 heavy, 3 double
+      if (!w) return;
+      const th = w === 2 ? Math.max(2, t * 2) : t, offs = w === 3 ? [-t, t] : [0];
+      for (const o of offs) {
+        if (dir === 'l') ctx.fillRect(x, cy - (th >> 1) + o, cx - x + (th >> 1) + 1, th);
+        else if (dir === 'r') ctx.fillRect(cx - (th >> 1), cy - (th >> 1) + o, x + cw - cx + (th >> 1), th);
+        else if (dir === 'u') ctx.fillRect(cx - (th >> 1) + o, y, th, cy - y + (th >> 1) + 1);
+        else ctx.fillRect(cx - (th >> 1) + o, cy - (th >> 1), th, y + ch - cy + (th >> 1));
+      }
+    };
+    seg('l', l); seg('r', r); seg('u', u); seg('d', d);
+  }
+  _shape(cp, x, y, f) {
+    const ctx = this.ctx, cw = this.cw, ch = this.chh, cx = x + cw / 2, cy = y + ch / 2, r = cw * 0.42, t = this._t;
+    ctx.fillStyle = this._c(f); ctx.strokeStyle = this._c(f); ctx.lineWidth = Math.max(1, t);
+    const poly = (pts, fill = true) => { ctx.beginPath(); pts.forEach(([px, py], i) => (i ? ctx.lineTo(px, py) : ctx.moveTo(px, py))); ctx.closePath(); fill ? ctx.fill() : ctx.stroke(); };
+    switch (cp) {
+      case 0x25cf: ctx.beginPath(); ctx.arc(cx, cy, r, 0, 6.2832); ctx.fill(); return true;
+      case 0x25cb: ctx.beginPath(); ctx.arc(cx, cy, r - t / 2, 0, 6.2832); ctx.stroke(); return true;
+      case 0x00b7: case 0x2022: ctx.beginPath(); ctx.arc(cx, cy, Math.max(1, cw * 0.14), 0, 6.2832); ctx.fill(); return true;
+      case 0x25c6: poly([[cx, cy - r * 1.35], [cx + r, cy], [cx, cy + r * 1.35], [cx - r, cy]]); return true;
+      case 0x25b2: poly([[cx, cy - r * 0.9], [cx + r, cy + r * 0.8], [cx - r, cy + r * 0.8]]); return true;
+      case 0x25bc: poly([[cx, cy + r * 0.9], [cx + r, cy - r * 0.8], [cx - r, cy - r * 0.8]]); return true;
+      case 0x25b6: case 0x25ba: poly([[cx + r, cy], [cx - r * 0.8, cy - r * 1.05], [cx - r * 0.8, cy + r * 1.05]]); return true;
+      case 0x25c0: case 0x25c4: poly([[cx - r, cy], [cx + r * 0.8, cy - r * 1.05], [cx + r * 0.8, cy + r * 1.05]]); return true;
+      case 0x2665: case 0x2661: {
+        const s = cw * 0.9, hx = cx, hy = cy - s * 0.42;
+        ctx.beginPath(); ctx.moveTo(hx, hy + s * 0.34);
+        ctx.bezierCurveTo(hx - s * 0.62, hy - s * 0.12, hx - s * 0.36, hy - s * 0.62, hx, hy - s * 0.18);
+        ctx.bezierCurveTo(hx + s * 0.36, hy - s * 0.62, hx + s * 0.62, hy - s * 0.12, hx, hy + s * 0.34);
+        ctx.translate(0, s * 0.62); cp === 0x2665 ? ctx.fill() : ctx.stroke(); ctx.setTransform(1, 0, 0, 1, 0, 0); return true;
+      }
+      case 0x2713: ctx.lineWidth = Math.max(1.5, t * 1.4); ctx.beginPath(); ctx.moveTo(cx - r * 0.8, cy); ctx.lineTo(cx - r * 0.2, cy + r * 0.7); ctx.lineTo(cx + r * 0.9, cy - r * 0.8); ctx.stroke(); return true;
+      case 0x2605: { const pts = []; for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * 0.45 : r * 1.1; pts.push([cx + Math.cos(a) * rr, cy + Math.sin(a) * rr * 1.05]); } poly(pts); return true; }
+      case 0x2014: case 0x2013: ctx.fillRect(x, cy - (t >> 1), cw, Math.max(1, t)); return true;
+    }
+    return false;
+  }
+}
+CanvasTerm.QUAD = [4, 8, 1, 13, 9, 7, 11, 2, 6, 14];   // U+2596..259F: lower-left, lower-right, upper-left, ...
+CanvasTerm.BOX = (() => {
+  const t = {}, add = (cps, spec) => cps.forEach((c) => { t[c] = spec; });
+  const L = (l, r, u, d) => [l, r, u, d];
+  t[0x2500] = L(1, 1, 0, 0); t[0x254c] = L(1, 1, 0, 0); t[0x2501] = L(2, 2, 0, 0); t[0x2502] = L(0, 0, 1, 1); t[0x2503] = L(0, 0, 2, 2);
+  t[0x250c] = L(0, 1, 0, 1); t[0x2510] = L(1, 0, 0, 1); t[0x2514] = L(0, 1, 1, 0); t[0x2518] = L(1, 0, 1, 0);
+  t[0x251c] = L(0, 1, 1, 1); t[0x2524] = L(1, 0, 1, 1); t[0x252c] = L(1, 1, 0, 1); t[0x2534] = L(1, 1, 1, 0); t[0x253c] = L(1, 1, 1, 1);
+  t[0x250f] = L(0, 2, 0, 2); t[0x2513] = L(2, 0, 0, 2); t[0x2517] = L(0, 2, 2, 0); t[0x251b] = L(2, 0, 2, 0);
+  t[0x2550] = L(3, 3, 0, 0); t[0x2551] = L(0, 0, 3, 3); t[0x2554] = L(0, 3, 0, 3); t[0x2557] = L(3, 0, 0, 3); t[0x255a] = L(0, 3, 3, 0); t[0x255d] = L(3, 0, 3, 0);
+  t[0x2560] = L(0, 3, 3, 3); t[0x2563] = L(3, 0, 3, 3); t[0x2566] = L(3, 3, 0, 3); t[0x2569] = L(3, 3, 3, 0); t[0x256c] = L(3, 3, 3, 3);
+  t[0x256d] = L(0, 1, 0, 1); t[0x256e] = L(1, 0, 0, 1); t[0x2570] = L(0, 1, 1, 0); t[0x256f] = L(1, 0, 1, 0); t[0x2573] = 'X';
+  add([], 0); return t;
+})();
+window.CanvasTerm = CanvasTerm;
+</script>
+<script>
+(() => {
+'use strict';
+const CFG = {
+  pyodide: ['https://cdn.jsdelivr.net/pyodide/v0.26.4/full/', 'https://pyodide-cdn2.iodide.io/v0.26.4/full/'],
+  game: (() => { const g = new URLSearchParams(location.search).get('game'); return g && /^(?!\/)(?!.*(^|\/)\.\.(\/|$))[\w.\/-]+\.py$/.test(g) ? g : 'terminaltanks.py'; })(),   // ?game=old/terminaltanks.py picks another copy in this repo
+  targetCols: 110, targetRows: 30,
+  minCols: 96, minRows: 28, maxCols: 150, maxRows: 44,      // the game is tuned for roughly this range
+  font: '"JetBrains Mono","Cascadia Mono","Fira Code","DejaVu Sans Mono","SF Mono",Menlo,Consolas,"Liberation Mono",monospace',
+};
+const $ = (id) => document.getElementById(id);
+const els = ['terminal', 'termwrap', 'loader', 'ended', 'bootlog', 'progress', 'tip', 'loaderr', 'loadbtns', 'chip', 'ver', 'pad', 'toast', 'logo'].reduce((o, k) => (o[k] = $(k), o), {});
+const GAME_BASE = new URL('.', new URL(CFG.game, location.href)).href;
+const urlArgs = new URLSearchParams(location.search).get('args');
+const argv = urlArgs ? urlArgs.split(/\s+/).filter(Boolean) : [];
+
+// ---- preferences (UI only; game saves live in the worker's IndexedDB) ------------------------------
+const PREF_KEY = 'terminaltanks.web.prefs';
+const coarse = matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
+const prefs = Object.assign({ crt: false, pad: null, fontAdj: 0 }, (() => { try { return JSON.parse(localStorage.getItem(PREF_KEY)) || {}; } catch (e) { return {}; } })());
+const savePrefs = () => { try { localStorage.setItem(PREF_KEY, JSON.stringify(prefs)); } catch (e) {} };
+
+// ---- small helpers ----------------------------------------------------------------------------------
+let toastTimer = 0;
+function toast(msg, ms) { els.toast.textContent = msg; els.toast.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => els.toast.classList.remove('show'), ms || 2600); }
+function loadScript(urls) {
+  return urls.reduce((p, url) => p.catch(() => new Promise((res, rej) => {
+    const s = document.createElement('script'); s.src = url; s.onload = res; s.onerror = () => { s.remove(); rej(new Error('failed: ' + url)); }; document.head.appendChild(s);
+  })), Promise.reject());
+}
+function download(name, text, type) {
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: type || 'application/json' })); a.download = name;
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+function setChip(text, cls) { els.chip.textContent = text; els.chip.className = 'chip' + (cls ? ' ' + cls : ''); }
+
+// ---- decoration: pixel tank icon, favicon, stars, logo ------------------------------------------------
+const TANK = ['...ttttt...', '..ttttttt..', '.hhhhhhhhg.', 'hhhhhhhhhhh', 'kwkwkwkwkwk', '.kkkkkkkkk.'];
+const TANK_PAL = { t: '#8ff1ff', h: '#46dcf0', g: '#c8faff', k: '#1c4a56', w: '#6ac3d2' };
+function tankSvg() {
+  let r = '';
+  TANK.forEach((row, y) => [...row].forEach((c, x) => { if (c !== '.') r += `<rect x="${x + 1}" y="${y + 3}" width="1.02" height="1.02" fill="${TANK_PAL[c]}"/>`; }));
+  for (let i = 0; i < 6; i++) r += `<rect x="${7 + i * 0.9}" y="${3.5 - i * 0.55}" width="1.02" height="1.02" fill="#e2f4fa"/>`;
+  return r;
+}
+els.brandTank = $('brand-tank'); els.brandTank.innerHTML = tankSvg();
+const icon = document.createElement('link'); icon.rel = 'icon';
+icon.href = 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 9" shape-rendering="crispEdges"><rect width="14" height="9" fill="#05090f"/>${tankSvg()}</svg>`);
+document.head.appendChild(icon);
+(function stars() {
+  const mk = (n) => Array.from({ length: n }, () => `${(Math.random() * 100).toFixed(1)}vw ${(Math.random() * 78).toFixed(1)}vh ${Math.random() < .2 ? '#bfe9ff' : '#ffffff'}`).join(',');
+  $('stars').style.boxShadow = mk(70); $('stars2').style.boxShadow = mk(50);
+})();
+(function logo() {
+  const G = {
+    T: ['████████╗', '╚══██╔══╝', '   ██║   ', '   ██║   ', '   ██║   ', '   ╚═╝   '], E: ['███████╗', '██╔════╝', '█████╗  ', '██╔══╝  ', '███████╗', '╚══════╝'],
+    R: ['██████╗ ', '██╔══██╗', '██████╔╝', '██╔══██╗', '██║  ██║', '╚═╝  ╚═╝'], M: ['███╗   ███╗', '████╗ ████║', '██╔████╔██║', '██║╚██╔╝██║', '██║ ╚═╝ ██║', '╚═╝     ╚═╝'],
+    I: ['██╗', '██║', '██║', '██║', '██║', '╚═╝'], N: ['███╗   ██╗', '████╗  ██║', '██╔██╗ ██║', '██║╚██╗██║', '██║ ╚████║', '╚═╝  ╚═══╝'],
+    A: [' █████╗ ', '██╔══██╗', '███████║', '██╔══██║', '██║  ██║', '╚═╝  ╚═╝'], L: ['██╗     ', '██║     ', '██║     ', '██║     ', '███████╗', '╚══════╝'],
+    K: ['██╗  ██╗', '██║ ██╔╝', '█████╔╝ ', '██╔═██╗ ', '██║  ██╗', '╚═╝  ╚═╝'], S: ['███████╗', '██╔════╝', '███████╗', '╚════██║', '███████║', '╚══════╝'],
+  };
+  const word = (w) => Array.from({ length: 6 }, (_, r) => [...w].map((ch) => G[ch][r].padEnd(Math.max(...G[ch].map((x) => x.length)))).join(''));
+  const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+  let html = '';
+  const blocks = [word('TERMINAL'), word('TANKS')], widest = blocks[0][0].length;
+  blocks.forEach((rows, wi) => rows.forEach((raw, r) => {
+    const line = ' '.repeat(Math.floor((widest - rows[0].length) / 2)) + raw;
+    const c = mix([150, 255, 235], [50, 150, 235], (r + wi * 6) / 11);
+    html += [...line].map((ch) => ch === '█' ? `<span style="color:rgb(${c})">█</span>` : ch === ' ' ? ' ' : `<i>${ch}</i>`).join('') + '\n';
+    if (wi === 0 && r === 5) html += '\n';
+  }));
+  els.logo.innerHTML = html;
+})();
+
+// ---- boot log (mirrors the in-game boot screen) -------------------------------------------------------
+const STAGES = [['display', 'display link (terminal renderer)'], ['runtime', 'ballistics core (python runtime)'], ['storage', 'save storage on this device'], ['game', 'terminaltanks.py'], ['ai', 'fire-control AI']];
+const TIPS = ['Hold <b>Shift</b> for coarse aiming steps.', 'Wind shifts every turn &mdash; read the arrows before you fire.', 'Your progress is saved <b>on this device</b>. Use <b>Save data</b> to back it up.',
+  'The dotted aim guide ignores wind. You add the wind.', 'A blast right beside a tank still counts as a hit.', 'Landscape gives phones the biggest battlefield.', 'Press <b>H</b> on the title screen to switch home screens.'];
+(function bootlog() {
+  els.bootlog.innerHTML = STAGES.map(([id, label]) => `<div id="st-${id}"><span>${label}</span><span class="dots"></span><span class="st">wait</span></div>`).join('');
+  let i = 0; const showTip = () => { els.tip.innerHTML = TIPS[i++ % TIPS.length]; };
+  showTip(); setInterval(showTip, 5200);
+  STAGES.forEach((s, k) => setTimeout(() => $('st-' + s[0]).classList.add('show'), 120 * k));
+})();
+function stage(id, state, msg) {
+  const row = $('st-' + id); if (!row) return;
+  const st = row.lastElementChild;
+  st.className = 'st' + (state === 'ok' ? ' ok' : state === 'err' ? ' err' : '');
+  st.textContent = state === 'ok' ? '[ OK ]' : state === 'run' ? '[ .. ]' : state === 'warn' ? '[ !! ]' : state === 'err' ? '[FAIL]' : 'wait';
+  if (msg) row.title = msg;
+  if (state === 'warn' && msg) toast(msg, 5000);
+  const done = STAGES.filter(([k]) => /\[ (OK|!!) \]/.test($('st-' + k).lastElementChild.textContent)).length;
+  els.progress.classList.remove('indet'); els.progress.firstElementChild.style.width = Math.round(done / STAGES.length * 100) + '%';
+}
+function loaderFail(msg) {
+  els.progress.classList.remove('indet'); setChip('OFFLINE', 'bad');
+  els.loaderr.hidden = false; els.loaderr.innerHTML = '';
+  els.loaderr.append(document.createTextNode(msg));
+  const small = document.createElement('small'); small.textContent = 'The page needs to download the terminal and Python runtime from a CDN on the first visit. Check your connection or content blocker, then try again.';
+  els.loaderr.append(small); els.loadbtns.hidden = false;
+}
+
+// ---- terminal: the canvas web renderer (see canvasterm.js) -----------------------------------------------
+let term = null, worker = null, inputOn = true, running = false, gameSource = '', gameVersion = '';
+function createTerminal() {
+  term = new window.CanvasTerm({ font: CFG.font, targetCols: CFG.targetCols, targetRows: CFG.targetRows, minCols: CFG.minCols, minRows: CFG.minRows, maxCols: CFG.maxCols, maxRows: CFG.maxRows });
+  window.__term = term;
+  term.open(els.terminal);
+  term.onData((d) => { if (inputOn && worker) worker.postMessage({ t: 'in', d }); });
+  term.onResize(({ cols, rows }) => { if (worker) worker.postMessage({ t: 'size', cols, rows }); });
+  term.onBell(beep);
+  fitTerminal();
+  term.focus();
+}
+function fitTerminal() { if (term) term.layout(els.terminal.clientWidth, els.terminal.clientHeight, prefs.fontAdj); }
+new ResizeObserver(() => fitTerminal()).observe(els.terminal);
+addEventListener('resize', fitTerminal);
+matchMedia('(resolution: 1dppx)').addEventListener?.('change', fitTerminal);
+
+// ---- sound: the game rings the terminal bell on impacts when SOUND=BELL ---------------------------------
+let actx = null;
+function beep() {
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    if (actx.state === 'suspended') actx.resume();
+    const t = actx.currentTime, o = actx.createOscillator(), g = actx.createGain();
+    o.type = 'sawtooth'; o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(40, t + 0.22);
+    g.gain.setValueAtTime(0.16, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.26);
+    o.connect(g).connect(actx.destination); o.start(t); o.stop(t + 0.28);
+  } catch (e) {}
+}
+
+// ---- worker ----------------------------------------------------------------------------------------------
+let gameTag = '';
+async function fetchGame() {
+  const r = await fetch(CFG.game, { cache: 'no-cache' });
+  gameTag = r.headers.get('etag') || r.headers.get('last-modified') || '';
+  if (!r.ok) throw new Error(`could not load ${CFG.game} (HTTP ${r.status}). Put terminaltanks.py next to index.html.`);
+  const text = await r.text();
+  gameVersion = (text.match(/^__version__\s*=\s*["']([^"']+)["']/m) || [])[1] || '';
+  return text;
+}
+function startWorker(source) {
+  const src = $('worker-src').textContent;
+  worker = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })));
+  worker.onmessage = onWorker;
+  worker.onerror = (e) => loaderFail('The game worker crashed: ' + (e.message || 'unknown error'));
+  worker.postMessage({ t: 'init', pyBases: CFG.pyodide, bridge: $('bridge-src').textContent, source, argv, base: GAME_BASE, cols: term.cols, rows: term.rows });
+}
+const infoWaiters = [];
+function onWorker(e) {
+  const m = e.data;
+  switch (m.t) {
+    case 'cells': term.applyCells(m, () => worker.postMessage({ t: 'ack' })); break;
+    case 'out': term.write(m.d, () => worker.postMessage({ t: 'ack' })); break;
+    case 'bell': beep(); break;
+    case 'stage': stage(m.id, m.state, m.msg); break;
+    case 'persist': storageMode = m.persistent; break;
+    case 'stats': lastStats = m; renderDebug(); break;
+    case 'running':
+      gameMode = m.mode || ''; running = true; stage('ai', 'ok'); setChip('ONLINE', 'ok');
+      els.ver.textContent = (m.version || gameVersion) ? 'GAME v' + (m.version || gameVersion) : '';
+      els.ended.hidden = true; els.ended.classList.add('fade');
+      els.loader.classList.add('fade'); setTimeout(() => { els.loader.hidden = true; }, 520);
+      term.focus(); break;
+    case 'ended': onEnded(m); break;
+    case 'fatal': loaderFail(m.msg); break;
+    case 'info': while (infoWaiters.length) infoWaiters.shift()(m); break;
+    case 'exported': download('terminaltanks-save.json', JSON.stringify(m.bundle, null, 2)); toast('Backup downloaded'); break;
+    case 'imported': if (m.ok) { toast(`Backup restored (${m.count} file${m.count === 1 ? '' : 's'}) - restarting`); closeModals(); restartGame(); } else toast('Import failed: ' + m.msg, 5000); break;
+    case 'resetDone': toast('Progress reset - restarting'); closeModals(); restartGame(); break;
+    case 'saveerr': toast('Could not write to browser storage: ' + m.msg, 6000); break;
+    case 'log': if (m.msg) console.warn('[worker]', m.msg); break;
+  }
+}
+let storageMode = true, lastError = '', gameMode = '', lastStats = null;
+
+// ---- diagnostics overlay: ?debug=1 or Ctrl+Alt+D ------------------------------------------------------------
+let dbgEl = null;
+function toggleDebug(force) {
+  const on = force !== undefined ? force : !dbgEl;
+  if (on && !dbgEl) { dbgEl = document.createElement('pre'); dbgEl.id = 'dbg'; els.termwrap.appendChild(dbgEl); renderDebug(); }
+  else if (!on && dbgEl) { dbgEl.remove(); dbgEl = null; }
+}
+function renderDebug() {
+  if (!dbgEl) return;
+  const s = lastStats || {};
+  dbgEl.textContent = [`mode     ${gameMode || '...'}  ${gameVersion ? 'game v' + gameVersion : ''}`, `terminal ${term ? term.cols + 'x' + term.rows : '-'}  font ${term ? term.options.fontSize : '-'}px`,
+    `fps      ${s.fps ?? '-'}   frame avg ${s.avg ? s.avg.toFixed(1) : '-'} ms  worst ${s.max ? s.max.toFixed(0) : '-'} ms`, `output   ${s.kbs ? s.kbs.toFixed(0) : '-'} KB/s   backlog ${s.pending ?? '-'}`,
+    `storage  ${storageMode ? 'IndexedDB' : 'memory only'}`].join('\n');
+}
+addEventListener('keydown', (e) => { if (e.ctrlKey && e.altKey && (e.key === 'd' || e.key === 'D')) { e.preventDefault(); toggleDebug(); } });
+if (new URLSearchParams(location.search).get('debug')) setTimeout(() => toggleDebug(true), 0);
+function onEnded(m) {
+  running = false; lastError = m.error || '';
+  const crashed = m.status === 2 || (m.code && m.code !== 0);
+  setChip(crashed ? 'CRASHED' : 'ENDED', crashed ? 'bad' : '');
+  els.ended.hidden = false; requestAnimationFrame(() => els.ended.classList.remove('fade'));
+  $('ended-title').textContent = crashed ? 'THE GAME STOPPED UNEXPECTEDLY' : 'SESSION ENDED - THANKS FOR PLAYING';
+  const box = $('ended-err'); box.hidden = !lastError; box.textContent = lastError.split('\n').slice(-14).join('\n');
+  $('b-copyerr').hidden = !lastError;
+  if (!crashed) els.ended.querySelector('#b-again').focus();
+}
+async function restartGame() {
+  try {
+    els.ended.classList.add('fade'); setTimeout(() => { els.ended.hidden = true; }, 400);
+    gameSource = await fetchGame(); updateShown = false; $('b-restart').classList.remove('hot');
+    term.reset(); setChip('BOOTING'); firstFrameReset();
+    worker.postMessage({ t: 'restart', source: gameSource, argv, base: GAME_BASE });
+    inputOn = true; term.focus();
+  } catch (e) { toast(String(e.message || e), 6000); }
+}
+function firstFrameReset() { running = false; }
+
+// ---- "a new version of the game is available" notice (the game file is swapped on GitHub, not in this page) -----
+let updateShown = false;
+async function checkForUpdate() {
+  if (updateShown || !gameTag) return;
+  try {
+    const r = await fetch(CFG.game, { method: 'HEAD', cache: 'no-cache' });
+    const tag = r.headers.get('etag') || r.headers.get('last-modified') || '';
+    if (tag && tag !== gameTag) { updateShown = true; $('b-restart').classList.add('hot'); toast('A new version of the game is available - press Restart to load it', 9000); }
+  } catch (e) { /* offline: ignore */ }
+}
+setInterval(checkForUpdate, 4 * 60 * 1000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) checkForUpdate(); });
+
+// ---- input: keyboard fallback, touch pad, gamepad -------------------------------------------------------
+const ARROW = { UP: 'A', DOWN: 'B', RIGHT: 'C', LEFT: 'D' };
+const seq = (dir, coarseStep) => '\x1b[' + (coarseStep ? '1;2' : '') + ARROW[dir];
+function send(d) { if (inputOn && worker && running) worker.postMessage({ t: 'in', d }); }
+function modalOpen() { return !!document.querySelector('.modal:not([hidden])'); }
+addEventListener('keydown', (e) => {
+  if (modalOpen()) { if (e.key === 'Escape') closeModals(); return; }
+  const t = e.target;
+  if (t && (t.tagName === 'INPUT' || t.tagName === 'BUTTON' || t.tagName === 'SELECT') && e.key !== ' ' && !e.key.startsWith('Arrow')) return;
+  if (term && document.activeElement === term.ta) return;   // the renderer's input box already handles it
+  const d = window.CanvasTerm.keySeq(e);
+  if (d !== null && running) { e.preventDefault(); send(d); if (term) term.focus(); }
+});
+els.termwrap.addEventListener('pointerdown', () => { if (term && !modalOpen()) term.focus(); });
+
+let coarseMode = false;
+const PAD = {
+  dpad: [[null], ['UP'], [null], ['LEFT'], [null], ['RIGHT'], [null], ['DOWN'], [null]],
+};
+function buildPad() {
+  const pad = els.pad; pad.innerHTML = '';
+  const mkBtn = (label, cls, onDown, repeat) => {
+    const b = document.createElement('button'); b.className = 'pb ' + (cls || ''); b.type = 'button'; b.innerHTML = label; b.setAttribute('aria-label', label.replace(/<[^>]+>/g, ''));
+    let t1 = 0, t2 = 0;
+    const stop = () => { clearTimeout(t1); clearInterval(t2); b.classList.remove('down'); };
+    b.addEventListener('pointerdown', (e) => {
+      e.preventDefault(); b.setPointerCapture(e.pointerId); b.classList.add('down'); onDown(b);
+      if (repeat) { t1 = setTimeout(() => { t2 = setInterval(() => onDown(b), 70); }, 320); }
+      if (navigator.vibrate) navigator.vibrate(8);
+    });
+    ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((ev) => b.addEventListener(ev, stop));
+    b.addEventListener('contextmenu', (e) => e.preventDefault());
+    return b;
+  };
+  const dpad = document.createElement('div'); dpad.className = 'cluster dpad';
+  PAD.dpad.forEach(([dir]) => {
+    if (!dir) { dpad.appendChild(document.createElement('span')); return; }
+    dpad.appendChild(mkBtn({ UP: '&#9650;', DOWN: '&#9660;', LEFT: '&#9664;', RIGHT: '&#9654;' }[dir], '', () => send(seq(dir, coarseMode)), true));
+  });
+  const mid = document.createElement('div'); mid.className = 'mid';
+  const shift = mkBtn('SHIFT', 'small', (b) => { coarseMode = !coarseMode; b.classList.toggle('on', coarseMode); toast(coarseMode ? 'Big steps ON' : 'Big steps OFF', 900); });
+  const kb = mkBtn('KEY', 'small', () => { if (term && term.textarea) { term.textarea.focus({ preventScroll: true }); } });
+  const hh = mkBtn('H', 'small', () => send('h'));
+  const tab = mkBtn('P', 'small', () => send('p'));
+  mid.append(shift, kb, hh, tab);
+  const act = document.createElement('div'); act.className = 'cluster act';
+  const esc = mkBtn('ESC', 'small', () => send('\x1b')); const ent = mkBtn('ENTER', 'small', () => send('\r'));
+  const fire = mkBtn('FIRE', 'fire', () => send(' '));
+  act.style.gridTemplateColumns = 'auto auto'; act.append(esc, ent); fire.style.gridColumn = '1 / span 2'; act.appendChild(fire);
+  pad.append(dpad, mid, act);
+}
+function setPad(on) {
+  document.body.classList.toggle('pad-on', on); $('b-pad').classList.toggle('on', on); $('b-pad').setAttribute('aria-pressed', String(on));
+  if (on && !els.pad.childElementCount) buildPad();
+  setTimeout(fitTerminal, 30);
+}
+function padWanted() { return prefs.pad === null ? coarse : prefs.pad; }
+
+// gamepad
+const gp = { last: {}, rep: {} };
+function pollPad(now) {
+  const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+  for (const p of pads) {
+    if (!p || !p.connected) continue;
+    const b = (i) => p.buttons[i] && p.buttons[i].pressed, ax = (i) => p.axes[i] || 0;
+    const coarseHold = b(4) || b(5);
+    const state = { UP: b(12) || ax(1) < -0.55, DOWN: b(13) || ax(1) > 0.55, LEFT: b(14) || ax(0) < -0.55, RIGHT: b(15) || ax(0) > 0.55 };
+    for (const dir in state) {
+      const was = gp.last[dir]; gp.last[dir] = state[dir];
+      if (state[dir] && (!was || now - (gp.rep[dir] || 0) > (was ? 85 : 0))) { if (!was) gp.rep[dir] = now + 260; else gp.rep[dir] = now; send(seq(dir, coarseHold)); }
+    }
+    const btn = { fire: [0, ' '], back: [1, '\x1b'], enter: [2, '\r'], pause: [9, '\x1b'], home: [3, 'h'] };
+    for (const k in btn) { const down = b(btn[k][0]), was = gp.last[k]; gp.last[k] = down; if (down && !was) send(btn[k][1]); }
+  }
+  requestAnimationFrame(pollPad);
+}
+addEventListener('gamepadconnected', (e) => { toast('Controller connected: ' + e.gamepad.id.slice(0, 40)); if (term) term.focus(); });
+requestAnimationFrame(pollPad);
+
+// ---- header buttons, modals, save data ----------------------------------------------------------------
+function closeModals() { document.querySelectorAll('.modal').forEach((m) => { m.hidden = true; }); if (term) term.focus(); }
+function openModal(id) { $(id).hidden = false; inputOn = true; const f = $(id).querySelector('button.btn:not(.x)'); if (f) f.focus(); }
+document.querySelectorAll('.modal').forEach((m) => m.addEventListener('pointerdown', (e) => { if (e.target === m) closeModals(); }));
+document.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', closeModals));
+$('b-help').onclick = () => openModal('m-help');
+$('b-pad').onclick = () => { prefs.pad = !document.body.classList.contains('pad-on'); savePrefs(); setPad(prefs.pad); if (term) term.focus(); };
+$('b-crt').onclick = () => { prefs.crt = !prefs.crt; savePrefs(); document.body.classList.toggle('no-crt', !prefs.crt); $('b-crt').classList.toggle('on', prefs.crt); $('b-crt').setAttribute('aria-pressed', String(prefs.crt)); term && term.focus(); };
+$('b-fup').onclick = () => { prefs.fontAdj = Math.min(8, prefs.fontAdj + 1); savePrefs(); fitTerminal(); term && term.focus(); };
+$('b-fdn').onclick = () => { prefs.fontAdj = Math.max(-6, prefs.fontAdj - 1); savePrefs(); fitTerminal(); term && term.focus(); };
+$('b-restart').onclick = () => { if (running && !confirm('Restart the game? Anything unsaved in the current match is lost.')) return; restartGame(); };
+$('b-again').onclick = () => restartGame();
+$('b-retry').onclick = () => location.reload();
+$('b-copyerr').onclick = () => { navigator.clipboard && navigator.clipboard.writeText(lastError).then(() => toast('Error copied')); };
+const fsBtn = $('b-full');
+if (!document.documentElement.requestFullscreen) fsBtn.hidden = true;
+fsBtn.onclick = () => { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen().catch(() => {}); };
+document.addEventListener('fullscreenchange', () => setTimeout(fitTerminal, 80));
+
+const fmtKB = (n) => (n < 1024 ? n + ' B' : (n / 1024).toFixed(1) + ' KB');
+async function refreshSave() {
+  const kv = $('save-kv'); kv.innerHTML = '';
+  const add = (k, v, cls) => { const a = document.createElement('span'), b = document.createElement('span'); a.textContent = k; b.textContent = v; if (cls) b.className = cls; kv.append(a, b); };
+  const info = await new Promise((res) => { infoWaiters.push(res); worker && worker.postMessage({ t: 'info' }); setTimeout(() => res({ files: [], persistent: false, timeout: true }), 2500); });
+  const total = (info.files || []).reduce((s, f) => s + f.size, 0);
+  add('Stored in', info.persistent ? 'this browser (IndexedDB)' : 'memory only - not persisting', info.persistent ? 'good' : 'bad');
+  add('Files', (info.files || []).length ? info.files.map((f) => `${f.path} (${fmtKB(f.size)})`).join(', ') : 'none yet - play to create a save');
+  add('Size', fmtKB(total));
+  let persisted = null;
+  try { if (navigator.storage && navigator.storage.persisted) persisted = await navigator.storage.persisted(); } catch (e) {}
+  add('Eviction protection', persisted === null ? 'not supported by this browser' : persisted ? 'granted' : 'not granted (browser may clear it when space is low)', persisted ? 'good' : 'warn');
+  try { if (navigator.storage && navigator.storage.estimate) { const est = await navigator.storage.estimate(); add('Browser quota', `${fmtKB(est.usage || 0)} used of ${((est.quota || 0) / 1048576).toFixed(0)} MB`); } } catch (e) {}
+  $('b-persist').hidden = persisted === null || persisted === true;
+  $('b-reset').textContent = 'Reset progress'; $('b-reset').dataset.armed = '';
+}
+$('b-save').onclick = () => { openModal('m-save'); worker && worker.postMessage({ t: 'flush' }); refreshSave(); };
+$('b-export').onclick = () => { worker.postMessage({ t: 'flush' }); worker.postMessage({ t: 'export' }); };
+$('b-import').onclick = () => $('f-import').click();
+$('f-import').onchange = async (e) => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  try {
+    if (f.size > 5 * 1048576) throw new Error('file is too large');
+    const bundle = JSON.parse(await f.text());
+    if (!confirm('Replace the save on this device with "' + f.name + '"? This overwrites your current progress.')) return;
+    worker.postMessage({ t: 'import', bundle });
+  } catch (err) { toast('Import failed: ' + err.message, 5000); }
+};
+$('b-persist').onclick = async () => {
+  try { const ok = await navigator.storage.persist(); toast(ok ? 'Storage protected from automatic eviction' : 'Your browser declined - export a backup to be safe', 5000); } catch (e) { toast('Not supported here', 3000); }
+  refreshSave();
+};
+$('b-reset').onclick = (e) => {
+  const b = e.currentTarget;
+  if (b.dataset.armed) { b.dataset.armed = ''; worker.postMessage({ t: 'reset' }); return; }
+  b.dataset.armed = '1'; b.textContent = 'Click again to erase everything'; setTimeout(() => { b.dataset.armed = ''; b.textContent = 'Reset progress'; }, 4000);
+};
+
+document.addEventListener('visibilitychange', () => { if (worker) worker.postMessage({ t: 'vis', hidden: document.hidden }); if (document.hidden) worker && worker.postMessage({ t: 'flush' }); });
+addEventListener('pagehide', () => worker && worker.postMessage({ t: 'flush' }));
+addEventListener('beforeunload', () => worker && worker.postMessage({ t: 'flush' }));
+
+// ---- boot ---------------------------------------------------------------------------------------------------
+document.body.classList.toggle('no-crt', !prefs.crt); $('b-crt').classList.toggle('on', prefs.crt);
+setPad(padWanted());
+async function boot() {
+  els.loaderr.hidden = true; els.loadbtns.hidden = true; setChip('BOOTING');
+  try {
+    stage('display', 'run');
+    const sourceP = fetchGame();
+    sourceP.catch(() => {});
+    createTerminal();
+    stage('display', 'ok');
+    gameSource = await sourceP;
+    startWorker(gameSource);
+  } catch (e) {
+    stage('display', 'err'); loaderFail(String((e && e.message) || e));
+  }
+}
+if (!window.Worker || !window.WebAssembly) loaderFail('This browser is too old: it needs Web Workers and WebAssembly.');
+else { boot(); setTimeout(() => { if (!running && els.loaderr.hidden) toast('Still loading - the first visit downloads the Python runtime (about 10 MB)', 7000); }, 30000); }
+})();
+</script>
+</body>
+</html>
