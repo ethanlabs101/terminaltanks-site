@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Terminal Tanks DS - TerminalTanks</title>
+<meta name="description" content="Terminal Tanks on the Nintendo DS: a homebrew port with both screens, touch controls and DS-to-DS wireless play. Download the ROM and play it on a flashcart, a DSi or an emulator.">
+<meta name="theme-color" content="#05090f">
+<meta name="color-scheme" content="dark">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Terminal Tanks DS - TerminalTanks">
+<meta property="og:description" content="Terminal Tanks on the Nintendo DS: a homebrew port with both screens, touch controls and DS-to-DS wireless play.">
+<meta property="og:image" content="https://ethanlabs101.github.io/terminaltanks-site/ds/ds-battle.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://ethanlabs101.github.io/terminaltanks-site/ds.html">
+<link rel="stylesheet" href="site.css">
+</head>
+<body data-page="ds">
+<main data-title="TERMINAL TANKS DS" data-chip="HOMEBREW">
+  <div class="ds-hero">
+    <div class="ds-copy">
+      <h2>TERMINAL TANKS DS</h2>
+      <p class="lead">The artillery game, on two screens and a stylus.</p>
+      <p>Terminal Tanks DS is a homebrew port of the game for the Nintendo DS. The battlefield fills the top screen, while the touch screen holds the aiming pad, the menus, the shop and the Workshop. You can tap to fire, take on the Tournament and its bosses, open Terminal Tickets, face the Martyr, and play a friend DS to DS over local wireless, with no router.</p>
+      <p>It is a native DS program in an <b id="ds-size">832 KB</b> ROM, not an emulator running the PC version, and its header marks it for both the DS and the DSi.</p>
+      <div class="row">
+        <a class="btn big hot" id="ds-dl" href="downloads/terminaltanks-ds.nds" download>Download Terminal Tanks DS</a>
+        <a class="btn big" href="#play-it">How to play it</a>
+      </div>
+      <p class="muted" id="ds-meta">Version 1.5.0 port &middot; one .nds file</p>
+    </div>
+    <figure class="ds-device" aria-label="Terminal Tanks DS running: a shot fired from the touch screen">
+      <div class="ds-shell">
+        <div class="ds-lid"><span class="ds-cam"></span></div>
+        <div class="ds-screens">
+          <video id="ds-clip" muted loop playsinline autoplay poster="ds/ds-fire.png" aria-hidden="true">
+            <source src="ds/ds-fire.webm" type="video/webm"><source src="ds/ds-fire.mp4" type="video/mp4">
+          </video>
+          <i class="ds-hinge" aria-hidden="true"></i>
+        </div>
+        <div class="ds-pads" aria-hidden="true"><span class="ds-dpad"></span><span class="ds-abxy"><b>X</b><b>A</b><b>B</b><b>Y</b></span></div>
+      </div>
+      <figcaption>Captured from the real ROM: a shot fired with the stylus, top screen above, touch screen below.</figcaption>
+    </figure>
+  </div>
+
+  <h2>WHAT IS IN THE PORT</h2>
+  <div class="ds-feats">
+    <div class="card"><h3>BOTH SCREENS</h3><p>The battlefield, HUD and wind live on the top screen. The bottom screen is a touch control panel: tap the arrows to aim and set power, and tap <b>FIRE</b>.</p></div>
+    <div class="card"><h3>THE FULL CAMPAIGN</h3><p>All 20 Tournament levels, 50 missions with UFOs and the Mothership, ten Terminal Ticket bosses, the Martyr's Time Machine and Martyr's Blessing.</p></div>
+    <div class="card"><h3>DS-TO-DS WIRELESS</h3><p>LAN play works over the DS's own local wireless: one DS hosts, the other joins, and the host's rules apply. You can change the wireless channel if it is busy.</p></div>
+    <div class="card"><h3>YOUR OWN TANKS</h3><p>The Workshop, profiles, the shop and its paints, cheat codes with an on-screen keyboard, the tutorial and the practice range all came along.</p></div>
+    <div class="card"><h3>SAVES ON THE SD CARD</h3><p>Progress is saved in <code id="ds-folder">/data/TerminalTanks/</code> on your SD card through DLDI. Hold <kbd>L</kbd> + <kbd>R</kbd> while it starts for a safe start that saves nothing.</p></div>
+    <div class="card"><h3>SMALL</h3><p>The entire game, every tank sprite, map and home screen included, fits in one <span class="ds-size2">832 KB</span> file.</p></div>
+  </div>
+
+  <h2>SCREENSHOTS</h2>
+  <p class="muted">Every picture below is the real ROM, captured in the NooDS emulator core with the two screens stacked as on the console.</p>
+  <div class="ds-gallery" id="ds-gallery">
+    <figure><img src="ds/ds-title.png" alt="Title screen" width="256" height="384" loading="lazy"><figcaption>Title screen</figcaption></figure>
+    <figure><img src="ds/ds-menu.png" alt="Main menu on the touch screen" width="256" height="384" loading="lazy"><figcaption>Main menu</figcaption></figure>
+    <figure><img src="ds/ds-battle.png" alt="A battle: player's turn, aiming" width="256" height="384" loading="lazy"><figcaption>Your turn to aim</figcaption></figure>
+    <figure><img src="ds/ds-shot3.png" alt="A shell in flight" width="256" height="384" loading="lazy"><figcaption>Shell in flight</figcaption></figure>
+    <figure><img src="ds/ds-shot5.png" alt="Impact" width="256" height="384" loading="lazy"><figcaption>Impact</figcaption></figure>
+    <figure><img src="ds/ds-turn2.png" alt="The AI's turn" width="256" height="384" loading="lazy"><figcaption>The AI solves its shot</figcaption></figure>
+    <figure><img src="ds/ds-rules.png" alt="Single player rules with a terrain scan" width="256" height="384" loading="lazy"><figcaption>Match rules and terrain scan</figcaption></figure>
+    <figure><img src="ds/ds-setup.png" alt="Pilot setup with a live preview" width="256" height="384" loading="lazy"><figcaption>Pilot setup</figcaption></figure>
+    <figure><img src="ds/ds-shop.png" alt="The shop" width="256" height="384" loading="lazy"><figcaption>The shop</figcaption></figure>
+    <figure><img src="ds/ds-tournament.png" alt="The Tournament map" width="256" height="384" loading="lazy"><figcaption>The Tournament</figcaption></figure>
+    <figure><img src="ds/ds-howto.png" alt="How to play" width="256" height="384" loading="lazy"><figcaption>How to play</figcaption></figure>
+    <figure><img src="ds/ds-links.png" alt="Cheat codes with the on-screen keyboard" width="256" height="384" loading="lazy"><figcaption>Cheat codes keyboard</figcaption></figure>
+  </div>
+  <dialog id="ds-lb" aria-label="Screenshot"><button class="btn" id="ds-lbc" type="button">Close</button><img id="ds-lbi" alt=""></dialog>
+
+  <h2>CONTROLS</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>Button</th><th>In battle</th><th>In menus</th></tr></thead>
+    <tbody>
+      <tr><td><kbd>&#9664;</kbd> <kbd>&#9654;</kbd></td><td>Rotate the barrel</td><td>Change a setting, pick a kit</td></tr>
+      <tr><td><kbd>&#9650;</kbd> <kbd>&#9660;</kbd></td><td>Firing power</td><td>Move between rows</td></tr>
+      <tr><td><kbd>L</kbd> / <kbd>R</kbd></td><td>Hold for big aiming steps</td><td>Jump five kits in pilot setup, turn shop pages</td></tr>
+      <tr><td><kbd>A</kbd></td><td>Fire</td><td>Select</td></tr>
+      <tr><td><kbd>B</kbd></td><td>&nbsp;</td><td>Back</td></tr>
+      <tr><td><kbd>START</kbd></td><td>Pause menu</td><td>&nbsp;</td></tr>
+      <tr><td><kbd>SELECT</kbd></td><td>&nbsp;</td><td>Switch home screen on the title</td></tr>
+      <tr><td>Stylus</td><td>Tap the aiming pad and <b>FIRE</b> under the battlefield</td><td>Tap rows and buttons</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>WHERE THE DS VERSION STANDS</h2>
+  <p>The DS port is version <b>1.5.0</b>; the PC and browser game is at <b id="pc-ver">1.6.0</b>. The port intentionally trails the main game, so the newest additions have not reached it yet. These numbers come from each version's own cheat-code screen.</p>
+  <div class="scroll"><table class="ds-cmp">
+    <thead><tr><th></th><th>DS 1.5.0</th><th>PC and browser <span class="pcv">1.6.0</span></th></tr></thead>
+    <tbody id="ds-cmp">
+      <tr><td>Tanks</td><td>112</td><td class="n" data-k="menuTanks">122</td></tr>
+      <tr><td>Ammo types</td><td>111</td><td class="n" data-k="menuAmmo">121</td></tr>
+      <tr><td>Maps</td><td>137</td><td class="n" data-k="maps">147</td></tr>
+      <tr><td>Home screens</td><td>90</td><td class="n" data-k="screens">100</td></tr>
+      <tr><td>Animated paints</td><td>RGB, Astral, Prismatic, Void</td><td>RGB plus <span class="n" data-k="paints1">11</span> paints</td></tr>
+      <tr><td>Music</td><td>An optional beep on impacts</td><td>A full synthesized soundtrack of <span class="n" data-k="songs">277</span> songs and a jukebox</td></tr>
+      <tr><td>Two players</td><td>Same DS, or DS to DS over local wireless</td><td>Same keyboard, or LAN over a network (download only)</td></tr>
+    </tbody>
+  </table></div>
+  <p class="muted">Not in the DS port yet: the newest premium set (ten tanks such as Kitsune and Kaiju, their ten ammo types, ten battlefields from Mariana Deep to Ghost Reef and ten home screens from Biolume Trench to Ghost Armada), the eight newest paints (Molten, Chrome, Aurora, Circuit, Ocean, Synthwave, Toxic and Gilded) and the soundtrack. Saves from the PC or browser game do not load on the DS, which keeps its own save on the SD card.</p>
+
+  <h2 id="play-it">HOW TO PLAY IT</h2>
+  <div class="two">
+    <div class="card">
+      <h3>ON A DS, DS LITE OR DSi</h3>
+      <ol>
+        <li>You need a way to run homebrew: a DS flashcart, or a DSi or 3DS set up for homebrew (for example with TWiLight Menu++).</li>
+        <li>Copy <code>terminaltanks-ds.nds</code> to the SD card, anywhere your loader can see it.</li>
+        <li>Start it from the loader's menu. It saves to <code>/data/TerminalTanks/</code> on the same card.</li>
+      </ol>
+      <p class="muted">Saving needs SD-card access through DLDI, which most flashcart loaders and TWiLight Menu++ provide automatically. Without it the game still runs and tells you on the boot screen that progress will not be saved.</p>
+    </div>
+    <div class="card">
+      <h3>IN AN EMULATOR</h3>
+      <ol>
+        <li>Open the .nds file in a DS emulator that runs homebrew, such as melonDS, DeSmuME or NooDS.</li>
+        <li>No BIOS or firmware files are needed to start it in NooDS, which booted it for the pictures on this page.</li>
+        <li>To keep progress, turn on the emulator's DLDI or SD-card option if it has one.</li>
+      </ol>
+      <p class="muted">Tested here: NooDS (core), which boots the game, plays matches and accepts touch input. Other emulators and hardware have not been tested for this page; please report what works on <a href="https://github.com/ethanlabs101/TerminalTanks/issues" target="_blank" rel="noopener">GitHub</a>.</p>
+    </div>
+  </div>
+
+  <h2>RELEASE</h2>
+  <div class="ds-release">
+    <img src="ds/ds-icon.png" width="32" height="32" alt="The game's DS menu icon">
+    <div class="kv" id="ds-kv">
+      <span>File</span><span>terminaltanks-ds.nds</span>
+      <span>Title in the DS menu</span><span>Terminal Tanks DS &middot; v1.5.0 port &middot; ethanlabs101</span>
+    </div>
+  </div>
+  <p class="muted">Check the download with <code>sha256sum terminaltanks-ds.nds</code> (Linux), <code>shasum -a 256 terminaltanks-ds.nds</code> (macOS) or <code>certutil -hashfile terminaltanks-ds.nds SHA256</code> (Windows). Terminal Tanks DS is fan-made homebrew; it is not affiliated with or endorsed by Nintendo.</p>
+  <div class="row">
+    <a class="btn big hot" href="downloads/terminaltanks-ds.nds" download>Download the ROM</a>
+    <a class="btn big" href="https://github.com/ethanlabs101/TerminalTanks" target="_blank" rel="noopener">Terminal Tanks on GitHub</a>
+    <a class="btn big" href="play.html">Play the latest version in your browser</a>
+  </div>
+</main>
+<script src="site.js"></script>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id), N = TT.counts;
+  document.querySelectorAll('#ds-cmp .n').forEach((e) => { const k = e.dataset.k; e.textContent = k === 'paints1' ? N.paints - 1 : N[k]; });
+  document.querySelectorAll('.pcv, #pc-ver').forEach((e) => { e.textContent = TT.version; });
+  const kb = (n) => Math.round(n / 1024).toLocaleString('en-US') + ' KB';
+  fetch('downloads/ds-info.json').then((r) => r.json()).then((i) => {
+    $('ds-size').textContent = kb(i.bytes); document.querySelectorAll('.ds-size2').forEach((e) => { e.textContent = kb(i.bytes); });
+    $('ds-meta').textContent = 'Version ' + i.version + ' port · ' + kb(i.bytes) + ' · runs on ' + i.header.unit;
+    $('ds-dl').textContent = 'Download Terminal Tanks DS (' + kb(i.bytes) + ')';
+    if (i.save_folder) $('ds-folder').textContent = i.save_folder;
+    const rows = [['File', i.file.split('/').pop() + ' (' + i.bytes.toLocaleString('en-US') + ' bytes)'], ['Title in the DS menu', i.banner.join(' · ')],
+      ['Version', i.version + ' port'], ['Runs on', i.header.unit], ['Header', i.header.title + ', game code ' + i.header.code + ', checksum ' + i.header.crc16 + ' (verified)'],
+      ['Code', kb(i.header.arm9_bytes) + ' for the ARM9, ' + kb(i.header.arm7_bytes) + ' for the ARM7'], ['Built with', i.built_with.join(', ')],
+      ['SHA-256', i.sha256], ['MD5', i.md5]];
+    $('ds-kv').innerHTML = rows.map(([k, v]) => '<span>' + k + '</span><span' + (k === 'SHA-256' || k === 'MD5' ? ' class="hash"' : '') + '>' + String(v).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]) + '</span>').join('');
+  }).catch(() => {});
+  const v = $('ds-clip');
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { v.removeAttribute('autoplay'); v.pause(); v.controls = true; }
+  const lb = $('ds-lb');
+  $('ds-gallery').addEventListener('click', (e) => { const im = e.target.closest('img'); if (!im) return; $('ds-lbi').src = im.src; $('ds-lbi').alt = im.alt; lb.showModal(); });
+  $('ds-lbc').onclick = () => lb.close(); lb.addEventListener('click', (e) => { if (e.target === lb) lb.close(); });
+})();
+</script>
+</body>
+</html>

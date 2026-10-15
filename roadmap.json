@@ -1,0 +1,36 @@
+{
+  "version": "1.6.0",
+  "next": [],
+  "notes": [
+    {
+      "version": "1.6.0",
+      "items": [
+        "The story's last chapter: once all ten Terminal Ticket bosses fall, the Martyr's Arcane Time Machine opens in the shop for a three-phase duel across Ember Sanctum, Tempest Spires and Astral Rift",
+        "Defeating the Martyr hands over his relics: six ancient tanks, five ancient ammo types, three sanctum maps, six home screens and the ASTRAL paint",
+        "Martyr's Blessing: the Martyr's last power in a single shell. One direct hit judges the whole battlefield. Earned only by beating the Martyr",
+        "Eleven animated paints for any tank and its shells, from Prismatic and Void to Molten, Chrome, Aurora, Circuit, Ocean, Synthwave, Toxic and Gilded",
+        "A second premium set: ten tanks, ten ammo types, ten battlefields and ten home screens",
+        "A soundtrack of 277 songs composed and synthesized by the game itself, with a Jukebox, a 3-band EQ and a spectrum analyser",
+        "Up to three profiles, story whispers, a tutorial and an advanced practice range, and the Workshop HOVER upgrade",
+        "122 tanks and 121 ammo types in the menus, 147 maps and 100 home screens in all. Save format 5: existing saves carry over"
+      ],
+      "text": "What the game holds as of version 1.6.0, the release this site is built from. Version 1.5.0 is the one ported to the Nintendo DS."
+    },
+    {
+      "title": "The big expansion",
+      "version": "1.4.0",
+      "items": [
+        "Far more to unlock: 107 tank designs, 107 ammo types, 79 home screens and 129 maps in all",
+        "A new premium tier at the top of the shop, with five extra tanks and five extra ammo types",
+        "The Workshop: build and save your own tanks from 129 parts and 24 accent colors",
+        "Terminal Tickets: ten boss battles, each with its own tank, map and ammo",
+        "Two-player and LAN matches can use a special attack: skip two turns, then your next shot deals 3 damage",
+        "Two-player and LAN matches can be played on a map you choose, and you can leave a match from a clear prompt",
+        "The Mothership is shielded until both of its drones are destroyed",
+        "Glass Cannon levels now give you 2 HP instead of 1",
+        "The shop scrolls, so every row is reachable on small terminals",
+        "Save format 5. Existing saves, wallets and unlocks carry over."
+      ]
+    }
+  ]
+}

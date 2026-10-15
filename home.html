@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TerminalTanks - tank artillery in your terminal</title>
+<meta name="description" content="TerminalTanks is a turn-based tank artillery game that runs in a terminal. Play it in your browser, read the cheat code list, or build a save file.">
+<meta name="theme-color" content="#05090f">
+<meta name="color-scheme" content="dark">
+<meta property="og:type" content="website">
+<meta property="og:title" content="TerminalTanks - tank artillery in your terminal">
+<meta property="og:description" content="TerminalTanks is a turn-based tank artillery game that runs in a terminal. Play it in your browser, read the cheat code list, or build a save file.">
+<meta property="og:image" content="https://ethanlabs101.github.io/terminaltanks-site/preview.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://ethanlabs101.github.io/terminaltanks-site/home.html">
+<link rel="stylesheet" href="site.css">
+</head>
+<body data-page="home">
+<main data-title="TERMINALTANKS.PY" data-chip="ONLINE">
+  <h2>TANK ARTILLERY, DRAWN IN A TERMINAL</h2>
+  <p class="lead">Set your angle, set your power, read the wind, and fire.</p>
+  <figure class="clip" id="clip">
+    <img class="cover" src="preview.png" width="1200" height="630" alt="TerminalTanks: a cyan tank on a ridge under a night sky">
+    <video id="vid" muted loop playsinline preload="metadata" hidden aria-label="Gameplay: two tanks trade shells across a ridge as the wind shifts">
+      <source src="demo.webm" type="video/webm">
+      <source src="demo.mp4" type="video/mp4">
+    </video>
+  </figure>
+  <p><strong>Read the wind. Shape the battlefield. Make the shot. </strong></p>
+  <p>Every turn changes the conditions, and every shell leaves its mark carving through terrain and damaging anything caught in the blast. No install required. Play TerminalTanks in your browser with a keyboard, touchscreen, or gamepad.</p>
+  <div class="row">
+    <a class="btn big hot" href="play.html">Play in your browser</a>
+    <a class="btn big" href="install.html">Download the game</a>
+  </div>
+
+  <section id="shots">
+    <h2>IN THE FIELD</h2>
+    <div class="gallery">
+      <figure>
+        <a href="home-1.png" target="_blank" rel="noopener"><img src="home-1.png" width="1280" height="720" loading="lazy" decoding="async" alt="Citadel Master Boss Battle"></a>
+        <figcaption>Citadel Master Boss Battle</figcaption>
+      </figure>
+      <figure>
+        <a href="home-2.png" target="_blank" rel="noopener"><img src="home-2.png" width="1280" height="720" loading="lazy" decoding="async" alt="Alien Scout Mission"></a>
+        <figcaption>Alien Scout Mission</figcaption>
+      </figure>
+      <figure>
+        <a href="home-3.png" target="_blank" rel="noopener"><img src="home-3.png" width="1280" height="720" loading="lazy" decoding="async" alt="2v1 Mission"></a>
+        <figcaption>2v1 Mission</figcaption>
+      </figure>
+      <figure>
+        <a href="home-4.png" target="_blank" rel="noopener"><img src="home-4.png" width="1280" height="720" loading="lazy" decoding="async" alt="Mothership Mission"></a>
+        <figcaption>Mothership Mission</figcaption>
+      </figure>
+      <figure>
+        <a href="home-5.png" target="_blank" rel="noopener"><img src="home-5.png" width="1280" height="720" loading="lazy" decoding="async" alt="Storm Spire Tempest Boss Battle"></a>
+        <figcaption>Storm Spire Tempest Boss Battle</figcaption>
+      </figure>
+      <figure>
+        <a href="home-6.png" target="_blank" rel="noopener"><img src="home-6.png" width="1280" height="720" loading="lazy" decoding="async" alt="Neon Skyline Battle"></a>
+        <figcaption>Neon Skyline Battle</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <h2>NEWS</h2>
+  <div id="news"><p class="muted">Loading news.</p></div>
+  <div class="row" style="margin-top:8px"><button class="btn" id="older" type="button" hidden>Show older posts</button></div>
+
+  <h2>WHAT IS IN THE BOX</h2>
+  <div class="kv" id="box"></div>
+
+  <h2>AROUND THE SITE</h2>
+  <p><a href="catalog.html">Catalog</a> lists every tank, ammo type, map, home screen, paint and boss with a picture of each and how to get it.</p>
+  <p><a href="workshop.html">Workshop</a> lets you mix and match every tank part, preview your tank in motion, and save a build sheet showing how each part is unlocked.</p>
+  <p><a href="jukebox.html">Jukebox</a> plays the whole soundtrack, with a turntable, an equalizer and a live spectrum analyser.</p>
+  <p><a href="cheats.html">Cheat codes</a> lists every code the game accepts and what each one unlocks.</p>
+  <p><a href="save-forge.html">Save forge</a> builds or edits a save file. Import it from the game's Save data menu.</p>
+  <p><a href="install.html">Install</a> explains how to download the game for the best performance, offline play and a save file you control.</p>
+  <p><a href="ds.html">Terminal Tanks DS</a> is the Nintendo DS port, with the ROM to download and how to play it on a DS or an emulator.</p>
+  <p><a href="about.html">About</a> covers the story and how the game was built. <a href="links.html">Links</a> lists where to find the game and its developer, and <a href="coming-soon.html">Coming soon</a> shows what's next.</p>
+</main>
+<script src="site.js"></script>
+<script>
+(function () {
+  const N = TT.counts, f = (n) => n.toLocaleString();
+  document.getElementById('box').innerHTML = [
+    ['Tournament', '20 levels, the last three on Master difficulty'],
+    ['Missions', TT.missions + ' missions, including co-op, UFO fights, boss rushes and the Mothership'],
+    ['Gear', N.tanks + ' tank designs and ' + N.ammo + ' ammo types, and ' + (N.paints - 1) + ' animated paints'],
+    ['Workshop', 'Build your own tanks from ' + N.parts + ' parts and ' + N.accents + ' accent colors, with up to ' + N.customMax + ' saved designs'],
+    ['Battlefields', N.maps + ' maps, ' + N.specialMaps + ' of them special'],
+    ['Home screens', N.screens + ' themes'],
+    ['Terminal Tickets', 'Ten boss battles, each with its own tank, map and ammo'],
+    ['The Martyr', 'A three-phase final duel, his ancient relics, and Martyr\'s Blessing'],
+    ['Soundtrack', N.songs + ' songs composed and synthesized by the game, with a jukebox'],
+    ['Modes', 'Single player, two player and LAN play, with an optional special attack'],
+    ['Nintendo DS', 'A homebrew port with touch controls and DS-to-DS wireless'],
+  ].map(([k, v]) => '<span>' + k + '</span><span>' + v + '</span>').join('');
+})();
+</script>
+<script>
+(function () {
+  const v = document.getElementById('vid'); if (!v) return;
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  v.addEventListener('loadeddata', () => { v.hidden = false; if (still) v.controls = true; });
+  if (!still) new IntersectionObserver((e) => { e[0].isIntersecting ? v.play().catch(() => {}) : v.pause(); }, { threshold: 0.25 }).observe(v);
+  const shots = document.getElementById('shots');
+  const figs = [...shots.querySelectorAll('figure')], check = () => { shots.hidden = figs.every((f) => f.hidden); };
+  figs.forEach((f) => { const im = f.querySelector('img'); im.addEventListener('error', () => { f.hidden = true; check(); }); });
+})();
+</script>
+<script>
+(async function () {
+  const box = document.getElementById('news'), more = document.getElementById('older'), SHOW = 3;
+  let posts = [], all = false;
+  try { posts = (await (await fetch('news.json')).json()).posts.sort((a, b) => b.date.localeCompare(a.date)); }
+  catch (e) { box.innerHTML = '<p class="muted">News could not be loaded. Reload the page to try again.</p>'; return; }
+  function render() {
+    box.textContent = '';
+    if (!posts.length) { box.innerHTML = '<p class="muted">No posts yet.</p>'; return; }
+    posts.slice(0, all ? posts.length : SHOW).forEach((p) => {
+      const d = document.createElement('article'); d.className = 'soon';
+      const h = document.createElement('h3'); h.textContent = p.title;
+      const t = document.createElement('div'); t.className = 'muted';
+      t.textContent = new Date(p.date + 'T12:00:00').toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+      d.append(h, t);
+      String(p.text).split(/\n\n+/).forEach((para) => { const e = document.createElement('p'); e.textContent = para; d.append(e); });
+      if (p.link && /^(https?:\/\/|[\w.\/-]+\.html)/.test(p.link)) { const a = document.createElement('a'); a.href = p.link; a.textContent = p.linkText || 'Read more'; d.append(a); }
+      box.append(d);
+    });
+    more.hidden = all || posts.length <= SHOW;
+  }
+  more.onclick = () => { all = true; render(); };
+  render();
+})();
+</script>
+</body>
+</html>

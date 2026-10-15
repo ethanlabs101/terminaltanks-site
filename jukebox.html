@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jukebox - TerminalTanks</title>
+<meta name="description" content="Listen to the whole TerminalTanks soundtrack: every home screen, battlefield, boss and story theme, synthesized by the game itself.">
+<meta name="theme-color" content="#05090f">
+<meta name="color-scheme" content="dark">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Jukebox - TerminalTanks">
+<meta property="og:description" content="Listen to the whole TerminalTanks soundtrack: every home screen, battlefield, boss and story theme, synthesized by the game itself.">
+<meta property="og:image" content="https://ethanlabs101.github.io/terminaltanks-site/preview.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://ethanlabs101.github.io/terminaltanks-site/jukebox.html">
+<link rel="stylesheet" href="site.css">
+</head>
+<body data-page="jukebox">
+<main data-title="JUKEBOX" data-chip="277 TRACKS">
+  <h2>THE SOUNDTRACK</h2>
+  <p class="lead">Every song in the game's jukebox, from the main theme to the Martyr's last stand.</p>
+  <p>TerminalTanks writes and plays its own music: each song is composed from notes and synthesized by the game while you play. These recordings were made by that same synthesizer, so they sound exactly like the game. <span id="totals" class="muted"></span></p>
+
+  <section class="deck" id="deck" aria-label="Now playing">
+    <div class="tt-table">
+      <div class="sleeve"><img id="np-cover" alt="" width="192" height="192"></div>
+      <div class="platter"><img id="np-disc" alt="" width="96" height="96"><i class="spindle"></i></div>
+      <div class="arm" id="arm" aria-hidden="true"><i></i></div>
+    </div>
+    <div class="np">
+      <div class="np-kicker" id="np-group">PICK A SONG</div>
+      <h3 id="np-title">Nothing playing</h3>
+      <p id="np-desc" class="muted">Choose a track below, or press play to start with the main theme.</p>
+      <div class="np-tags" id="np-tags"></div>
+      <div class="np-where" id="np-where"></div>
+    </div>
+    <div class="viz">
+      <canvas id="viz" width="640" height="200" aria-label="Spectrum analyser showing the music as it plays"></canvas>
+      <div class="viz-axis"><span>55 Hz</span><span id="viz-mode">SPECTRUM</span><span>10 kHz</span></div>
+    </div>
+    <div class="eq" role="group" aria-label="Equalizer">
+      <label><span>BASS</span><input type="range" id="eq-0" min="-12" max="12" step="1" value="0" aria-label="Bass"><b id="eq-0v">0 dB</b></label>
+      <label><span>MID</span><input type="range" id="eq-1" min="-12" max="12" step="1" value="0" aria-label="Mid"><b id="eq-1v">0 dB</b></label>
+      <label><span>TREBLE</span><input type="range" id="eq-2" min="-12" max="12" step="1" value="0" aria-label="Treble"><b id="eq-2v">0 dB</b></label>
+      <button class="btn" id="eq-flat" type="button">Flat</button>
+      <button class="btn" id="viz-toggle" type="button" title="Switch the analyser view">View</button>
+    </div>
+  </section>
+
+  <h2>THE LIBRARY</h2>
+  <div class="jb-tools">
+    <input class="find" id="q" type="search" placeholder="Search songs, places, styles" aria-label="Search the soundtrack">
+    <label class="f">Sort<select id="sort">
+      <option value="game">Game order</option><option value="name">Name A to Z</option><option value="bpm">Tempo (fast first)</option>
+      <option value="len">Length (long first)</option><option value="group">Category</option></select></label>
+    <label class="f">Style<select id="style"><option value="">Any style</option></select></label>
+    <label class="chk"><input type="checkbox" id="hand"> Hand-written themes only</label>
+  </div>
+  <div class="filters" id="groups" role="group" aria-label="Filter by category"></div>
+  <p class="muted" id="count"></p>
+  <ol class="tracks" id="tracks"></ol>
+  <p class="muted">Songs marked <span class="hw">HAND-WRITTEN</span> were composed note by note. The rest were written by the game's house composer, which gives every home screen and battlefield without a hand-written theme a piece of its own, in its own key, meter and style.</p>
+</main>
+
+<div class="playbar" id="playbar" role="region" aria-label="Player">
+  <img id="pb-cover" alt="" width="44" height="44">
+  <div class="pb-meta"><b id="pb-title">TerminalTanks soundtrack</b><span id="pb-sub" class="muted">Ready</span></div>
+  <div class="pb-ctl">
+    <button class="pbtn" id="prev" type="button" aria-label="Previous track" title="Previous (P)">&#9198;</button>
+    <button class="pbtn big" id="play" type="button" aria-label="Play" title="Play / pause (Space)">&#9654;</button>
+    <button class="pbtn" id="next" type="button" aria-label="Next track" title="Next (N)">&#9197;</button>
+    <button class="pbtn" id="mode" type="button" aria-label="Repeat: whole list" title="Repeat mode">&#8635;</button>
+    <button class="pbtn" id="shuf" type="button" aria-label="Shuffle off" aria-pressed="false" title="Shuffle">&#8644;</button>
+  </div>
+  <div class="pb-seek"><span id="t-cur">0:00</span><input type="range" id="seek" min="0" max="1000" value="0" step="1" aria-label="Seek"><span id="t-dur">0:00</span></div>
+  <div class="pb-vol">
+    <button class="pbtn" id="mute" type="button" aria-label="Mute" title="Mute (M)">&#128266;</button>
+    <input type="range" id="vol" min="0" max="100" value="80" aria-label="Volume">
+  </div>
+  <div class="pb-msg" id="pb-msg" role="status" aria-live="polite"></div>
+</div>
+<audio id="audio" preload="none" crossorigin="anonymous"></audio>
+
+<script src="site.js"></script>
+<script>
+(async function () {
+  'use strict';
+  const $ = (id) => document.getElementById(id), A = $('audio');
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  const fmt = (s) => { s = Math.max(0, Math.floor(s || 0)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+  const store = { get(k, d) { try { const v = localStorage.getItem('tt.jukebox.' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+                  set(k, v) { try { localStorage.setItem('tt.jukebox.' + k, JSON.stringify(v)); } catch (e) {} } };
+  let M;
+  try { M = await (await fetch('data/music.json')).json(); }
+  catch (e) { $('count').textContent = 'The soundtrack list could not be loaded. Reload the page to try again.'; return; }
+  const songs = M.songs, byId = new Map(songs.map((s) => [s.id, s]));
+  const hours = songs.reduce((t, s) => t + s.len, 0) / 3600;
+  $('totals').textContent = songs.length + ' tracks, about ' + hours.toFixed(1) + ' hours, ' + songs.filter((s) => s.hand).length + ' of them hand-written.';
+  document.querySelector('.titlebar .chip').textContent = songs.length + ' TRACKS';
+
+  /* ---- library: filters, search, sort ---------------------------------------------------------------------------- */
+  const groups = [['all', 'All']].concat(M.groups.map(([label, g]) => [g, label]));
+  let group = 'all', list = [];
+  const gbar = $('groups');
+  gbar.innerHTML = groups.map(([g, label]) => '<button type="button" class="btn kb" data-g="' + g + '">' + esc(label) + ' <span class="muted">' + (g === 'all' ? songs.length : songs.filter((s) => s.g === g).length) + '</span></button>').join('');
+  gbar.onclick = (e) => { const b = e.target.closest('[data-g]'); if (b) { group = b.dataset.g; render(); } };
+  [...new Set(songs.map((s) => s.st))].sort().forEach((st) => $('style').add(new Option(st.toUpperCase(), st)));
+  ['q', 'sort', 'style', 'hand'].forEach((id) => $(id).addEventListener('input', render));
+  $('sort').value = store.get('sort', 'game');
+  function filtered() {
+    const q = $('q').value.trim().toLowerCase(), st = $('style').value, hand = $('hand').checked, so = $('sort').value;
+    let r = songs.filter((s) => (group === 'all' || s.g === group) && (!st || s.st === st) && (!hand || s.hand) &&
+      (!q || (s.n + ' ' + s.d + ' ' + s.st + ' ' + s.gl + ' ' + s.key + ' ' + s.w.join(' ')).toLowerCase().includes(q)));
+    const order = M.groups.map((g) => g[1]);
+    if (so === 'name') r.sort((a, b) => a.n.localeCompare(b.n));
+    else if (so === 'bpm') r.sort((a, b) => b.bpm - a.bpm || a.i - b.i);
+    else if (so === 'len') r.sort((a, b) => b.len - a.len || a.i - b.i);
+    else if (so === 'group') r.sort((a, b) => order.indexOf(a.g) - order.indexOf(b.g) || a.i - b.i);
+    return r;
+  }
+  function render() {
+    store.set('sort', $('sort').value);
+    list = filtered();
+    [...gbar.children].forEach((b) => b.classList.toggle('on', b.dataset.g === group));
+    $('count').textContent = list.length + ' of ' + songs.length + ' tracks';
+    $('tracks').innerHTML = list.length ? list.map((s) => '<li class="trk' + (cur && cur.id === s.id ? ' on' : '') + '" data-id="' + esc(s.id) + '" tabindex="0" role="button" aria-label="Play ' + esc(s.n) + '">' +
+      '<img loading="lazy" decoding="async" alt="" width="48" height="48" src="' + esc(s.cv) + '">' +
+      '<span class="tn">' + String(s.i).padStart(3, '0') + '</span>' +
+      '<span class="tt"><b>' + esc(s.n) + '</b>' + (s.hand ? ' <span class="hw">HAND-WRITTEN</span>' : '') + '<span class="muted">' + esc(s.w[0] || s.gl) + (s.w.length > 1 ? ' and ' + (s.w.length - 1) + ' more' : '') + '</span></span>' +
+      '<span class="tg" data-g="' + s.g + '">' + esc(s.gl) + '</span>' +
+      '<span class="tb">' + s.bpm + ' BPM</span><span class="tl">' + fmt(s.len) + '</span><span class="eqm" aria-hidden="true"><i></i><i></i><i></i></span></li>').join('')
+      : '<li class="muted">Nothing matches. Clear the search or choose another category.</li>';
+  }
+  $('tracks').addEventListener('click', (e) => { const li = e.target.closest('.trk'); if (li) start(byId.get(li.dataset.id), true); });
+  $('tracks').addEventListener('keydown', (e) => { const li = e.target.closest('.trk'); if (li && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); start(byId.get(li.dataset.id), true); } });
+
+  /* ---- audio graph: <audio> -> 3-band EQ (the game's own filters) -> analyser -> speakers ------------------------ */
+  let ctx = null, an = null, eqf = [], gain = null, freq = null, wave = null;
+  const eqVals = store.get('eq', [0, 0, 0]);
+  function graph() {
+    if (ctx) return ctx;
+    try {
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const src = ctx.createMediaElementSource(A);
+      const lo = ctx.createBiquadFilter(), mid = ctx.createBiquadFilter(), hi = ctx.createBiquadFilter();
+      lo.type = 'lowshelf'; lo.frequency.value = 250; mid.type = 'peaking'; mid.frequency.value = 1000; mid.Q.value = 0.7; hi.type = 'highshelf'; hi.frequency.value = 3000;
+      eqf = [lo, mid, hi]; eqf.forEach((f, i) => { f.gain.value = eqVals[i]; });
+      an = ctx.createAnalyser(); an.fftSize = 4096; an.smoothingTimeConstant = 0.72;
+      gain = ctx.createGain();
+      src.connect(lo); lo.connect(mid); mid.connect(hi); hi.connect(an); an.connect(gain); gain.connect(ctx.destination);
+      freq = new Uint8Array(an.frequencyBinCount); wave = new Uint8Array(an.fftSize);
+      A.volume = 1; applyVol();
+    } catch (e) { ctx = null; msg('The equalizer is not available in this browser; music plays without it.'); }
+    return ctx;
+  }
+  /* ---- the player ------------------------------------------------------------------------------------------------ */
+  let cur = null, modeIdx = store.get('mode', 0), shuffle = store.get('shuffle', false), vol = store.get('vol', 0.8), muted = store.get('muted', false);
+  const MODES = [['all', '&#8635;', 'Repeat: whole list'], ['one', '&#8635;<sup>1</sup>', 'Repeat: this song'], ['off', '&#8677;', 'Play the list once']];
+  let msgTimer = 0;
+  function msg(t, ms) { $('pb-msg').textContent = t; $('pb-msg').classList.add('show'); clearTimeout(msgTimer); msgTimer = setTimeout(() => $('pb-msg').classList.remove('show'), ms || 3500); }
+  function applyVol() {
+    const v = muted ? 0 : vol;
+    if (gain) { gain.gain.setTargetAtTime(v, ctx.currentTime, 0.015); A.volume = 1; } else A.volume = v;
+    $('vol').value = Math.round(vol * 100); $('mute').innerHTML = muted || vol === 0 ? '&#128263;' : '&#128266;';
+    $('mute').setAttribute('aria-label', muted ? 'Unmute' : 'Mute'); $('mute').setAttribute('aria-pressed', String(muted));
+  }
+  function show(s) {
+    $('np-cover').src = s.cv; $('np-cover').alt = s.n + ' cover art'; $('np-disc').src = s.cv.replace('/covers/', '/discs/');
+    $('np-group').textContent = s.gl.toUpperCase() + '  ·  TRACK ' + String(s.i).padStart(3, '0') + ' OF ' + songs.length;
+    $('np-title').textContent = s.n; $('np-desc').textContent = s.d || '';
+    $('np-tags').innerHTML = [s.bpm + ' BPM', s.m, s.key, s.st.toUpperCase(), s.disc.rpm + ' RPM ' + s.disc.kind.toUpperCase() + ' VINYL', s.hand ? 'HAND-WRITTEN' : 'HOUSE COMPOSER'].map((t) => '<span>' + esc(t) + '</span>').join('');
+    $('np-where').innerHTML = s.w.length ? '<b>PLAYS IN</b> ' + s.w.slice(0, 6).map(esc).join(' · ') + (s.w.length > 6 ? ' · and ' + (s.w.length - 6) + ' more' : '') : '';
+    $('pb-cover').src = s.cv; $('pb-title').textContent = s.n; $('pb-sub').textContent = s.gl + ' · ' + s.bpm + ' BPM';
+    document.documentElement.style.setProperty('--disc-spin', (240 / s.disc.rpm).toFixed(2) + 's');
+    document.documentElement.style.setProperty('--np-a', 'rgb(' + s.disc.bold.join(',') + ')');
+    document.querySelectorAll('.trk.on').forEach((li) => li.classList.remove('on'));
+    const li = document.querySelector('.trk[data-id="' + CSS.escape(s.id) + '"]'); if (li) li.classList.add('on');
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.metadata = new MediaMetadata({ title: s.n, artist: 'TerminalTanks', album: s.gl, artwork: [{ src: new URL(s.cv, location.href).href, sizes: '192x192', type: 'image/png' }] });
+    }
+  }
+  function start(s, user) {
+    if (!s) return;
+    cur = s; show(s);
+    graph();
+    if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {});
+    A.src = s.a; A.loop = MODES[modeIdx][0] === 'one';
+    const p = A.play();
+    if (p) p.catch((e) => { if (e.name === 'NotAllowedError') msg('Your browser blocked playback. Press play to start the music.'); else if (e.name !== 'AbortError') msg('This track could not be played: ' + e.message); });
+    try { history.replaceState(null, '', '#song=' + encodeURIComponent(s.id)); } catch (e) {}
+    store.set('last', s.id);
+  }
+  const queue = () => (list.length ? list : songs);
+  function step(d, auto) {
+    const q = queue(); if (!q.length) return;
+    if (shuffle) { let n; do { n = q[Math.floor(Math.random() * q.length)]; } while (q.length > 1 && cur && n.id === cur.id); return start(n); }
+    const i = cur ? q.findIndex((s) => s.id === cur.id) : -1;
+    if (auto && MODES[modeIdx][0] === 'off' && i === q.length - 1) { A.pause(); return; }
+    start(q[(i + d + q.length) % q.length]);
+  }
+  function toggle() {
+    if (!cur) return start(queue()[0] || songs[0], true);
+    graph(); if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {});
+    if (A.paused) A.play().catch((e) => msg('Playback failed: ' + e.message)); else A.pause();
+  }
+  $('play').onclick = toggle; $('next').onclick = () => step(1); $('prev').onclick = () => (A.currentTime > 3 ? (A.currentTime = 0) : step(-1));
+  function renderMode() { const m = MODES[modeIdx]; $('mode').innerHTML = m[1]; $('mode').setAttribute('aria-label', m[2]); $('mode').title = m[2]; $('mode').classList.toggle('on', m[0] !== 'off'); A.loop = m[0] === 'one'; }
+  $('mode').onclick = () => { modeIdx = (modeIdx + 1) % MODES.length; store.set('mode', modeIdx); renderMode(); msg(MODES[modeIdx][2], 1400); };
+  function renderShuf() { $('shuf').classList.toggle('on', shuffle); $('shuf').setAttribute('aria-pressed', String(shuffle)); $('shuf').setAttribute('aria-label', shuffle ? 'Shuffle on' : 'Shuffle off'); }
+  $('shuf').onclick = () => { shuffle = !shuffle; store.set('shuffle', shuffle); renderShuf(); msg(shuffle ? 'Shuffle on' : 'Shuffle off', 1200); };
+  $('vol').oninput = (e) => { vol = e.target.value / 100; muted = vol === 0 ? muted : false; store.set('vol', vol); store.set('muted', muted); applyVol(); };
+  $('mute').onclick = () => { muted = !muted; store.set('muted', muted); applyVol(); };
+  let seeking = false;
+  $('seek').addEventListener('input', () => { seeking = true; if (A.duration) $('t-cur').textContent = fmt($('seek').value / 1000 * A.duration); });
+  $('seek').addEventListener('change', () => { if (A.duration) A.currentTime = $('seek').value / 1000 * A.duration; seeking = false; });
+  A.addEventListener('timeupdate', () => { if (!seeking && A.duration) { $('seek').value = Math.round(A.currentTime / A.duration * 1000); $('t-cur').textContent = fmt(A.currentTime); } });
+  A.addEventListener('loadedmetadata', () => { $('t-dur').textContent = fmt(A.duration); });
+  A.addEventListener('ended', () => step(1, true));
+  A.addEventListener('play', () => { document.body.classList.add('playing'); $('play').innerHTML = '&#10074;&#10074;'; $('play').setAttribute('aria-label', 'Pause'); });
+  A.addEventListener('pause', () => { document.body.classList.remove('playing'); $('play').innerHTML = '&#9654;'; $('play').setAttribute('aria-label', 'Play'); });
+  A.addEventListener('waiting', () => { $('pb-sub').textContent = 'Loading...'; });
+  A.addEventListener('playing', () => { if (cur) $('pb-sub').textContent = cur.gl + ' · ' + cur.bpm + ' BPM'; });
+  A.addEventListener('error', () => { if (!A.getAttribute('src')) return; msg('Could not load "' + (cur ? cur.n : 'this track') + '". Skipping to the next one.'); setTimeout(() => step(1, true), 1500); });
+  if ('mediaSession' in navigator) {
+    [['play', toggle], ['pause', toggle], ['nexttrack', () => step(1)], ['previoustrack', () => step(-1)],
+     ['seekto', (d) => { if (A.duration) A.currentTime = d.seekTime; }]].forEach(([a, f]) => { try { navigator.mediaSession.setActionHandler(a, f); } catch (e) {} });
+  }
+  addEventListener('keydown', (e) => {
+    if (e.target.closest && e.target.closest('input, select, textarea') && !(e.target.type === 'range' && e.key === ' ')) return;
+    if (e.key === ' ' && !e.target.closest('button, .trk')) { e.preventDefault(); toggle(); }
+    else if (e.key === 'n' || e.key === 'N') step(1);
+    else if (e.key === 'p' || e.key === 'P') step(-1);
+    else if (e.key === 'm' || e.key === 'M') $('mute').click();
+  });
+
+  /* ---- equalizer controls ----------------------------------------------------------------------------------------- */
+  const eqShow = () => eqVals.forEach((v, i) => { $('eq-' + i).value = v; $('eq-' + i + 'v').textContent = (v > 0 ? '+' : '') + v + ' dB'; });
+  [0, 1, 2].forEach((i) => { $('eq-' + i).oninput = (e) => { eqVals[i] = +e.target.value; if (eqf[i]) eqf[i].gain.setTargetAtTime(eqVals[i], ctx.currentTime, 0.02); store.set('eq', eqVals); eqShow(); }; });
+  $('eq-flat').onclick = () => { [0, 1, 2].forEach((i) => { eqVals[i] = 0; if (eqf[i]) eqf[i].gain.setTargetAtTime(0, ctx.currentTime, 0.02); }); store.set('eq', eqVals); eqShow(); };
+
+  /* ---- the analyser: 32 log-spaced bands from 55 Hz to 10 kHz (the game's own range), peak caps and a scope ---------- */
+  const cv = $('viz'), g2 = cv.getContext('2d'), still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const NB = 32, peaks = new Float32Array(NB), levels = new Float32Array(NB);
+  let view = store.get('view', 0);
+  const VIEWS = ['SPECTRUM', 'SCOPE'];
+  $('viz-toggle').onclick = () => { view = (view + 1) % VIEWS.length; store.set('view', view); $('viz-mode').textContent = VIEWS[view]; };
+  $('viz-mode').textContent = VIEWS[view];
+  function bandOf(k) { return 55 * Math.pow(10000 / 55, k / NB); }
+  function fit() { const r = cv.getBoundingClientRect(), d = Math.min(2, devicePixelRatio || 1); if (r.width) { cv.width = Math.round(r.width * d); cv.height = Math.round(r.height * d); } }
+  new ResizeObserver(fit).observe(cv); fit();
+  const col = (t) => { const s = [[0, [60, 220, 160]], [0.55, [255, 214, 90]], [1, [255, 80, 90]]]; for (let i = 0; i < 2; i++) { const [a, ca] = s[i], [b, cb] = s[i + 1]; if (t <= b) { const k = (t - a) / (b - a); return 'rgb(' + ca.map((c, j) => Math.round(c + (cb[j] - c) * k)).join(',') + ')'; } } return 'rgb(255,80,90)'; };
+  function draw() {
+    requestAnimationFrame(draw);
+    const W = cv.width, H = cv.height, live = an && !A.paused;
+    g2.fillStyle = '#04080d'; g2.fillRect(0, 0, W, H);
+    g2.strokeStyle = 'rgba(38,118,128,.18)'; g2.lineWidth = 1;
+    for (let y = 1; y < 8; y++) { g2.beginPath(); g2.moveTo(0, Math.round(H * y / 8) + .5); g2.lineTo(W, Math.round(H * y / 8) + .5); g2.stroke(); }
+    if (live) an.getByteFrequencyData(freq);
+    if (view === 1 && live) {                                         /* oscilloscope: the waveform itself */
+      an.getByteTimeDomainData(wave);
+      g2.lineWidth = Math.max(1.5, W / 400); g2.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--np-a') || '#60e8d4';
+      g2.shadowColor = g2.strokeStyle; g2.shadowBlur = 8; g2.beginPath();
+      for (let x = 0; x < W; x++) { const v = wave[Math.floor(x / W * wave.length)] / 128 - 1, y = H / 2 + v * H * 0.45; x ? g2.lineTo(x, y) : g2.moveTo(x, y); }
+      g2.stroke(); g2.shadowBlur = 0; return;
+    }
+    const nyq = ctx ? ctx.sampleRate / 2 : 22050, bins = freq ? freq.length : 1, gap = Math.max(2, W / NB * 0.22), bw = W / NB - gap, cell = Math.max(4, Math.round(H / 26));
+    for (let k = 0; k < NB; k++) {
+      let v = 0;
+      if (live) { const i0 = Math.floor(bandOf(k) / nyq * bins), i1 = Math.max(i0 + 1, Math.floor(bandOf(k + 1) / nyq * bins)); for (let i = i0; i < i1 && i < bins; i++) v = Math.max(v, freq[i]); v /= 255; }
+      levels[k] += (v - levels[k]) * (v > levels[k] ? 0.6 : 0.18);
+      peaks[k] = Math.max(levels[k], peaks[k] - (still ? 1 : 0.008));
+      const x = k * (bw + gap) + gap / 2, h = levels[k] * (H - cell), n = Math.floor(h / cell);
+      for (let j = 0; j < n; j++) { g2.fillStyle = col(j * cell / (H - cell)); g2.fillRect(x, H - (j + 1) * cell + 1, bw, cell - 2); }
+      if (peaks[k] > 0.02) { g2.fillStyle = '#e8f6ff'; g2.fillRect(x, H - peaks[k] * (H - cell) - cell, bw, Math.max(2, cell / 3)); }
+    }
+  }
+  requestAnimationFrame(draw);
+
+  /* ---- start ------------------------------------------------------------------------------------------------------- */
+  eqShow(); applyVol(); renderMode(); renderShuf(); render();
+  const deep = decodeURIComponent((location.hash.match(/song=([^&]+)/) || [])[1] || '');
+  const first = byId.get(deep) || byId.get(store.get('last', '')) || songs[0];
+  cur = first; show(first); A.src = first.a; render();
+  if (deep && byId.get(deep)) document.getElementById('deck').scrollIntoView({ block: 'start' });
+})();
+</script>
+</body>
+</html>

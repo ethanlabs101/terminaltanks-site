@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Save forge - TerminalTanks</title>
+<meta name="description" content="Inspect, edit and build TerminalTanks save files: progress, unlocks, paints, the Martyr, wallet and loadouts, for the browser game or the download.">
+<meta name="theme-color" content="#05090f">
+<meta name="color-scheme" content="dark">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Save forge - TerminalTanks">
+<meta property="og:description" content="Build a TerminalTanks save file with the tanks, shells, maps and progress you choose, then import it into the game.">
+<meta property="og:image" content="https://ethanlabs101.github.io/terminaltanks-site/preview.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://ethanlabs101.github.io/terminaltanks-site/save-forge.html">
+<link rel="stylesheet" href="site.css">
+</head>
+<body data-page="forge">
+<main data-title="SAVE FORGE">
+  <h2>BUILD OR EDIT A SAVE FILE</h2>
+  <p class="lead">Load your save, check what the game will make of it, change what you want, and download it again.</p>
+  <p>In the browser game, choose <b>Save data</b>, then <b>Import backup</b>. The downloaded game reads a plain <code>save.json</code> instead (see <a href="install.html">Install</a> for where it goes). <span class="warn">Either way, importing replaces the save on that device, so keep a copy of the original.</span> To keep your real progress, settings, loadouts, custom tanks and story progress, load your own backup or <code>save.json</code> below and edit that. Everything runs in this page; nothing is uploaded.</p>
+  <div class="drop" id="drop"><label>Edit an existing backup or save.json: <input type="file" id="load" accept="application/json,.json"></label>
+    <div class="muted" id="loaded">Starting from a blank save. You can also drop a file here.</div>
+    <div class="fields" id="profrow" hidden><label class="f">Profile to edit<select id="prof"></select></label></div>
+  </div>
+  <div class="card" id="inspect" hidden aria-live="polite"></div>
+  <div class="row" style="margin-top:8px" id="presets">
+    <button class="btn" type="button" data-p="all">Everything</button>
+    <button class="btn" type="button" data-p="nomaster">Everything except Master</button>
+    <button class="btn" type="button" data-p="gear">Collector (gear only)</button>
+    <button class="btn" type="button" data-p="tour">Tournament complete</button>
+    <button class="btn" type="button" data-p="tickets">Every ticket boss beaten</button>
+    <button class="btn" type="button" data-p="martyr">The Martyr defeated</button>
+    <button class="btn" type="button" id="none">Clear selection</button>
+  </div>
+  <input class="find" id="find" type="search" placeholder="Filter the lists below by name" aria-label="Filter items by name">
+
+  <fieldset><legend>PROGRESS</legend>
+    <div class="fields">
+      <label class="f">Tournament levels cleared (0 to <span class="n-lv"></span>)<input type="number" id="lv" min="0" max="20" value="0" inputmode="numeric"></label>
+      <label class="f">Missions cleared (0 to <span class="n-ms"></span>)<input type="number" id="ms" min="0" max="50" value="0" inputmode="numeric"></label>
+    </div>
+    <p class="muted">Levels and missions are cleared in order, so 7 means 1 through 7. Clearing a level or mission also unlocks its rewards. If you load a save and leave these alone, its exact progress is kept.</p>
+  </fieldset>
+  <fieldset><legend>WALLET</legend>
+    <div class="fields">
+      <label class="f">Coins<input type="number" id="coins" min="0" max="999999999" value="0" inputmode="numeric"></label>
+      <label class="f">Tournament credits<input type="number" id="credits" min="0" max="999999999" value="0" inputmode="numeric"></label>
+    </div>
+  </fieldset>
+  <fieldset><legend>THE MARTYR'S TIME MACHINE</legend>
+    <div class="fields">
+      <label class="chk"><input type="checkbox" id="m-open"> Time Machine opened in the shop</label>
+      <label class="chk"><input type="checkbox" id="m-paid"> Time Machine bought</label>
+      <label class="f">Duel reached<select id="m-phase"><option value="0">Not started</option><option value="1">Phase II (Tempest Spires)</option><option value="2">Phase III (Astral Rift)</option><option value="3">All three phases</option></select></label>
+      <label class="chk"><input type="checkbox" id="m-won"> <b>The Martyr defeated</b></label>
+    </div>
+    <p class="muted">Defeating the Martyr grants his relics (six ancient tanks, five ancient ammo types, three sanctum maps, six home screens and the ASTRAL paint) and <a href="catalog.html?q=blessing">Martyr's Blessing</a>, which nothing else can unlock. The game also opens the Time Machine once all ten ticket bosses are beaten.</p>
+  </fieldset>
+  <fieldset><legend>LOADOUTS</legend>
+    <div class="fields" id="lo"></div>
+    <p class="muted">The game resets a loadout to Ranger and Standard if the tank or ammo is not unlocked, and to Cyan and Yellow if an animated paint is not owned, so pick items you have also ticked or earned.</p>
+  </fieldset>
+  <div id="groups"></div>
+
+  <div id="sum"><span id="count"></span><span class="row" style="margin:0 0 0 auto"><button class="btn big" id="plain" type="button" title="For the downloaded game">Download save.json</button><button class="btn big hot" id="make" type="button" title="For the browser game">Download backup</button></span></div>
+</main>
+<script src="site.js"></script>
+<script src="forge.js"></script>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  const N = TT.counts, BLESS = TT.martyr.blessing;
+  const T = { saveVersion: N.saveVersion, missions: TT.missions, levels: TT.levels.length, blessing: BLESS, martyrRewards: TT.martyr.rewards,
+    ticketUids: Object.fromEntries(TT.tickets.map((b) => [b.key, b.uids])), unlockables: [] };
+  let parsed = null, idx = 0, levelsTouched = false, missionsTouched = false;
+  document.querySelectorAll('.n-lv').forEach((e) => { e.textContent = T.levels; }); document.querySelectorAll('.n-ms').forEach((e) => { e.textContent = T.missions; });
+  $('lv').max = T.levels; $('ms').max = T.missions;
+  const pairs = (p, list) => list.map(([id, n]) => [p + id, n]);
+  const paintChips = TT.paints.flatMap((p) => (p.n === 'RGB' ? [['rgb:hull', 'RGB HULL'], ['rgb:shell', 'RGB SHELL']] : [[p.hull, p.n + ' PAINT']]));
+  const G = [
+    ['TANKS', pairs('tank:', TT.tanks)],
+    ['AMMO', pairs('ammo:', TT.ammo).filter(([u]) => u !== BLESS)],
+    ['MAPS', pairs('map:', TT.maps)],
+    ['HOME SCREENS', pairs('theme:', TT.themes)],
+    ['PAINTS', paintChips],
+    ['TOURNAMENT LEVELS OPEN TO PLAY', TT.levels.map((n, i) => i ? ['level:' + (i + 1), (i + 1) + ' ' + n] : null).filter(Boolean)],
+    ['MISSIONS OPEN TO PLAY', Array.from({ length: TT.missions - 1 }, (_, i) => ['mission:' + (i + 2), 'MISSION ' + (i + 2)])],
+    ['FEATURES', [['master_difficulty', 'MASTER DIFFICULTY']]],
+    ['TERMINAL TICKET BOSSES BEATEN', TT.tickets.map((b) => ['ticket:' + b.key, b.name])],
+  ];
+  T.unlockables = G.flatMap(([, items]) => items.map(([u]) => u)).filter((u) => !u.startsWith('ticket:')).concat([BLESS]);
+  const MASTER = TT.rewards[TT.rewards.length - 1];
+  const box = $('groups');
+  box.innerHTML = G.map(([name, items], g) => `<fieldset data-g="${g}"><legend>${name}</legend>
+    <div class="grp"><button type="button" class="btn" data-on>All</button><button type="button" class="btn" data-off>None</button></div>
+    ${name.startsWith('TERMINAL') ? '<p class="muted">A beaten boss leaves the ticket pool and its tank, ammo, map and home screen are granted. Beat all ten and tickets sell out.</p>' : ''}
+    ${name === 'PAINTS' ? '<p class="muted">Animated paints work on any tank and its shells. <a href="catalog.html?kind=paint">See them move in the catalog.</a></p>' : ''}
+    <div class="chips">${items.map(([uid, label]) => `<label><input type="checkbox" value="${uid}"><span>${esc(label)}</span></label>`).join('')}</div></fieldset>`).join('');
+  const opt = (a) => a.map(([k, n]) => `<option value="${esc(k)}">${esc(n)}</option>`).join('');
+  const colorOpts = TT.colors.map((c) => [c, c]).concat(TT.paints.map((p) => [p.n, p.n + ' (animated)']));
+  $('lo').innerHTML = [0, 1].map((i) => [['p' + (i + 1) + 't', 'Player ' + (i + 1) + ' tank', opt([...TT.base.tanks, ...TT.tanks])], ['p' + (i + 1) + 'tc', 'Player ' + (i + 1) + ' hull color', opt(colorOpts)],
+    ['p' + (i + 1) + 'a', 'Player ' + (i + 1) + ' ammo', opt([...TT.base.ammo, ...TT.ammo])], ['p' + (i + 1) + 'sc', 'Player ' + (i + 1) + ' shell color', opt(colorOpts)]]
+    .map(([id, l, o]) => `<label class="f">${l}<select id="${id}">${o}</select></label>`).join('')).join('');
+  const LO_DEF = [['ranger', 'CYAN', 'standard', 'YELLOW'], ['ranger', 'ORANGE', 'standard', 'MAGENTA']];
+  const setLo = (lo) => [0, 1].forEach((i) => { const l = lo[i] || {}, d = LO_DEF[i];
+    [['t', 'tank', d[0]], ['tc', 'tank_color', d[1]], ['a', 'ammo', d[2]], ['sc', 'shot_color', d[3]]].forEach(([s, k, dv]) => ensure('p' + (i + 1) + s, typeof l[k] === 'string' ? l[k] : dv)); });
+  const ticks = () => [...box.querySelectorAll('input')];
+  const num = (id, max) => Math.max(0, Math.min(max, parseInt($(id).value, 10) || 0));
+  const mark = (fn) => ticks().forEach((i) => { i.checked = fn(i.value); });
+  const bossUids = T.ticketUids;
+  function refresh() {
+    const n = ticks().filter((i) => i.checked && !i.value.startsWith('ticket:')).length, l = num('lv', T.levels), m = num('ms', T.missions);
+    $('count').textContent = `${n} unlock${n === 1 ? '' : 's'} granted, ${l} level${l === 1 ? '' : 's'} and ${m} mission${m === 1 ? '' : 's'} cleared` + ($('m-won').checked ? ', the Martyr defeated' : '');
+  }
+  const setAll = (list, v) => { list.forEach((i) => { i.checked = v; if (i.value.startsWith('ticket:')) syncBoss(i); }); refresh(); };
+  function syncBoss(i) { const uids = bossUids[i.value.slice(7)]; if (uids) ticks().forEach((t) => { if (uids.includes(t.value)) t.checked = i.checked; }); }
+  box.addEventListener('click', (e) => {
+    const f = e.target.closest('fieldset'); if (!f) return;
+    if (e.target.matches('[data-on]')) setAll([...f.querySelectorAll('input')], true);
+    if (e.target.matches('[data-off]')) setAll([...f.querySelectorAll('input')], false);
+  });
+  box.addEventListener('change', (e) => { if (e.target.value && e.target.value.startsWith('ticket:')) syncBoss(e.target); });
+  document.addEventListener('input', refresh);
+  $('lv').addEventListener('input', () => { levelsTouched = true; }); $('ms').addEventListener('input', () => { missionsTouched = true; });
+  $('m-won').addEventListener('change', () => { if ($('m-won').checked) { $('m-open').checked = $('m-paid').checked = true; $('m-phase').value = '3'; ticks().forEach((t) => { if (TT.martyr.rewards.includes(t.value)) t.checked = true; }); } refresh(); });
+  $('find').addEventListener('input', (e) => {
+    const q = e.target.value.trim().toLowerCase();
+    box.querySelectorAll('fieldset').forEach((f) => { let any = false; f.querySelectorAll('.chips label').forEach((l) => { const ok = !q || l.textContent.toLowerCase().includes(q); l.hidden = !ok; any = any || ok; }); f.hidden = !any; });
+  });
+  $('presets').addEventListener('click', (e) => {
+    const p = e.target.dataset.p; if (!p) return;
+    if (p === 'all') mark((u) => !u.startsWith('ticket:'));
+    if (p === 'nomaster') { mark((u) => !u.startsWith('ticket:') && !MASTER.includes(u)); $('lv').value = Math.min(num('lv', T.levels), T.levels - 1); levelsTouched = true; }
+    if (p === 'gear') mark((u) => /^(tank|ammo|map|theme|paint|rgb):/.test(u));
+    if (p === 'tour') { $('lv').value = T.levels; levelsTouched = true; }
+    if (p === 'tickets') setAll(ticks().filter((i) => i.value.startsWith('ticket:')), true);
+    if (p === 'martyr') { $('m-won').checked = true; $('m-won').dispatchEvent(new Event('change')); }
+    refresh();
+  });
+  $('none').onclick = () => { setAll(ticks(), false); ['lv', 'ms', 'coins', 'credits'].forEach((id) => { $(id).value = 0; }); levelsTouched = missionsTouched = true;
+    ['m-open', 'm-paid', 'm-won'].forEach((id) => { $(id).checked = false; }); $('m-phase').value = '0'; refresh(); };
+  function ensure(id, v) { const s = $(id); if (![...s.options].some((o) => o.value === v)) s.add(new Option(v.startsWith('custom:') ? 'CUSTOM ' + v.slice(7) : v.toUpperCase(), v)); s.value = v; }
+
+  /* ---- loading --------------------------------------------------------------------------------------------------- */
+  function showDoc() {
+    const sv = parsed.saves[idx], d = sv.doc;
+    const g = new Set(Array.isArray(d.granted) ? d.granted : []), won = new Set(((d.tickets || {}).won) || []);
+    mark((u) => u.startsWith('ticket:') ? won.has(u.slice(7)) : g.has(u));
+    const lvl = Forge.chain((d.tournament_completed || []).filter(Number.isInteger), [...g], 'level:', T.levels);
+    const msl = Forge.chain((d.missions_completed || []).filter(Number.isInteger), [...g], 'mission:', T.missions);
+    $('lv').value = lvl.length ? Math.max(...lvl) : 0; $('ms').value = msl.length ? Math.max(...msl) : 0; levelsTouched = missionsTouched = false;
+    $('coins').value = (d.wallet || {}).coins || 0; $('credits').value = (d.wallet || {}).credits || 0;
+    const mt = d.martyr || {};
+    $('m-open').checked = !!mt.open; $('m-paid').checked = !!mt.paid; $('m-won').checked = !!mt.won; $('m-phase').value = String(Math.max(0, Math.min(3, mt.phase | 0)));
+    ['p1t', 'p2t'].forEach((id) => { [...$(id).options].filter((o) => o.value.startsWith('custom:')).forEach((o) => o.remove()); });
+    (Array.isArray(d.custom_tanks) ? d.custom_tanks : []).forEach((r) => { if (r && r.id) ['p1t', 'p2t'].forEach((id) => $(id).add(new Option('CUSTOM: ' + (r.name || r.id), 'custom:' + r.id))); });
+    setLo(Array.isArray(d.loadouts) ? d.loadouts : []);
+    renderInspect(d, sv);
+    refresh();
+  }
+  function renderInspect(d, sv) {
+    const r = Forge.inspect(d, T), w = (sv.info.warnings || []).concat(r.warnings);
+    const pt = (sec) => { const m = Math.floor(sec / 60); return m >= 60 ? Math.floor(m / 60) + ' h ' + (m % 60) + ' min' : m + ' min'; };
+    $('inspect').hidden = false;
+    $('inspect').innerHTML = '<h3 style="margin-top:0">WHAT THE GAME WILL SEE' + (parsed.saves.length > 1 ? ' IN ' + esc(sv.name) : '') + '</h3><div class="kv">' +
+      [['Save format', 'version ' + r.version + (r.version === N.saveVersion ? ' (current)' : r.version < N.saveVersion ? ' (older: the game upgrades it)' : ' (newer than this site)')],
+       ['Unlocks', r.unlocks + ' of ' + (T.unlockables.length - 1) + ' known'], ['Tournament', r.levels + ' of ' + T.levels + ' levels cleared'], ['Missions', r.missions + ' of ' + T.missions + ' cleared'],
+       ['Ticket bosses beaten', r.tickets + ' of ' + TT.tickets.length], ['The Martyr', r.martyr], ['Wallet', r.coins.toLocaleString('en-US') + ' coins, ' + r.credits.toLocaleString('en-US') + ' credits'],
+       ['Custom tanks', r.custom + ' (kept exactly as they are)'], ['Playtime', pt(r.playtime)], ['Story moments heard', String(r.story)], ['Settings', r.settings + ' stored (kept)']]
+      .map(([k, v]) => '<span>' + k + '</span><span>' + esc(v) + '</span>').join('') + '</div>' +
+      (w.length ? '<p class="warn">Check before you import:</p><ul>' + w.map((x) => '<li>' + esc(x) + '</li>').join('') + '</ul>' : '<p class="good">No problems found: the game will read this save as it is.</p>');
+  }
+  async function loadFile(f) {
+    try {
+      if (f.size > 5 * 1048576) throw new Forge.ForgeError('the file is too large to be a save');
+      const p = Forge.parse(await f.text(), { maxVersion: N.saveVersion });
+      parsed = p; idx = p.active;
+      $('prof').innerHTML = p.saves.map((s, i) => '<option value="' + i + '">' + esc(s.name) + ' (' + esc(s.path.split('/').pop()) + ')</option>').join('');
+      $('prof').value = String(idx); $('profrow').hidden = p.saves.length < 2;
+      const ct = (p.saves[idx].doc.custom_tanks || []).length;
+      $('loaded').textContent = 'Loaded ' + f.name + (p.kind === 'bundle' ? ' (a browser backup with ' + p.bundle.files.length + ' file' + (p.bundle.files.length === 1 ? '' : 's') + (p.saves.length > 1 ? ' and ' + p.saves.length + ' profiles' : '') + ')' : ' (a save.json)') +
+        '. Your settings, loadout colors, story progress' + (ct ? ' and ' + ct + ' custom tank' + (ct === 1 ? '' : 's') : '') + ' will be kept.';
+      showDoc();
+    } catch (err) {
+      $('loaded').innerHTML = '<span class="bad">Could not read ' + esc(f.name) + ': ' + esc(err.message) + '.</span> ' + (parsed ? 'You are still editing the file you loaded before.' : 'Nothing was changed.');
+    }
+  }
+  $('load').onchange = (e) => { const f = e.target.files[0]; e.target.value = ''; if (f) loadFile(f); };
+  $('prof').onchange = (e) => { idx = +e.target.value; showDoc(); };
+  const drop = $('drop');
+  ['dragenter', 'dragover'].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add('over'); }));
+  ['dragleave', 'drop'].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove('over'); }));
+  drop.addEventListener('drop', (e) => { const f = e.dataTransfer.files[0]; if (f) loadFile(f); });
+
+  /* ---- saving ------------------------------------------------------------------------------------------------------ */
+  function form() {
+    const on = ticks().filter((i) => i.checked).map((i) => i.value);
+    return {
+      known: T.unlockables.filter((u) => u !== BLESS), granted: on.filter((u) => !u.startsWith('ticket:')), ticketsWon: on.filter((u) => u.startsWith('ticket:')).map((u) => u.slice(7)),
+      levels: parsed && !levelsTouched ? null : num('lv', T.levels), missions: parsed && !missionsTouched ? null : num('ms', T.missions),
+      coins: num('coins', 999999999), credits: num('credits', 999999999),
+      martyr: { open: $('m-open').checked, paid: $('m-paid').checked, phase: +$('m-phase').value, won: $('m-won').checked, seen: false },
+      loadouts: [0, 1].map((i) => ({ tank: $('p' + (i + 1) + 't').value, tank_color: $('p' + (i + 1) + 'tc').value, ammo: $('p' + (i + 1) + 'a').value, shot_color: $('p' + (i + 1) + 'sc').value })),
+    };
+  }
+  function buildDoc() {
+    const old = parsed ? parsed.saves[idx].doc : null;
+    const f = form();
+    if (old && old.martyr && old.martyr.seen) f.martyr.seen = true;
+    return Forge.build(old, f, T);
+  }
+  function save(name, text) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([text], { type: 'application/json' })); a.download = name;
+    document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+  function verified(doc, text) {               /* re-read what we are about to hand over, exactly as the next import will */
+    const back = Forge.parse(text, { maxVersion: Math.max(N.saveVersion, doc.version) });
+    const d2 = back.saves[back.kind === 'bundle' ? back.saves.findIndex((s) => s.path === (parsed ? parsed.saves[idx].path : '.config/terminaltanks/save.json')) : 0].doc;
+    if (JSON.stringify(d2) !== JSON.stringify(doc)) throw new Error('the file did not read back the same');
+    renderInspect(doc, { name: parsed ? parsed.saves[idx].name : 'save.json', info: { warnings: [] } });
+  }
+  $('plain').onclick = () => { const doc = buildDoc(), text = Forge.pretty(doc); try { verified(doc, text); } catch (e) { alert('Not saved: ' + e.message); return; }
+    save(parsed && parsed.saves[idx].path.split('/').pop() !== 'save.json' ? parsed.saves[idx].path.split('/').pop() : 'save.json', text); };
+  $('make').onclick = () => {
+    const doc = buildDoc(), b = Forge.bundle(parsed || { bundle: null, saves: [{ path: '.config/terminaltanks/save.json' }] }, parsed ? idx : 0, doc), text = JSON.stringify(b, null, 2);
+    try { verified(doc, text); } catch (e) { alert('Not saved: ' + e.message); return; }
+    save('terminaltanks-save.json', text);
+  };
+  setLo([]);
+  refresh();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Links - TerminalTanks</title>
+<meta name="description" content="Where to get TerminalTanks and where to follow its development.">
+<meta name="theme-color" content="#05090f">
+<meta name="color-scheme" content="dark">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Links - TerminalTanks">
+<meta property="og:description" content="Where to get TerminalTanks and where to follow its development.">
+<meta property="og:image" content="https://ethanlabs101.github.io/terminaltanks-site/preview.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://ethanlabs101.github.io/terminaltanks-site/links.html">
+<link rel="stylesheet" href="site.css">
+</head>
+<body data-page="links">
+<main data-title="LINKS">
+  <h2>FIND TERMINALTANKS ELSEWHERE</h2>
+  <p class="lead">Every place the game and its developer live online.</p>
+  <div id="links"><p class="muted">Loading links.</p></div>
+</main>
+<script src="site.js"></script>
+<script>
+/* The list lives in links.json. A link with an empty "url" is not shown, so you can add a placeholder now and fill it in when the page goes live. */
+fetch('links.json').then((r) => r.json()).then((j) => {
+  const box = document.getElementById('links'); box.textContent = '';
+  const groups = [...new Set(j.links.filter((l) => /^https?:\/\//.test(l.url)).map((l) => l.group))];
+  groups.forEach((g) => {
+    const h = document.createElement('h3'); h.textContent = g.toUpperCase(); box.append(h);
+    const row = document.createElement('div'); row.className = 'items';
+    j.links.filter((l) => l.group === g && /^https?:\/\//.test(l.url)).forEach((l) => {
+      const a = document.createElement('a'); a.className = 'item linkcard'; a.href = l.url; a.target = '_blank'; a.rel = 'noopener';
+      const b = document.createElement('b'); b.textContent = l.name; const p = document.createElement('p'); p.textContent = l.text;
+      const u = document.createElement('div'); u.className = 'how'; u.textContent = new URL(l.url).hostname.replace(/^www\./, '');
+      a.append(b, p, u); row.append(a);
+    });
+    box.append(row);
+  });
+  if (!groups.length) box.innerHTML = '<p class="muted">No links yet.</p>';
+}).catch(() => { document.getElementById('links').innerHTML = '<p class="muted">The links could not be loaded. Reload the page to try again.</p>'; });
+</script>
+</body>
+</html>

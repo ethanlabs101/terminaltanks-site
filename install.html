@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Install - TerminalTanks</title>
+<meta name="description" content="Play TerminalTanks in your browser, or download it for the best performance, offline play and a save file you control.">
+<meta name="theme-color" content="#05090f">
+<meta name="color-scheme" content="dark">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Install - TerminalTanks">
+<meta property="og:description" content="Play TerminalTanks in your browser, or download it for the best performance, offline play and a save file you control.">
+<meta property="og:image" content="https://ethanlabs101.github.io/terminaltanks-site/preview.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://ethanlabs101.github.io/terminaltanks-site/install.html">
+<link rel="stylesheet" href="site.css">
+</head>
+<body data-page="install">
+<main data-title="INSTALL">
+  <h2>TWO WAYS TO PLAY</h2>
+  <p class="lead">Play in your browser right now, or download the game for the best experience.</p>
+  <div class="two">
+    <div class="card">
+      <h3>IN YOUR BROWSER</h3>
+      <p>Nothing to install. The first visit downloads the Python runtime (about 10 MB), and after that it loads from your cache.</p>
+      <p class="muted">Your progress lives in this browser's storage, so clearing site data erases it. Export a backup from the game's Save data menu now and then.</p>
+      <div class="row"><a class="btn big hot" href="play.html">Play in your browser</a></div>
+    </div>
+    <div class="card">
+      <h3>DOWNLOAD THE GAME</h3>
+      <p>The best performance, play with no internet, and a save that is one plain file on your own disk. You back it up by copying it.</p>
+      <p class="muted" id="dlinfo">Python 3.10 or newer is the only requirement.</p>
+      <div class="row"><a class="btn big hot" id="dl" href="downloads/terminaltanks.zip" download>Download the zip</a></div>
+    </div>
+  </div>
+
+  <h2>INSTALL IT</h2>
+  <div class="filters" role="tablist" aria-label="Operating system" id="os">
+    <button class="btn" role="tab" type="button" data-os="win">Windows</button>
+    <button class="btn" role="tab" type="button" data-os="mac">macOS</button>
+    <button class="btn" role="tab" type="button" data-os="lin">Linux</button>
+  </div>
+  <div id="os-win" hidden>
+    <ol>
+      <li>Install Python 3.10 or newer from <a href="https://www.python.org/downloads/" target="_blank" rel="noopener">python.org</a>. On the first installer screen, tick <b>Add python.exe to PATH</b>. The Microsoft Store version also works.</li>
+      <li>Right-click the zip and choose <b>Extract All</b>.</li>
+      <li>Open the extracted folder and double-click <code>play.bat</code>.</li>
+    </ol>
+    <p class="muted">For the best look, open <b>Windows Terminal</b> in the folder and run <code>py terminaltanks.py</code> instead. It draws colors and box characters more cleanly than the old console window. I have not been able to test the Windows launcher on every setup, so if <code>play.bat</code> gives you trouble, use that command.</p>
+  </div>
+  <div id="os-mac" hidden>
+    <ol>
+      <li>Check for Python: open <b>Terminal</b> and run <code>python3 --version</code>. If it is missing or older than 3.10, install it from <a href="https://www.python.org/downloads/" target="_blank" rel="noopener">python.org</a> or run <code>brew install python</code>.</li>
+      <li>Double-click the zip to extract it.</li>
+      <li>In Terminal, go to the folder, for example <code>cd ~/Downloads/TerminalTanks</code>, and run <code>python3 terminaltanks.py</code>.</li>
+    </ol>
+    <p class="muted">You can also run <code>./play.sh</code>, which checks your Python version first. If colors look wrong, add <code>--color 256</code>.</p>
+  </div>
+  <div id="os-lin" hidden>
+    <ol>
+      <li>Most distributions already have Python. Check with <code>python3 --version</code>. If you need it: <code>sudo apt install python3</code> (Debian, Ubuntu), <code>sudo dnf install python3</code> (Fedora) or <code>sudo pacman -S python</code> (Arch).</li>
+      <li>Extract the zip: <code>unzip terminaltanks.zip</code>.</li>
+      <li>Go into the folder and run <code>python3 terminaltanks.py</code>, or <code>./play.sh</code>.</li>
+    </ol>
+  </div>
+  <p>The game needs a UTF-8 terminal at least <b>96 columns by 28 rows</b>, and it is happiest at 100 by 30 or larger. If it says the window is too small, make the window bigger or lower the font size.</p>
+
+  <h2>SOUND</h2>
+  <p>The game composes and synthesizes its own music and effects. To play them it uses the first audio route it finds: the Python package <code>sounddevice</code> or <code>pyaudio</code> if you have one installed, the built-in player on Windows, or on macOS and Linux one of <code>paplay</code>, <code>pw-cat</code>, <code>aplay</code>, <code>play</code> (SoX) or <code>ffplay</code>. With none of these it runs silently. Music and effects are switched under <b>SETTINGS &gt; AUDIO</b>.</p>
+  <p class="muted">In the browser the game plays through Web Audio instead; use the speaker button on the <a href="play.html">play page</a> for volume and mute. Every song is also on the <a href="jukebox.html">Jukebox</a>.</p>
+
+  <h2>YOUR SAVE FILE</h2>
+  <p>The downloaded game keeps your progress in one file:</p>
+  <div class="kv">
+    <span>Windows</span><span><code>%APPDATA%\TerminalTanks\save.json</code></span>
+    <span>macOS and Linux</span><span><code>~/.config/terminaltanks/save.json</code> (or <code>$XDG_CONFIG_HOME/terminaltanks/save.json</code>)</span>
+  </div>
+  <p>Copy that file to back it up, and copy it back to restore it. Extra profiles live next to it as <code>save_profile2.json</code> and <code>save_profile3.json</code>, listed in <code>profiles.json</code>. Use <code>--save-file PATH</code> or the <code>TERMINALTANKS_SAVE</code> environment variable to point the game somewhere else.</p>
+  <p><b>Moving between the browser and the download.</b> The two keep separate saves. Open the <a href="save-forge.html">Save forge</a>, load either your browser backup or your <code>save.json</code>, and download it in the other form. The forge keeps your progress, wallet, loadouts, settings and custom tanks.</p>
+
+  <h2>COMMAND-LINE OPTIONS</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>Option</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td><code>--save-file PATH</code></td><td>Use a different progress file</td></tr>
+      <tr><td><code>--color MODE</code></td><td><code>auto</code>, <code>truecolor</code>, <code>256</code> or <code>16</code>. Try <code>256</code> if colors look wrong</td></tr>
+      <tr><td><code>--seed N</code></td><td>Seed maps and AI for reproducible matches</td></tr>
+      <tr><td><code>--reset-progress</code></td><td>Delete saved progress and unlocks, then exit</td></tr>
+      <tr><td><code>--export-music DIR</code></td><td>Render the whole soundtrack and every sound effect to WAV files in DIR</td></tr>
+      <tr><td><code>--only TEXT</code></td><td>With <code>--export-music</code>: only songs whose id, name or group contains TEXT</td></tr>
+      <tr><td><code>--version</code></td><td>Print the version</td></tr>
+    </tbody>
+  </table></div>
+  <p class="muted">LAN play between two computers uses TCP port 47474 and UDP port 47475. Allow them through your firewall if the other player cannot find you.</p>
+  <p>Looking for the handheld version? The <a href="ds.html">Nintendo DS port</a> has its own page and download.</p>
+</main>
+<script src="site.js"></script>
+<script>
+(function () {
+  const tabs = document.getElementById('os');
+  const show = (os) => { ['win', 'mac', 'lin'].forEach((k) => { document.getElementById('os-' + k).hidden = k !== os; }); [...tabs.children].forEach((b) => { b.classList.toggle('on', b.dataset.os === os); b.setAttribute('aria-selected', b.dataset.os === os); }); };
+  const ua = ((navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || navigator.userAgent).toLowerCase();
+  show(/win/.test(ua) ? 'win' : /mac|iphone|ipad/.test(ua) ? 'mac' : 'lin');
+  tabs.onclick = (e) => { if (e.target.dataset.os) show(e.target.dataset.os); };
+  fetch('downloads/info.json').then((r) => r.json()).then((i) => {
+    const mb = (i.bytes / 1048576).toFixed(2);
+    document.getElementById('dlinfo').innerHTML = 'Version ' + i.version + ', ' + mb + ' MB. Requires Python 3.10 or newer.<br>SHA-256: <code style="word-break:break-all">' + i.sha256 + '</code>';
+    document.getElementById('dl').textContent = 'Download version ' + i.version;
+  }).catch(() => {});
+})();
+</script>
+</body>
+</html>

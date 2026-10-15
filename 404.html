@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Page not found - TerminalTanks</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#05090f">
+<meta name="color-scheme" content="dark">
+<script>
+   
+// GitHub Pages serves this page for any missing path, so links resolve from the site's root: /<repo>/ on github.io
+// (for this repo, /terminaltanks-site/), otherwise the server root.
+var SITE_ROOT = /\.github\.io$/.test(location.hostname) && location.pathname.split('/')[1] ? '/' + location.pathname.split('/')[1] + '/' : '/';
+document.write('<base href="' + SITE_ROOT + '">');
+</script>
+<link rel="stylesheet" href="site.css">
+</head>
+<body data-page="404">
+<main data-title="ERROR" data-chip="NO SIGNAL">
+  <p class="err404" aria-hidden="true">404</p>
+  <svg class="miss" id="miss" viewBox="0 0 600 190" role="img" aria-label="A tank fires a shell that sails off the top of the screen and misses the target"></svg>
+  <h2>SHELL OFF TARGET</h2>
+  <p class="lead">Nothing is standing at <code id="path"></code>.</p>
+  <p>The address may be mistyped, or the page may have moved. These are the places that do exist:</p>
+  <div class="scroll"><table class="where">
+    <tbody>
+      <tr><td><a href="play.html">play.html</a></td><td>The game, running in your browser</td></tr>
+      <tr><td><a href="home.html">home.html</a></td><td>News and an overview</td></tr>
+      <tr><td><a href="catalog.html">catalog.html</a></td><td>Every tank, ammo type, paint, map, home screen and boss</td></tr>
+      <tr><td><a href="workshop.html">workshop.html</a></td><td>Build a tank from every part</td></tr>
+      <tr><td><a href="jukebox.html">jukebox.html</a></td><td>Every song in the game's soundtrack</td></tr>
+      <tr><td><a href="cheats.html">cheats.html</a></td><td>Cheat codes and what they unlock</td></tr>
+      <tr><td><a href="save-forge.html">save-forge.html</a></td><td>Build or edit a save file</td></tr>
+      <tr><td><a href="install.html">install.html</a></td><td>Download the game for offline play</td></tr>
+      <tr><td><a href="ds.html">ds.html</a></td><td>The Nintendo DS port</td></tr>
+      <tr><td><a href="about.html">about.html</a></td><td>The story and how the game is built</td></tr>
+      <tr><td><a href="links.html">links.html</a></td><td>Where to find the game and its developer</td></tr>
+    </tbody>
+  </table></div>
+  <div class="row">
+    <a class="btn big hot" href="home.html">Back to base</a>
+    <a class="btn big" href="https://github.com/ethanlabs101/TerminalTanks/issues" target="_blank" rel="noopener">Report a broken link</a>
+  </div>
+</main>
+<script src="site.js"></script>
+<script>
+document.getElementById('path').textContent = location.pathname;
+document.getElementById('miss').innerHTML =
+  '<path class="ridge1" d="M0 190V150l60-14 70 18 80-22 70 14 90-20 80 12 90-10 90 8 80-14 60 6V190z"/>' +
+  '<g transform="translate(70 118) scale(4)">' + TT.sprite.replace(/y="(\d+(?:\.\d+)?)"/g, (m, y) => 'y="' + (y - 3) + '"') + '</g>' +
+  '<path class="path" d="M118 110 Q 330 -80 640 70"/><circle class="shell" r="3.5"/>' +
+  '<g transform="translate(500 138)"><rect width="22" height="12" fill="none" stroke="var(--danger)" stroke-dasharray="3 3"/><text x="-4" y="30">TARGET</text></g>' +
+  '<text x="496" y="24">OUT OF BOUNDS</text>';
+</script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Catalog - TerminalTanks</title>
+<meta name="description" content="Every tank, shell, map, home screen, paint and boss in TerminalTanks, and how to unlock each one.">
+<meta name="theme-color" content="#05090f">
+<meta name="color-scheme" content="dark">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Catalog - TerminalTanks">
+<meta property="og:description" content="Every tank, shell, map, home screen, paint and boss in TerminalTanks, and how to unlock each one.">
+<meta property="og:image" content="https://ethanlabs101.github.io/terminaltanks-site/preview.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://ethanlabs101.github.io/terminaltanks-site/catalog.html">
+<link rel="stylesheet" href="site.css">
+</head>
+<body data-page="catalog">
+<main data-title="CATALOG">
+  <h2>EVERYTHING YOU CAN UNLOCK</h2>
+  <p class="lead"><span id="total">Every</span> tanks, ammo types, maps, home screens, paints, features and bosses, with where each one comes from.</p>
+  <p class="muted">Every picture is drawn by the game's own code. Animated paints play as short clips; hover or tap any entry with a picture for a closer look.</p>
+  <input class="find" id="q" type="search" placeholder="Search by name or description" aria-label="Search the catalog">
+  <div class="filters" id="kinds" role="group" aria-label="Filter by type"></div>
+  <div class="filters" id="hows" role="group" aria-label="Filter by source"></div>
+  <div class="filters" id="tiers" role="group" aria-label="Filter by tier"></div>
+  <p class="muted" id="n"></p>
+  <dialog id="lb" aria-label="Screenshot"><header><b id="lbt"></b><span class="muted" id="lbk"></span><span class="sp"></span><button class="btn" id="lbp" type="button" aria-label="Previous">&larr;</button><button class="btn" id="lbn" type="button" aria-label="Next">&rarr;</button><button class="btn" id="lbc" type="button">Close</button></header><img id="lbi" alt=""><video id="lbv" muted loop playsinline controls hidden></video><p id="lbh"></p></dialog>
+  <div id="peek" hidden><img alt=""></div>
+  <div class="items" id="items"></div>
+</main>
+<script src="site.js"></script>
+<script>
+(async function () {
+  const K = { all: 'All', tank: 'Tanks', ammo: 'Ammo', map: 'Maps', theme: 'Home screens', paint: 'Paints', feature: 'Features', workshop: 'Workshop', boss: 'Bosses' };
+  const T = { tank: 'TANK', ammo: 'AMMO', map: 'MAP', theme: 'HOME SCREEN', paint: 'PAINT', feature: 'FEATURE', workshop: 'WORKSHOP', boss: 'BOSS' };
+  const H = { all: 'Any source', Starter: 'Starter', Shop: 'Shop', Tournament: 'Tournament', Mission: 'Missions', 'Terminal Ticket': 'Terminal Tickets', 'The Martyr': 'The Martyr', 'Cheat only': 'Cheat only' };
+  const R = { all: 'Any tier', 'Master tier': 'Master tier', Premium: 'Premium', Legendary: 'Legendary' };
+  const TIERCLS = { Premium: 'prem', 'Master tier': 'mast', Legendary: 'leg' };
+  let data = [], kind = 'all', how = 'all', tier = 'all', shown = [], cur = -1;
+  let shots = {}, anim = {};
+  try { shots = await (await fetch('shots/manifest.json')).json(); anim = shots['@anim'] || {}; delete shots['@anim']; } catch (e) {}
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const thumb = (d) => anim[d.u] && anim[d.u].mp4 && !still
+    ? '<video class="thumb" muted loop playsinline preload="none" poster="shots/' + anim[d.u].poster + '" aria-hidden="true">' + (anim[d.u].webm ? '<source src="shots/' + anim[d.u].webm + '" type="video/webm">' : '') + '<source src="shots/' + anim[d.u].mp4 + '" type="video/mp4"></video>'
+    : '<img class="thumb" loading="lazy" decoding="async" alt="" src="shots/' + shots[d.u] + '">';
+  try { data = await (await fetch('catalog.json')).json(); } catch (e) { document.getElementById('n').textContent = 'The catalog could not be loaded. Reload the page to try again.'; return; }
+  const bar = (id, map, get, set) => { const el = document.getElementById(id); el.innerHTML = Object.entries(map).map(([k, v]) => '<button type="button" class="btn kb" data-k="' + k + '">' + v + '</button>').join(''); el.onclick = (e) => { if (e.target.dataset.k) { set(e.target.dataset.k); render(); } }; return el; };
+  const kb = bar('kinds', K, () => kind, (v) => { kind = v; }), hb = bar('hows', H, () => how, (v) => { how = v; }), tb = bar('tiers', R, () => tier, (v) => { tier = v; });
+  document.getElementById('total').textContent = data.length;
+  const esc = (s) => s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
+  function render() {
+    const q = document.getElementById('q').value.trim().toLowerCase();
+    const rows = data.filter((d) => (kind === 'all' || d.k === kind) && (how === 'all' || d.h.startsWith(how)) && (tier === 'all' || d.t === tier) && (!q || (d.n + ' ' + d.b + ' ' + (d.fx || '') + ' ' + d.h).toLowerCase().includes(q)));
+    [...kb.children].forEach((b) => b.classList.toggle('on', b.dataset.k === kind)); [...hb.children].forEach((b) => b.classList.toggle('on', b.dataset.k === how)); [...tb.children].forEach((b) => b.classList.toggle('on', b.dataset.k === tier));
+    shown = rows.filter((d) => shots[d.u]);
+    const nshots = Object.keys(shots).length;
+    document.getElementById('n').textContent = rows.length + ' of ' + data.length + ' shown' + (nshots ? '. Hover or click an entry marked Screenshot to preview it.' : '');
+    document.getElementById('items').innerHTML = rows.length ? rows.map((d) => '<div class="item' + (shots[d.u] ? ' has-shot" tabindex="0" role="button" aria-label="View screenshot of ' + esc(d.n) : '') + '" data-u="' + d.u + '" data-k="' + d.k + '">' + (shots[d.u] ? thumb(d) : '') + '<span class="type">' + T[d.k] + '</span><b>' + esc(d.n) + '</b>' + (d.t ? ' <span class="tier ' + (TIERCLS[d.t] || 'mast') + '">' + d.t.toUpperCase() + '</span>' : '') + (d.an ? ' <span class="tier anim">ANIMATED</span>' : '') + (d.b ? '<p>' + esc(d.b) + '</p>' : '') + (d.fx ? '<p class="fx">Effect: ' + esc(d.fx) + '</p>' : '') + '<div class="how' + (d.h === 'Cheat only' ? ' cheat' : '') + '">' + esc(d.h) + (d.c ? ', ' + d.c : '') + '</div>' + (shots[d.u] ? '<span class="shot">SCREENSHOT</span>' : '') + '</div>').join('') : '<p class="muted">Nothing matches. Clear the search or choose another filter.</p>';
+    watchVideos();
+  }
+  /* animated previews play only while they are on screen */
+  const vio = 'IntersectionObserver' in window ? new IntersectionObserver((es) => es.forEach((e) => { const v = e.target; if (e.isIntersecting) { v.preload = 'auto'; v.play().catch(() => {}); } else v.pause(); }), { rootMargin: '120px' }) : null;
+  function watchVideos() { document.querySelectorAll('#items video.thumb').forEach((v) => { if (vio) vio.observe(v); else { v.preload = 'auto'; v.play().catch(() => {}); } }); }
+  const items = document.getElementById('items'), peek = document.getElementById('peek'), lb = document.getElementById('lb'), $ = (id) => document.getElementById(id);
+  const find = (el) => { const c = el.closest('.item.has-shot'); return c ? data.find((d) => d.u === c.dataset.u) : null; };
+  const place = (e) => { const w = peek.offsetWidth, h = peek.offsetHeight; peek.style.left = Math.min(e.clientX + 18, innerWidth - w - 8) + 'px'; peek.style.top = Math.max(8, Math.min(e.clientY + 14, innerHeight - h - 8)) + 'px'; };
+  items.addEventListener('pointerover', (e) => { if (e.pointerType === 'touch') return; const d = find(e.target); if (!d || peek.dataset.u === d.u) return; peek.dataset.u = d.u; const im = peek.firstElementChild; im.onload = () => { if (peek.dataset.u === d.u) { peek.hidden = false; place(e); } }; im.src = 'shots/' + (anim[d.u] && anim[d.u].gif && !still ? anim[d.u].gif : shots[d.u]); });
+  items.addEventListener('pointermove', (e) => { if (!peek.hidden) place(e); });
+  items.addEventListener('pointerout', (e) => { if (!e.relatedTarget || !find(e.relatedTarget)) { peek.hidden = true; delete peek.dataset.u; } });
+  function open(i) {
+    if (i < 0 || i >= shown.length) return; cur = i; const d = shown[i]; peek.hidden = true;
+    $('lbt').textContent = d.n; $('lbk').textContent = T[d.k]; $('lbi').src = 'shots/' + shots[d.u]; $('lbi').alt = d.n + ' screenshot'; $('lbh').textContent = (d.b ? d.b + ' ' : '') + d.h + (d.c ? ', ' + d.c : '') + '.';
+    const a = anim[d.u], v = $('lbv');
+    if (a && a.mp4) { v.hidden = false; $('lbi').hidden = true; v.poster = 'shots/' + a.poster; v.src = 'shots/' + (a.webm && v.canPlayType('video/webm; codecs="vp9"') ? a.webm : a.mp4); v.setAttribute('aria-label', d.n + ' animated preview'); if (!still) v.play().catch(() => {}); }
+    else { v.pause(); v.removeAttribute('src'); v.hidden = true; $('lbi').hidden = false; }
+    if (!lb.open) lb.showModal();
+  }
+  items.addEventListener('click', (e) => { const d = find(e.target); if (d) open(shown.findIndex((x) => x.u === d.u)); });
+  items.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && find(e.target)) { e.preventDefault(); open(shown.findIndex((x) => x.u === find(e.target).u)); } });
+  $('lbc').onclick = () => lb.close(); lb.addEventListener('close', () => $('lbv').pause()); $('lbp').onclick = () => open((cur - 1 + shown.length) % shown.length); $('lbn').onclick = () => open((cur + 1) % shown.length);
+  lb.addEventListener('click', (e) => { if (e.target === lb) lb.close(); });
+  lb.addEventListener('keydown', (e) => { if (e.key === 'ArrowLeft') $('lbp').click(); if (e.key === 'ArrowRight') $('lbn').click(); });
+  document.getElementById('q').oninput = render;
+  const hk = new URLSearchParams(location.search).get('kind') || (location.hash.match(/kind=(\w+)/) || [])[1];
+  if (hk && K[hk]) kind = hk;
+  const hq = new URLSearchParams(location.search).get('q'); if (hq) document.getElementById('q').value = hq;
+  render();
+})();
+</script>
+</body>
+</html>

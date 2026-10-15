@@ -1,0 +1,39 @@
+{
+  "posts": [
+    {
+      "date": "2026-10-14",
+      "title": "The site catches up: a Jukebox, a DS page and sound in the browser",
+      "text": "The website is now in step with version 1.6.0. The catalog lists every tank, ammo type, map, home screen, paint, feature and boss in the game, and the animated paints play as short clips. The Workshop has every new part and lets you preview any paint and the HOVER upgrade.\n\nThe new Jukebox has all 277 songs from the game, recorded with the game's own synthesizer, with a turntable, an equalizer and a live spectrum analyser. The browser game now plays its music and sound effects too, and an X button charges the special attack on touch screens.\n\nTerminal Tanks DS has its own page, with the ROM to download and real screenshots, and the Save forge now handles profiles, the Martyr and every paint. The story on the About page continues with Martyr's Blessing.",
+      "link": "jukebox.html",
+      "linkText": "Open the Jukebox"
+    },
+    {
+      "date": "2026-10-06",
+      "title": "A picture of everything, and a Workshop on the web",
+      "text": "Every tank, ammo type, map, home screen and feature in the catalog now has a picture, drawn by the game's own code so it always matches what you see in play.\n\nThe new Workshop page lets you mix and match all 153 tank parts, watch your tank in motion, and save a build sheet that shows where each part comes from. Parts are tagged as free or by the tank that unlocks them.",
+      "link": "workshop.html",
+      "linkText": "Open the Workshop"
+    },
+    {
+      "date": "2026-10-06",
+      "title": "You can now download the game",
+      "text": "TerminalTanks now has an Install page. You can still play in your browser, but the download runs with the best performance, works offline, and keeps your save as one plain file on your own disk.\n\nThe Save forge can move your progress between the browser version and the download, so nothing you have earned is stuck in one place.",
+      "link": "install.html",
+      "linkText": "Go to the Install page"
+    },
+    {
+      "date": "2026-10-06",
+      "title": "The big expansion is here",
+      "text": "There is far more to unlock: 107 tanks, 107 ammo types, 79 home screens and 129 maps. A new premium tier sits above Master pricing, and the Workshop lets you build your own tanks from 129 parts and 24 accent colors.\n\nThe most expensive new item is the Terminal Ticket. Buy one and you fight a random boss from a pool of ten, each with its own tank, map and ammo. Beat a boss and it leaves the pool for good.\n\nTwo-player and LAN matches also gain map selection and a special attack. The catalog, cheat list and save forge on this site are all updated to match.",
+      "link": "catalog.html",
+      "linkText": "Browse the new catalog"
+    },
+    {
+      "date": "2026-10-06",
+      "title": "The TerminalTanks site is open",
+      "text": "The site now has a catalog of every tank, ammo type, map and home screen, a full list of cheat codes, and a save forge that builds or edits a save file you can import into the game.\n\nYou can still play in the browser from the Play button.",
+      "link": "catalog.html",
+      "linkText": "Browse the catalog"
+    }
+  ]
+}

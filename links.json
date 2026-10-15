@@ -1,0 +1,46 @@
+{
+  "links": [
+    {
+      "group": "Get the game",
+      "name": "Steam",
+      "text": "Wishlist or buy TerminalTanks on Steam.",
+      "url": ""
+    },
+    {
+      "group": "Get the game",
+      "name": "itch.io",
+      "text": "Download TerminalTanks from itch.io.",
+      "url": ""
+    },
+    {
+      "group": "Get the game",
+      "name": "GitHub",
+      "text": "The source code, releases and issue tracker.",
+      "url": "https://github.com/ethanlabs101/TerminalTanks"
+    },
+    {
+      "group": "Follow along",
+      "name": "Discord",
+      "text": "Chat with other players and find a LAN opponent.",
+      "url": ""
+    },
+    {
+      "group": "Follow along",
+      "name": "YouTube",
+      "text": "Gameplay videos and development updates.",
+      "url": ""
+    },
+    {
+      "group": "Follow along",
+      "name": "X",
+      "text": "Short updates and announcements.",
+      "url": ""
+    },
+    {
+      "group": "The developer",
+      "name": "ethanlabs101 on GitHub",
+      "text": "More projects by the developer.",
+      "url": "https://github.com/ethanlabs101"
+    }
+  ]
+}

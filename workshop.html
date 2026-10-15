@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Workshop - TerminalTanks</title>
+<meta name="description" content="Mix and match every tank part, preview your tank in motion, and save a build sheet that shows how to unlock each part.">
+<meta name="theme-color" content="#05090f">
+<meta name="color-scheme" content="dark">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Workshop - TerminalTanks">
+<meta property="og:description" content="Mix and match every tank part, preview your tank in motion, and save a build sheet that shows how to unlock each part.">
+<meta property="og:image" content="https://ethanlabs101.github.io/terminaltanks-site/preview.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://ethanlabs101.github.io/terminaltanks-site/workshop.html">
+<link rel="stylesheet" href="site.css">
+</head>
+<body data-page="workshop">
+<main data-title="WORKSHOP">
+  <h2>BUILD A TANK</h2>
+  <p class="lead">Mix any parts, watch your tank in motion, and save a build sheet that shows where every part comes from.</p>
+  <p>This is the in-game Workshop on the web. Every part is tagged with how it is unlocked: some are free, and the rest come from owning a tank that uses them. Nothing here touches your save.</p>
+  <div class="ws">
+    <div class="ws-left">
+      <div class="pv"><canvas id="pv" aria-label="Preview of your tank"></canvas></div>
+      <label class="f">Name<input type="text" id="nm" maxlength="14" placeholder="UNNAMED TANK" autocomplete="off"></label>
+      <label class="f">Lore<input type="text" id="lr" maxlength="60" placeholder="One line about this tank" autocomplete="off"></label>
+      <div class="fields">
+        <label class="f">Preview hull color or paint<select id="hc"></select></label>
+        <label class="f">Aim angle<input type="range" id="ang" min="5" max="85" value="35"></label>
+      </div>
+      <label class="chk"><input type="checkbox" id="hov"> HOVER upgrade <span class="muted" id="hovnote"></span></label>
+      <div class="row"><button class="btn" id="reset" type="button">Restart</button><button class="btn" id="rand" type="button">Randomize</button><button class="btn" id="randfree" type="button">Random, free parts</button></div>
+    </div>
+    <div class="ws-right">
+      <div class="filters" id="slots" role="tablist" aria-label="Part type"></div>
+      <label class="chk"><input type="checkbox" id="freeonly"> Show free parts only</label>
+      <div class="parts" id="parts"></div>
+      <div class="card" id="detail" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <h2>YOUR BUILD SHEET</h2>
+  <div class="scroll"><table id="sheet"></table></div>
+  <div id="needs"></div>
+  <div class="row">
+    <button class="btn big hot" id="dlmd" type="button">Download sheet (.md)</button>
+    <button class="btn big" id="dljson" type="button">Download build (.json)</button>
+    <button class="btn big" id="cp" type="button">Copy sheet</button>
+    <button class="btn big" id="link" type="button">Copy share link</button>
+  </div>
+  <p class="muted" id="fee"></p>
+</main>
+<script src="site.js"></script>
+<script src="tank.js"></script>
+<script src="workshop.js"></script>
+<script>
+(async function () {
+  const $ = (id) => document.getElementById(id), T = TankGfx, W = Workshop;
+  let R, P;
+  try { [R, P] = await Promise.all([fetch('data/render.json').then((r) => r.json()), fetch('data/parts.json').then((r) => r.json())]); }
+  catch (e) { $('parts').innerHTML = '<p class="muted">The part data could not be loaded. Reload the page to try again.</p>'; return; }
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches, esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  let sel = Object.assign({}, R.fallback), slot = 'turret', name = '', lore = '', hull = 0, angle = 35, picked = null, hover = false;
+  const catRows = await fetch('catalog.json').then((r) => r.json()).catch(() => []);
+  const src = (uid) => { const r = catRows.find((x) => x.u === uid); return r ? ' (' + r.h + (r.c && r.h === 'Shop' ? ', ' + r.c : '') + ')' : ''; };
+  const PAINTS = (R.paints || []).filter(([n]) => n !== 'RGB' && T.PAINTS.includes(n)).map(([n]) => n);
+  $('hc').innerHTML = '<optgroup label="Colors">' + R.colors.map(([n], i) => '<option value="' + i + '">' + n + '</option>').join('') + '</optgroup>' +
+    '<optgroup label="Animated paints">' + '<option value="rgb">RGB' + src('rgb:hull') + '</option>' + PAINTS.map((n) => '<option value="' + n + '">' + n + src('paint:' + n.toLowerCase()) + '</option>').join('') + '</optgroup>';
+  $('hovnote').textContent = '(+' + (R.hoverFee || 2500).toLocaleString('en-US') + ' coins, opens after the Mothership falls)';
+  const feeText = () => 'Saving a design in the game costs ' + (R.fee + (hover ? (R.hoverFee || 2500) : 0)).toLocaleString('en-US') + ' coins' + (hover ? ' with HOVER' : '') + ' and uses one of ' + R.slots + ' slots. This page does not save anything to the game.';
+  $('fee').textContent = feeText();
+  const bodyColor = () => (hull === 'rgb' ? T.RAINBOW : typeof hull === 'string' ? hull : R.colors[hull][1]);
+  const design = (s) => Object.assign(T.composeDesign(R, s), { hover: hover ? 3.0 : 0 });
+  const sky = (w, h) => { const cv = new T.Px(w, h); for (let y = 0; y < h; y++) { const c = T.mix([6, 10, 18], [16, 30, 44], y / (h - 1)); cv.rows[y] = Array(w).fill(c); } for (let x = 0; x < w; x++) for (let y = 0; y < 4; y++) cv.plot(x, y, y === 3 ? [62, 94, 110] : [30, 44, 56]); return cv; };
+
+  /* big animated preview */
+  const pv = $('pv'), ctx = pv.getContext('2d'), ps = new T.Particles(), t0 = performance.now();
+  let last = t0;
+  function frame(now) {
+    const t = (now - t0) / 1000, dt = Math.min(0.05, (now - last) / 1000); last = now;
+    const cv = sky(44, 34), d = design(sel);
+    T.ambient(ps, d, 18, 4, dt); ps.update(dt); ps.draw(cv);
+    T.drawTank(R, cv, 18, 4, 1, angle, bodyColor(), 2, d, still ? 0.9 : t);
+    ps.draw(cv); T.paint(ctx, cv, 9);
+    if (!still) requestAnimationFrame(frame);
+  }
+  const redraw = () => { if (still) frame(performance.now()); };
+  requestAnimationFrame(frame);
+
+  /* part tiles */
+  $('slots').innerHTML = W.SLOTS.map((s) => '<button type="button" role="tab" class="btn" data-s="' + s + '">' + W.LABEL[s] + '</button>').join('');
+  function tiles() {
+    const free = $('freeonly').checked, box = $('parts'); box.textContent = '';
+    [...$('slots').children].forEach((b) => { b.classList.toggle('on', b.dataset.s === slot); b.setAttribute('aria-selected', b.dataset.s === slot); });
+    P[slot].filter((p) => !free || p.free || p.id === sel[slot]).forEach((p) => {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'part' + (p.id === sel[slot] ? ' on' : ''); b.dataset.id = p.id;
+      const c = document.createElement('canvas');
+      if (slot === 'accent') { c.width = 30; c.height = 22; c.getContext('2d').fillStyle = 'rgb(' + p.rgb + ')'; c.getContext('2d').fillRect(0, 0, 30, 22); c.style.width = '90px'; c.style.height = '66px'; }
+      else { const s2 = Object.assign({}, sel, { [slot]: p.id }), cv = sky(30, 20); T.drawTank(R, cv, 12, 3, 1, 35, bodyColor(), 2, design(s2), 0.9); T.paint(c.getContext('2d'), cv, 3); }
+      const n = document.createElement('span'); n.className = 'pn'; n.textContent = p.n;
+      const g = document.createElement('span'); g.className = 'ptag ' + (p.free ? 'free' : p.premium ? 'prem' : 'earn'); g.textContent = p.tag;
+      b.append(c, n, g); box.append(b);
+    });
+    detail(P[slot].find((p) => p.id === (picked || sel[slot])));
+  }
+  function detail(p) {
+    if (!p) return;
+    const lines = ['<b>' + esc(p.n) + '</b> <span class="muted">' + W.LABEL[slot] + '</span>', '<p>' + esc(W.how(p)) + '.</p>'];
+    if (!p.free && p.providers.length) lines.push('<p class="muted">Tanks that unlock it: ' + p.providers.map((q) => esc(q.n) + ' (' + esc(W.source(q)) + ')').join(', ') + (p.more ? ', and ' + p.more + ' more' : '') + '.</p>');
+    if (p.premium) lines.push('<p class="muted">A premium part. The in-game Workshop offers it once you own a tank that uses it.</p>');
+    $('detail').innerHTML = lines.join('');
+  }
+  $('slots').onclick = (e) => { if (e.target.dataset.s) { slot = e.target.dataset.s; picked = null; tiles(); } };
+  $('freeonly').onchange = tiles;
+  $('parts').onclick = (e) => { const b = e.target.closest('.part'); if (!b) return; sel[slot] = b.dataset.id; picked = b.dataset.id; update(); };
+  $('parts').onmouseover = (e) => { const b = e.target.closest('.part'); if (b) detail(P[slot].find((p) => p.id === b.dataset.id)); };
+  $('parts').onmouseleave = () => detail(P[slot].find((p) => p.id === sel[slot]));
+
+  /* sheet */
+  function sheet() {
+    const rs = W.rows(P, sel), nd = W.needs(rs);
+    $('sheet').innerHTML = '<thead><tr><th>Slot</th><th>Part</th><th>How you get it</th></tr></thead><tbody>' + rs.map((r) => '<tr><td>' + r.label + '</td><td>' + esc(r.name) + (r.premium ? ' <span class="ptag prem">PREMIUM</span>' : '') + '</td><td>' + esc(r.how) + '</td></tr>').join('') + '</tbody>';
+    $('needs').innerHTML = nd.length ? '<h3>TANKS TO OWN TO UNLOCK EVERYTHING HERE</h3><ul>' + nd.map((n) => '<li><b>' + esc(n.n) + '</b> (' + esc(W.source(n)) + ') unlocks ' + esc(n.covers.join(', ')) + '</li>').join('') + '</ul>' : '<p class="good">Every part in this build is free from the start.</p>';
+  }
+  function update() {
+    sheet(); tiles(); redraw();
+    const st = { p: sel, n: name, l: lore, c: hull, a: angle, h: hover ? 1 : 0 };
+    $('fee').textContent = feeText();
+    try { history.replaceState(null, '', '#' + W.encode(st)); } catch (e) {}
+  }
+  $('nm').oninput = (e) => { name = e.target.value.toUpperCase().replace(/[^A-Z0-9 \-]/g, ''); e.target.value = name; update(); };
+  $('lr').oninput = (e) => { lore = e.target.value; update(); };
+  $('hc').onchange = (e) => { const v = e.target.value; hull = v === 'rgb' || PAINTS.includes(v) ? v : +v; update(); };
+  $('hov').onchange = (e) => { hover = e.target.checked; update(); };
+  $('ang').oninput = (e) => { angle = +e.target.value; redraw(); };
+  $('reset').onclick = () => { sel = Object.assign({}, R.fallback); name = lore = ''; hull = 0; angle = 35; hover = false; $('hov').checked = false; $('nm').value = $('lr').value = ''; $('hc').value = '0'; $('ang').value = 35; picked = null; update(); };
+  $('rand').onclick = () => { sel = W.random(P, false); picked = null; update(); };
+  $('randfree').onclick = () => { sel = W.random(P, true); picked = null; update(); };
+
+  /* saving */
+  const save = (file, text, mime) => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: mime })); a.download = file; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); };
+  const slug = () => (name || 'tank').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'tank';
+  $('dlmd').onclick = () => save(slug() + '-build.md', W.text(R, P, sel, name, lore), 'text/markdown');
+  $('dljson').onclick = () => { const j = W.json(R, P, sel, name, lore); if (hover) j.record.hover = true; save(slug() + '-build.json', JSON.stringify(j, null, 2), 'application/json'); };
+  $('cp').onclick = () => TT.copy(W.text(R, P, sel, name, lore), $('cp'));
+  $('link').onclick = () => TT.copy(location.href, $('link'));
+
+  /* restore from a shared link */
+  const saved = location.hash.length > 1 ? W.decode(location.hash.slice(1)) : null;
+  if (saved && saved.p) {
+    sel = W.clean(R, P, saved.p); name = String(saved.n || '').slice(0, R.nameMax); lore = String(saved.l || '').slice(0, R.loreMax);
+    hull = saved.c === 'rgb' || PAINTS.includes(saved.c) ? saved.c : (R.colors[saved.c] ? +saved.c : 0); angle = Math.max(5, Math.min(85, +saved.a || 35));
+    hover = !!saved.h; $('hov').checked = hover;
+    $('nm').value = name; $('lr').value = lore; $('hc').value = String(hull); $('ang').value = angle;
+  }
+  update();
+})();
+</script>
+</body>
+</html>

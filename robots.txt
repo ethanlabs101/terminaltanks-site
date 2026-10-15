@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://ethanlabs101.github.io/terminaltanks-site/sitemap.xml
