@@ -194,7 +194,7 @@ body.playing .arm { transform:rotate(24deg); }
 .np-tags span { font-size:10px; letter-spacing:.12em; padding:1px 7px; border:1px solid var(--line-dim); color:var(--text); background:rgba(5,9,15,.6); }
 .np-where { font-size:11.5px; color:var(--muted); } .np-where b { color:var(--amber); font-weight:400; letter-spacing:.14em; font-size:10px; margin-right:6px; }
 .viz { grid-area:viz; }
-#viz { display:block; width:100%; height:180px; border:1px solid var(--line-dim); background:#04080d; }
+#viz { display:block; width:100%; height:180px; image-rendering:pixelated; border:1px solid var(--line-dim); background:#04080d; }
 .viz-axis { display:flex; justify-content:space-between; font-size:10px; color:var(--muted); letter-spacing:.14em; margin-top:3px; }
 .eq { grid-area:eq; display:flex; flex-wrap:wrap; gap:10px 22px; align-items:center; }
 .eq label { display:flex; align-items:center; gap:8px; font-size:10.5px; letter-spacing:.16em; color:var(--muted); }
@@ -218,9 +218,9 @@ body.playing .arm { transform:rotate(24deg); }
 .hw { white-space:nowrap; font-size:9px; letter-spacing:.12em; color:var(--amber); border:1px solid rgba(255,184,64,.5); padding:0 4px; vertical-align:middle; }
 .trk.on { background:linear-gradient(90deg, color-mix(in srgb, var(--np-a) 18%, transparent), transparent 70%); box-shadow:inset 3px 0 0 var(--np-a); }
 .trk.on .tt b { color:#fff; }
-.eqm { display:flex; gap:2px; align-items:flex-end; height:14px; visibility:hidden; } .eqm i { width:4px; height:30%; background:var(--np-a); }
+.eqm { display:flex; gap:2px; align-items:flex-end; height:14px; visibility:hidden; } .eqm i { width:4px; height:100%; background:var(--np-a); transform:scaleY(.3); transform-origin:50% 100%; will-change:transform; }
 .trk.on .eqm { visibility:visible; } body.playing .trk.on .eqm i { animation:bounce .9s ease-in-out infinite; } .eqm i:nth-child(2) { animation-delay:-.3s !important; } .eqm i:nth-child(3) { animation-delay:-.6s !important; }
-@keyframes bounce { 0%, 100% { height:25%; } 50% { height:100%; } }
+@keyframes bounce { 0%, 100% { transform:scaleY(.25); } 50% { transform:scaleY(1); } }   /* transform, not height: no re-layout of the list each frame */
 .playbar { position:fixed; left:0; right:0; bottom:0; z-index:40; display:grid; grid-template-columns:44px minmax(120px,1fr) auto minmax(180px,1.4fr) auto; gap:8px 16px; align-items:center;
   padding:8px 16px calc(8px + env(safe-area-inset-bottom)); background:rgba(7,13,21,.94); border-top:1px solid var(--line); backdrop-filter:blur(6px); box-shadow:0 -6px 24px rgba(0,0,0,.45); }
 .playbar img { width:44px; height:44px; image-rendering:pixelated; background:#000; border:1px solid var(--line-dim); }
@@ -255,20 +255,34 @@ video.thumb { display:block; width:100%; height:112px; object-fit:contain; backg
 fieldset .chk { margin:8px 0; color:var(--text); }
 
 /* DS page ------------------------------------------------------------------------------------------------------------- */
-.ds-hero { display:grid; grid-template-columns:1fr minmax(240px,330px); gap:24px; align-items:center; }
+.ds-hero { display:grid; grid-template-columns:1fr minmax(260px,380px); gap:24px; align-items:center; }
 .ds-copy h2 { font-size:clamp(16px,2.6vw,22px) !important; background:linear-gradient(90deg,#96ffeb,#3296eb); -webkit-background-clip:text; background-clip:text; color:transparent !important; }
-.ds-device { margin:0; }
-.ds-shell { position:relative; padding:14px 16px 18px; border-radius:18px; background:linear-gradient(160deg,#2a3542,#141b24 55%,#0c1118); box-shadow:inset 0 1px 0 rgba(255,255,255,.12), 0 18px 40px rgba(0,0,0,.6), 0 0 30px rgba(38,118,128,.25); }
-.ds-lid { height:10px; display:flex; justify-content:center; } .ds-cam { width:6px; height:6px; border-radius:50%; background:#04070b; box-shadow:0 0 0 2px #2c3846; }
-.ds-screens { position:relative; margin:8px auto 0; width:min(100%,256px); aspect-ratio:2/3; background:#000; border:3px solid #05080c; border-radius:3px; overflow:hidden; }
-.ds-screens video { display:block; width:100%; height:100%; image-rendering:pixelated; object-fit:fill; }
-.ds-hinge { position:absolute; left:-3px; right:-3px; top:calc(50% - 1px); height:2px; background:#05080c; box-shadow:0 0 0 1px rgba(255,255,255,.05); }
-.ds-pads { display:flex; justify-content:space-between; align-items:center; margin:12px 6px 0; }
-.ds-dpad { position:relative; width:34px; height:34px; } .ds-dpad::before, .ds-dpad::after { content:""; position:absolute; background:#05080c; border-radius:2px; }
-.ds-dpad::before { left:12px; top:0; width:10px; height:34px; } .ds-dpad::after { left:0; top:12px; width:34px; height:10px; }
-.ds-abxy { display:grid; grid-template-columns:repeat(3,12px); grid-template-rows:repeat(3,12px); gap:0; }
-.ds-abxy b { width:12px; height:12px; border-radius:50%; background:#c9d4dc; color:#141b24; font-size:7px; display:grid; place-items:center; font-weight:800; }
-.ds-abxy b:nth-child(1) { grid-area:1/2; } .ds-abxy b:nth-child(2) { grid-area:2/3; } .ds-abxy b:nth-child(3) { grid-area:3/2; } .ds-abxy b:nth-child(4) { grid-area:2/1; }
+.ds-device { margin:0; container-type:inline-size; }
+/* A Nintendo DS Lite, drawn to its real proportions (133 x 74 mm halves, 3-inch 4:3 screens); sizes are in cqw, so the
+   whole device scales with its column. */
+.nds { --shell:#1d232b; --shell2:#2b333d; --edge:#0b0f14; width:100cqw; filter:drop-shadow(0 14px 22px rgba(0,0,0,.55)); }
+.nds-top, .nds-bot { position:relative; height:55.6cqw; background:linear-gradient(170deg,var(--shell2),var(--shell) 55%,#151a20); border:.5cqw solid var(--edge); }
+.nds-top { border-radius:7cqw 7cqw 2cqw 2cqw; display:flex; align-items:center; justify-content:center; gap:5cqw; box-shadow:inset 0 .6cqw 0 rgba(255,255,255,.08); }
+.nds-glass { padding:2.4cqw 3cqw; border-radius:1.6cqw; background:linear-gradient(160deg,#0d1116,#05070a); box-shadow:inset 0 0 0 .3cqw #000, inset 0 .5cqw 1cqw rgba(255,255,255,.06); }
+.nds-top canvas, .nds-bot canvas { display:block; width:46.5cqw; height:34.9cqw; image-rendering:pixelated; background:#000; }
+.nds-spk { width:6cqw; height:10cqw; background:radial-gradient(circle,#05070a 32%,transparent 36%) 0 0/2cqw 2cqw; opacity:.9; }
+.nds-hinge { position:relative; z-index:1; height:6cqw; margin:-1.5cqw 9cqw; border-radius:3cqw; background:linear-gradient(#3a434f,#1a2028 45%,#0d1116); border:.4cqw solid var(--edge); display:flex; align-items:center; justify-content:flex-end; gap:1.4cqw; padding:0 4cqw; }
+.nds-led { width:1.3cqw; height:1.3cqw; border-radius:50%; background:#26303b; } .nds-led.on { background:#5cf08a; box-shadow:0 0 1.2cqw #5cf08a; }
+.nds-bot { border-radius:2cqw 2cqw 7cqw 7cqw; box-shadow:inset 0 .6cqw 0 rgba(255,255,255,.06); }
+.nds-touch { position:absolute; left:50%; top:47%; transform:translate(-50%,-50%); padding:.8cqw; border-radius:.8cqw; background:#05070a; box-shadow:inset 0 0 0 .3cqw #000, 0 .3cqw 0 rgba(255,255,255,.06); }
+.nds-shoulder { position:absolute; top:-.6cqw; width:16cqw; height:2.2cqw; background:linear-gradient(#3b4552,#1a2028); border-radius:1.2cqw 1.2cqw 0 0; } .nds-shoulder.l { left:5cqw; } .nds-shoulder.r { right:5cqw; }
+.nds-dpad { position:absolute; left:6.5cqw; top:13cqw; width:13cqw; height:13cqw; }
+.nds-dpad::before, .nds-dpad::after { content:""; position:absolute; background:linear-gradient(#2c343e,#11161c); border-radius:.8cqw; box-shadow:0 .4cqw 0 #070a0d; }
+.nds-dpad::before { left:4.3cqw; top:0; width:4.4cqw; height:13cqw; } .nds-dpad::after { left:0; top:4.3cqw; width:13cqw; height:4.4cqw; }
+.nds-dpad i { position:absolute; z-index:1; left:5.5cqw; top:5.5cqw; width:2cqw; height:2cqw; border-radius:50%; background:radial-gradient(#0b0f13,#232b34); }
+.nds-face { position:absolute; right:6cqw; top:11.5cqw; width:15cqw; height:15cqw; }
+.nds-face b { position:absolute; width:4.8cqw; height:4.8cqw; border-radius:50%; display:grid; place-items:center; font:800 2.2cqw/1 system-ui,sans-serif; color:#9aa6b2;
+  background:radial-gradient(circle at 40% 32%,#3f4954,#1b2128); box-shadow:0 .45cqw 0 #070a0d; }
+.nds-face b:nth-child(1) { left:5.1cqw; top:0; } .nds-face b:nth-child(2) { left:0; top:5.1cqw; } .nds-face b:nth-child(3) { right:0; top:5.1cqw; } .nds-face b:nth-child(4) { left:5.1cqw; bottom:0; }
+.nds-ss { position:absolute; right:6.5cqw; top:31cqw; display:flex; flex-direction:column; gap:2cqw; }
+.nds-ss i { position:relative; padding-left:3.4cqw; font:700 1.6cqw/2.4cqw system-ui,sans-serif; font-style:normal; letter-spacing:.1em; color:#7c8894; }
+.nds-ss i::before { content:""; position:absolute; left:0; top:0; width:2.4cqw; height:2.4cqw; border-radius:50%; background:radial-gradient(circle at 40% 32%,#3f4954,#1b2128); box-shadow:0 .3cqw 0 #070a0d; }
+.nds-mic { position:absolute; left:50%; bottom:3cqw; width:1.2cqw; height:1.2cqw; margin-left:-.6cqw; border-radius:50%; background:#05070a; }
 .ds-device figcaption { margin-top:8px; font-size:11px; color:var(--muted); text-align:center; }
 .ds-feats { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr)); gap:12px; } .ds-feats .card { margin:0; } .ds-feats h3 { margin-top:0; }
 .ds-gallery { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px; }
@@ -280,7 +294,7 @@ dialog#ds-lb::backdrop { background:rgba(2,5,10,.85); } #ds-lb img { display:blo
 .ds-cmp td:first-child { color:var(--muted); white-space:nowrap; } .ds-cmp td:nth-child(3) { color:var(--text); }
 .ds-release { display:flex; gap:16px; align-items:flex-start; } .ds-release img { width:64px; height:64px; image-rendering:pixelated; border:1px solid var(--line-dim); flex:none; }
 .hash { word-break:break-all; font-size:11.5px; }
-@media (max-width:760px) { .ds-hero { grid-template-columns:1fr; } .ds-device { max-width:300px; margin:0 auto; } .ds-release { flex-direction:column; } }
+@media (max-width:760px) { .ds-hero { grid-template-columns:1fr; } .ds-device { width:100%; max-width:360px; margin:0 auto; } .ds-release { flex-direction:column; } }
 /* about: Martyr's Blessing */
 figure.blessing { margin:12px 0; max-width:520px; border:1px solid rgba(255,214,90,.45); background:#000; box-shadow:0 0 30px rgba(255,206,100,.18), 0 0 60px rgba(176,120,255,.12); }
 figure.blessing video { display:block; width:100%; height:auto; image-rendering:pixelated; }

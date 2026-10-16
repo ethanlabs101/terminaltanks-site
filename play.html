@@ -106,36 +106,69 @@ body.no-crt .crtfx { display: none; }
 .errbox small { color: var(--muted); display: block; margin-top: 6px; }
 .row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
 
-/* ---- touch pad ------------------------------------------------------------------------------- */
-#pad { display: none; flex: none; width: 100%; max-width: 1760px; padding: 8px 6px 4px; user-select: none; -webkit-user-select: none; touch-action: none; }
-body.pad-on #pad { display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; }
-#pad .cluster { display: grid; gap: 6px; }
-#pad .dpad { grid-template-columns: repeat(3, 56px); grid-template-rows: repeat(3, 48px); }
-#pad .act { grid-template-columns: repeat(3, auto); align-items: end; justify-items: end; }
-#pad .mid { display: grid; gap: 6px; grid-template-columns: repeat(2, auto); align-self: center; }
-.pb { appearance: none; font: inherit; color: var(--primary); background: rgba(9,16,26,.86); border: 1px solid var(--line); border-radius: 6px; min-width: 56px; min-height: 46px; padding: 0 12px;
-  font-size: 15px; font-weight: 700; letter-spacing: .08em; touch-action: none; user-select: none; -webkit-user-select: none; box-shadow: 0 0 12px rgba(38,118,128,.25); }
-.pb.small { min-width: 48px; min-height: 36px; font-size: 11px; color: var(--muted); }
-.pb.fire { min-width: 96px; min-height: 64px; color: #05090f; background: linear-gradient(#ffd27a, #ffb840); border-color: #ffe0a0; font-size: 15px; }
-.pb.on { color: #05090f; background: var(--primary); }
-.pb.down, .pb:active { transform: scale(.95); filter: brightness(1.4); }
+/* ---- touch pad -------------------------------------------------------------------------------
+   Laid out like a game controller: a one-piece D-pad on the left, round FIRE and X buttons on the right, and small
+   labelled pills for the keys you need now and then. Icons are drawn (SVG), never characters a phone may turn into emoji. */
+#pad { display: none; flex: none; width: 100%; max-width: 1760px; padding: 10px 10px 6px; user-select: none; -webkit-user-select: none; touch-action: none; -webkit-tap-highlight-color: transparent; }
+body.pad-on #pad { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+#pad .cluster { position: relative; }
+.pb { appearance: none; font: inherit; border: 0; padding: 0; margin: 0; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent;
+  display: inline-flex; align-items: center; justify-content: center; color: var(--primary); transition: transform .06s, filter .06s, background .06s; }
+.pb svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+/* D-pad: one cross-shaped piece */
+#pad .dpad { --c: 50px; display: grid; grid-template-columns: repeat(3, var(--c)); grid-template-rows: repeat(3, var(--c)); filter: drop-shadow(0 3px 0 #020509) drop-shadow(0 0 10px rgba(38,118,128,.35)); }
+#pad .dpad .pb, #pad .dpad .hub { background: linear-gradient(#1a2b3a, #0f1b27); border: 1px solid #2c4a5c; }
+#pad .dpad .d-up { grid-area: 1 / 2; border-radius: 10px 10px 0 0; border-bottom: 0; }
+#pad .dpad .d-down { grid-area: 3 / 2; border-radius: 0 0 10px 10px; border-top: 0; }
+#pad .dpad .d-left { grid-area: 2 / 1; border-radius: 10px 0 0 10px; border-right: 0; }
+#pad .dpad .d-right { grid-area: 2 / 3; border-radius: 0 10px 10px 0; border-left: 0; }
+#pad .dpad .hub { grid-area: 2 / 2; border: 0; position: relative; }
+#pad .dpad .hub::after { content: ''; position: absolute; inset: 30%; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #20384a, #0b151e); box-shadow: inset 0 1px 2px rgba(0,0,0,.6); }
+#pad .dpad .d-up svg { transform: rotate(0deg); } #pad .dpad .d-right svg { transform: rotate(90deg); } #pad .dpad .d-down svg { transform: rotate(180deg); } #pad .dpad .d-left svg { transform: rotate(-90deg); }
+#pad .dpad .pb.down, #pad .dpad .pb:active { background: linear-gradient(#24465a, #18323f); color: #bff8ef; filter: drop-shadow(0 0 6px rgba(96,232,212,.55)); }
+/* middle: small pills */
+#pad .mid { display: grid; grid-template-columns: repeat(2, auto); gap: 8px; align-self: center; }
+.pb.pill { min-width: 58px; height: 30px; padding: 0 10px; border-radius: 15px; background: #0d1822; border: 1px solid #2a4252; color: var(--muted); font-size: 10.5px; font-weight: 700; letter-spacing: .1em; gap: 5px; }
+.pb.pill svg { width: 15px; height: 15px; stroke-width: 2.2; }
+.pb.pill.on { color: #05090f; background: var(--primary); border-color: var(--primary); }
+.pb.pill.down, .pb.pill:active { filter: brightness(1.5); transform: scale(.96); }
+/* right: ESC / ENTER pills above, X and FIRE as round face buttons */
+#pad .act { display: grid; grid-template-columns: auto auto; grid-template-rows: auto auto; gap: 8px 12px; align-items: end; justify-items: center; }
+#pad .act .pills { grid-column: 1 / span 2; display: flex; gap: 8px; justify-self: end; }
+.pb.face { border-radius: 50%; font-weight: 800; letter-spacing: .08em; box-shadow: 0 4px 0 #020509, inset 0 2px 0 rgba(255,255,255,.25); }
+.pb.face.down, .pb.face:active { transform: translateY(3px); box-shadow: 0 1px 0 #020509, inset 0 2px 0 rgba(255,255,255,.2); filter: brightness(1.15); }
+.pb.fire { width: 80px; height: 80px; color: #2a1600; background: radial-gradient(circle at 38% 30%, #ffe3a0, #ffbf47 55%, #e89a1c); font-size: 15px; }
+.pb.xbtn { width: 56px; height: 56px; margin-bottom: 14px; color: #fff; background: radial-gradient(circle at 38% 30%, #f3a8ff, #c45ce0 55%, #8e2fb0); font-size: 18px; flex-direction: column; line-height: 1; }
+.pb.xbtn small { font-size: 7.5px; letter-spacing: .12em; font-weight: 700; opacity: .9; margin-top: 2px; }
+.pb.xbtn[aria-disabled="true"] { filter: grayscale(.85) brightness(.55); }
+.pb.xbtn.ready { animation: xready 1.2s ease-in-out infinite; }
+@keyframes xready { 50% { box-shadow: 0 4px 0 #020509, 0 0 18px 4px rgba(226,120,255,.7), inset 0 2px 0 rgba(255,255,255,.25); } }
 @media (max-width: 520px) {
-  body.pad-on #pad { gap: 6px; padding: 6px 4px 2px; flex-wrap: nowrap; }
-  #pad .dpad { grid-template-columns: repeat(3, 46px); grid-template-rows: repeat(3, 42px); gap: 4px; }
-  #pad .mid { gap: 4px; grid-template-columns: repeat(2, 44px); }
-  #pad .act { gap: 4px; grid-template-columns: repeat(3, 42px) !important; }
-  .pb { min-width: 44px; min-height: 40px; padding: 0 4px; font-size: 14px; }
-  .pb.small { min-width: 44px; min-height: 34px; font-size: 10px; letter-spacing: 0; }
-  .pb.fire { min-width: 96px; min-height: 56px; }
+  body.pad-on #pad { gap: 6px; padding: 8px 6px 4px; }
+  #pad .dpad { --c: 44px; }
+  #pad .mid { grid-template-columns: 1fr; gap: 6px; }
+  .pb.pill { min-width: 52px; height: 28px; padding: 0 8px; font-size: 9.5px; letter-spacing: .06em; }
+  .pb.fire { width: 72px; height: 72px; font-size: 14px; }
+  .pb.xbtn { width: 50px; height: 50px; margin-bottom: 10px; }
+  #pad .act .pills { gap: 6px; }
 }
+@media (max-width: 370px) {
+  body.pad-on #pad { gap: 4px; padding: 8px 4px 4px; }
+  #pad .dpad { --c: 38px; }
+  .pb.pill { min-width: 0; height: 26px; padding: 0 7px; font-size: 9px; letter-spacing: .04em; }
+  .pb.pill svg { display: none; }
+  #pad .act { gap: 6px 6px; } #pad .act .pills { gap: 4px; }
+  .pb.fire { width: 62px; height: 62px; font-size: 12.5px; }
+  .pb.xbtn { width: 44px; height: 44px; margin-bottom: 8px; font-size: 15px; } .pb.xbtn small { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .pb.xbtn.ready { animation: none; box-shadow: 0 0 14px 3px rgba(226,120,255,.6); } }
 @media (max-height: 520px) and (orientation: landscape) {
   .tools { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; } .tools::-webkit-scrollbar { display: none; }
   .btn { padding: 4px 7px; font-size: 10px; letter-spacing: .06em; } .brand h1 { font-size: 12px; letter-spacing: .2em; } .brand svg { width: 34px; height: 24px; }
-  body.pad-on #pad .mid { grid-template-columns: repeat(4, auto); align-self: flex-end; }
+  body.pad-on #pad .mid { grid-template-columns: repeat(4, auto); align-self: flex-end; margin-bottom: 4px; }
   body.pad-on #pad { position: absolute; left: 0; right: 0; bottom: 6px; padding: 0 12px; pointer-events: none; z-index: 8; max-width: none; }
-  body.pad-on #pad .cluster, body.pad-on #pad .mid { pointer-events: auto; opacity: .62; }
-  #pad .dpad { grid-template-columns: repeat(3, 46px); grid-template-rows: repeat(3, 40px); }
-  .pb { min-width: 46px; min-height: 40px; } .pb.fire { min-width: 84px; min-height: 56px; }
+  body.pad-on #pad .cluster, body.pad-on #pad .mid { pointer-events: auto; opacity: .7; }
+  #pad .dpad { --c: 44px; } .pb.fire { width: 70px; height: 70px; } .pb.xbtn { width: 50px; height: 50px; }
   .bar { padding: 4px 10px; } .brand small { display: none; } .stage { padding: 4px 8px 2px; } footer.foot { display: none !important; }
 }
 
@@ -337,68 +370,14 @@ self.ttCells = (cols, rows, full, d) => { pending++; stat.bytes += d.length; pos
 self.ttBell = () => post('bell');
 
 // ---- audio ---------------------------------------------------------------------------------------------------------
-// The game ships its own Web Audio engine (WebAudio in terminaltanks.py): it synthesises notes and effects in Python and
-// schedules them on an AudioContext. A worker has no AudioContext, so this stand-in implements the part of the Web Audio
-// API the engine uses and records every call. The page replays the calls on a real AudioContext (AudioHost) and sends back
-// the clock and the analyser readings, so the game's music, mixing, EQ and analyser all behave exactly as designed.
-const AU = { q: [], xfer: [], id: 0, ct: 0, wall: 0, running: false, state: 'suspended', sr: 44100, spec: new Uint8Array(1024) };
-const auWall = () => performance.timeOrigin + performance.now();
-const auOp = (op, transfer) => { AU.q.push(op); if (transfer) AU.xfer.push(transfer); };
-function auFlush() { if (!AU.q.length) return; const ops = AU.q, xfer = AU.xfer; AU.q = []; AU.xfer = []; self.postMessage({ t: 'audio', ops }, xfer); }
-const auFree = typeof FinalizationRegistry === 'function' ? new FinalizationRegistry((id) => auOp(['free', id])) : null;
-class AuParam {
-  constructor(node, name, v) { this._n = node; this._p = name; this._v = v; }
-  get value() { return this._v; }
-  set value(v) { this._v = +v; auOp(['p', this._n._id, this._p, +v]); }
-  setValueAtTime(v, t) { this._v = +v; auOp(['pa', this._n._id, this._p, 'setValueAtTime', +v, +t]); return this; }
-  setTargetAtTime(v, t, k) { this._v = +v; auOp(['pa', this._n._id, this._p, 'setTargetAtTime', +v, +t, +k]); return this; }
-  linearRampToValueAtTime(v, t) { this._v = +v; auOp(['pa', this._n._id, this._p, 'linearRampToValueAtTime', +v, +t]); return this; }
-  exponentialRampToValueAtTime(v, t) { this._v = +v; auOp(['pa', this._n._id, this._p, 'exponentialRampToValueAtTime', +v, +t]); return this; }
-  cancelScheduledValues(t) { auOp(['pa', this._n._id, this._p, 'cancelScheduledValues', +t]); return this; }
+// The game's sound runs on the page (SoundHost), from files rendered ahead of time. Each frame the game's queued sound
+// commands go to the page in one message; the page sends back what is playing (see _use_page_audio in the bridge).
+function auFlush() {
+  if (!fns || !fns.audioTake) return;
+  let ops = '';
+  try { ops = fns.audioTake(); } catch (e) { ops = ''; }
+  if (ops) self.postMessage({ t: 'snd', ops });
 }
-class AuNode {
-  constructor(ctx, kind, args) { this._id = ++AU.id; this.context = ctx; auOp(['n', this._id, kind, args || []]); if (auFree) auFree.register(this, this._id); }
-  connect(dst) { auOp(['c', this._id, dst ? dst._id : 0]); return dst; }
-  disconnect() { auOp(['d', this._id]); }
-  _set(name, v) { auOp(['s', this._id, name, v]); }
-}
-class AuGain extends AuNode { constructor(c) { super(c, 'gain'); this.gain = new AuParam(this, 'gain', 1); } }
-class AuPanner extends AuNode { constructor(c) { super(c, 'panner'); this.pan = new AuParam(this, 'pan', 0); } }
-class AuBiquad extends AuNode {
-  constructor(c) { super(c, 'biquad'); this._type = 'lowpass'; this.frequency = new AuParam(this, 'frequency', 350); this.Q = new AuParam(this, 'Q', 1); this.gain = new AuParam(this, 'gain', 0); }
-  get type() { return this._type; } set type(v) { this._type = String(v); this._set('type', this._type); }
-}
-class AuAnalyser extends AuNode {
-  constructor(c) { super(c, 'analyser'); this._fft = 2048; }
-  get fftSize() { return this._fft; } set fftSize(v) { this._fft = +v; this._set('fftSize', +v); }
-  get frequencyBinCount() { return this._fft / 2; }
-  getByteFrequencyData(arr) { const n = Math.min(arr.length, AU.spec.length); for (let i = 0; i < n; i++) arr[i] = AU.spec[i]; for (let i = n; i < arr.length; i++) arr[i] = 0; }
-}
-class AuBuffer {
-  constructor(ch, len, sr) { this._id = ++AU.id; this.numberOfChannels = ch; this.length = len; this.sampleRate = sr; this.duration = len / sr; auOp(['n', this._id, 'buffer', [ch, len, sr]]); if (auFree) auFree.register(this, this._id); }
-  copyToChannel(data, ch) { const copy = new Float32Array(data); auOp(['bd', this._id, ch | 0, copy], copy.buffer); }
-}
-class AuSource extends AuNode {
-  constructor(c) { super(c, 'source'); this._buf = null; this.playbackRate = new AuParam(this, 'playbackRate', 1); this.detune = new AuParam(this, 'detune', 0); }
-  get buffer() { return this._buf; } set buffer(b) { this._buf = b; this._set('buffer', b ? b._id : 0); }
-  start(when) { auOp(['st', this._id, +(when || 0)]); }
-  stop(when) { auOp(['sp', this._id, +(when || 0)]); }
-}
-class AudioContext {
-  constructor() { this._id = 0; this.destination = { _id: 0 }; auOp(['ctx']); }
-  get currentTime() { return AU.running ? AU.ct + (auWall() - AU.wall) / 1000 : AU.ct; }
-  get state() { return AU.state; }
-  get sampleRate() { return AU.sr; }
-  resume() { auOp(['resume']); return Promise.resolve(); }
-  suspend() { return Promise.resolve(); }
-  createGain() { return new AuGain(this); }
-  createStereoPanner() { return new AuPanner(this); }
-  createBiquadFilter() { return new AuBiquad(this); }
-  createAnalyser() { return new AuAnalyser(this); }
-  createBufferSource() { return new AuSource(this); }
-  createBuffer(ch, len, sr) { return new AuBuffer(ch, len, sr); }
-}
-self.AudioContext = AudioContext;
 
 async function loadRuntime(bases) {
   let last = null;
@@ -519,8 +498,6 @@ function frame() {
   const t0 = performance.now();
   let st = 2;
   try { st = fns.step(); } catch (e) { post('log', { msg: String(e) }); }
-  const left = FRAME_MS - (performance.now() - t0);
-  if (left > 6 && fns.audioIdle) { try { fns.audioIdle(Math.min(left - 4, 24)); } catch (e) { /* ignore */ } }
   auFlush();
   if (++stateTick % 4 === 0 && fns.state) {                       // what the page's buttons need to know (the X special button)
     try { const s = fns.state(); if (s !== lastState) { lastState = s; post('state', { s }); } } catch (e) { /* ignore */ }
@@ -580,7 +557,7 @@ async function init(m) {
     setInterval(() => persistTick(false), 1500);
     pyodide.runPython(m.bridge);
     const g = pyodide.globals;
-    fns = { boot: g.get('tt_boot'), step: g.get('tt_step'), stop: g.get('tt_stop'), feed: g.get('tt_feed'), resize: g.get('tt_resize'), info: g.get('tt_info'), missing: g.get('tt_missing'), imports: g.get('tt_imports'), redraw: g.get('tt_redraw'), state: g.get('tt_state'), audioIdle: g.get('tt_audio_idle') };
+    fns = { boot: g.get('tt_boot'), step: g.get('tt_step'), stop: g.get('tt_stop'), feed: g.get('tt_feed'), resize: g.get('tt_resize'), info: g.get('tt_info'), missing: g.get('tt_missing'), imports: g.get('tt_imports'), redraw: g.get('tt_redraw'), state: g.get('tt_state'), audioTake: g.get('tt_audio_take'), audioFeed: g.get('tt_audio_feed') };
     fns.resize(m.cols, m.rows);
     post('persist', { persistent });
     await boot(m.source, m.argv || [], m.base);
@@ -597,8 +574,7 @@ self.onmessage = (e) => {
       case 'in': if (fns.feed) fns.feed(m.d); break;
       case 'size': if (fns.resize) fns.resize(m.cols, m.rows); break;
       case 'ack': pending = Math.max(0, pending - 1); break;
-      case 'aclock': AU.ct = m.ct; AU.wall = m.wall; AU.running = m.state === 'running'; AU.state = m.state; AU.sr = m.sr || AU.sr; break;
-      case 'aspec': AU.spec = m.d; break;
+      case 'sndstate': if (fns && fns.audioFeed) { try { fns.audioFeed(m.sid || '', m.pos | 0, m.dur | 0, m.spec || '', m.ended || ''); } catch (e) { /* ignore */ } } break;
       case 'vis': paused = !!m.hidden; if (!paused) { if (fns.redraw) fns.redraw(); schedule(0); } break;
       case 'redraw': if (fns.redraw) fns.redraw(); break;
       case 'restart': boot(m.source, m.argv || [], m.base).catch((err) => post('fatal', { msg: String((err && err.message) || err) })); break;
@@ -638,6 +614,7 @@ self.onmessage = (e) => {
 import ast
 import importlib
 import inspect
+import json
 import os
 import signal
 import sys
@@ -1046,6 +1023,7 @@ def tt_boot(source, argv):
         _state["version"] = str(getattr(mod, "__version__", ""))
         _state["mod"] = mod
         _state["app"] = None
+        _use_page_audio(mod)
         app_cls = getattr(mod, "Application", None)
         if isinstance(app_cls, type) and "__init__" in vars(app_cls):   # remember the running game so tt_state() can read it
             real_init = app_cls.__init__
@@ -1127,29 +1105,94 @@ def tt_state():
         return ""
 
 
-def tt_audio_idle(ms):
-    """Spare time at the end of a frame goes to the game's own Web Audio engine: it renders the next notes of the current
-    song exactly as WebAudio.tick() does (same NoteBank, same buffers), just sooner, so fewer notes miss their slot on slow
-    devices. Anything unexpected (an engine that works differently) simply does nothing."""
-    app, mod = _state.get("app"), _state.get("mod")
-    a = getattr(app, "audio", None)
-    try:
-        if a is None or not getattr(a, "ok", False) or not getattr(a, "_pending", None) or getattr(a, "_song", None) is None:
-            return 0
-        song = a._song
-        end = time.perf_counter() + float(ms) / 1000.0
-        bank = mod.NoteBank(song.spb * 1.0, mod.SONGS[song.sid].get("echo", 0.0) or 0.0)
-        n = 0
-        while a._pending and time.perf_counter() < end:
-            k = a._pending.pop(0)
-            if k in a._bank:
-                continue
-            arr = bank.make(k)
-            a._bank[k] = a._buffer([x / 32768 for x in arr[::a.SR_DIV]], mod.AU_SR // a.SR_DIV)
-            n += 1
-        return n
-    except Exception:
-        return 0
+# ---- sound -------------------------------------------------------------------------------------------------------------
+# The game's own browser engine (WebAudio) composes and synthesises every note and effect in Python while you play, which
+# takes most of each frame on an ordinary computer. The page already has every song (music/*.mp3) and every effect
+# (audio/sfx.mp3) rendered ahead of time by the game's own engine, so in the browser the game gets this stand-in instead:
+# the same interface, but it only queues short commands ("play song X", "effect Y at this volume, pan and pitch") that
+# the page carries out (SoundHost). The page reports back what is playing, the position and the analyser, which the
+# game's now-playing panel and in-game jukebox read exactly as before.
+_AUDIO = {"q": [], "obj": None}
+
+
+def _use_page_audio(mod):
+    base = getattr(mod, "NullAudio", None)
+    if base is None or not hasattr(mod, "WebAudio"):
+        return
+
+    class PageAudio(base):
+        label = "WEB AUDIO"
+        on = True
+
+        def __init__(self):
+            self.now_sid, self.pos, self.dur, self.spec, self.ended = None, 0, 0, "0" * 16, None
+            self.ready = set()
+            self._music, self._prepped = None, set()
+            _AUDIO["obj"] = self
+            _AUDIO["q"] = [["reset"]]
+
+        def start(self):
+            return True
+
+        def _q(self, *op):
+            q = _AUDIO["q"]
+            if len(q) < 400:                       # never let a stalled page grow it without bound
+                q.append(list(op))
+
+        def sfx(self, name, vol=1.0, pan=0.0, rate=1.0):
+            self._q("s", str(name), round(float(vol), 3), round(max(-1.0, min(1.0, float(pan))), 3), round(float(rate), 4))
+
+        def music(self, sid, fade=1.5):
+            if sid == self._music:
+                return
+            self._music, self.ended = sid, None
+            self._q("m", sid or "", round(float(fade), 2))
+
+        def volumes(self, m, mus, sfx):
+            self._q("v", round(float(m), 3), round(float(mus), 3), round(float(sfx), 3))
+
+        def eq(self, b, m, t):
+            self._q("e", float(b), float(m), float(t))
+
+        def loop(self, on):
+            self._q("l", 1 if on else 0)
+
+        def prep(self, items):
+            for it in items:
+                if isinstance(it, str) and it.startswith("song:") and it[5:] not in self._prepped:
+                    self._prepped.add(it[5:])
+                    self._q("p", it[5:])
+
+        def resume(self):
+            self._q("r")
+
+        def stop(self):
+            self._music = None
+            self._q("x")
+
+    mod.WebAudio = PageAudio
+
+
+def tt_audio_take():
+    """The sound commands queued since the last frame, as JSON (empty string when there are none)."""
+    q = _AUDIO["q"]
+    if not q:
+        return ""
+    _AUDIO["q"] = []
+    return json.dumps(q, separators=(",", ":"))
+
+
+def tt_audio_feed(sid, pos, dur, spec, ended):
+    """What the page is playing, for the game's now-playing panel and jukebox."""
+    a = _AUDIO["obj"]
+    if a is None:
+        return
+    a.now_sid = sid or None
+    a.pos, a.dur = int(pos), int(dur)
+    if spec:
+        a.spec = str(spec)
+    if ended:
+        a.ended = ended
 
 
 def tt_info():
@@ -1529,91 +1572,152 @@ addEventListener('resize', fitTerminal);
 matchMedia('(resolution: 1dppx)').addEventListener?.('change', fitTerminal);
 
 // ---- sound ------------------------------------------------------------------------------------------------------------
-// AudioHost replays the game's Web Audio calls (recorded in the worker, see the AudioContext stand-in there) on a real
-// AudioContext. Everything passes through one master gain for the page's own volume and mute. Browsers keep an
-// AudioContext suspended until the page gets a click, tap or key press, so the first gesture unlocks it.
-const AudioHost = {
-  ctx: null, out: null, nodes: new Map(), analysers: [], failed: false, warned: false, specTimer: 0, clockTimer: 0, ops: 0, errors: 0,
+// SoundHost plays the game's sound on the page. The game (in the worker) only says what to play - "song X", "effect Y at
+// this volume, pan and pitch" - and the sound itself comes from files rendered ahead of time by the game's own engine:
+// music/<song>.mp3 (looped at the same point the game loops them, data/music.json) and audio/sfx.mp3 (every effect, with
+// its index in audio/sfx.json). So the game never synthesises sound while you play. Everything passes through one master
+// gain for the page's volume and mute. Browsers keep sound off until a click, tap or key press; the first one unlocks it.
+const SPEC_FFT = 512;
+const SoundHost = {
+  ctx: null, out: null, game: null, musicBus: null, sfxBus: null, eqf: [], an: null, failed: false, warned: false,
+  ops: 0, errors: 0, played: 0, loop: true, gen: 0, cur: null, ended: '', cache: new Map(), songs: null, songsP: null,
+  pack: null, packIdx: null, packDelay: 0, packP: null, live: 0, timer: 0, specBuf: null,
   ensure() {
     if (this.ctx || this.failed) return this.ctx;
     try {
       const AC = window.AudioContext || window.webkitAudioContext;
       if (!AC) throw new Error('no Web Audio');
-      this.ctx = new AC({ latencyHint: 'interactive' });
-      this.out = this.ctx.createGain(); this.out.connect(this.ctx.destination); this.applyVolume();
-      this.ctx.onstatechange = () => { this.sendClock(); renderSound(); };
-      this.clockTimer = setInterval(() => this.sendClock(), 250);
-      const unlock = () => { if (this.ctx && this.ctx.state === 'suspended' && !document.hidden) this.ctx.resume().then(() => this.sendClock(), () => {}); };
+      // the game's sound is 22.05 kHz, so a 22.05 kHz context halves the memory and work (the browser converts on output);
+      // 'balanced' output buffers: quick enough for effects, without the drop-outs tiny buffers cause on slower computers
+      try { this.ctx = new AC({ latencyHint: 'balanced', sampleRate: 22050 }); } catch (e) { this.ctx = new AC({ latencyHint: 'balanced' }); }
+      const c = this.ctx;
+      this.out = c.createGain(); this.out.connect(c.destination); this.applyVolume();
+      this.game = c.createGain(); this.game.gain.value = 0.85;
+      this.an = c.createAnalyser(); this.an.fftSize = SPEC_FFT; this.an.smoothingTimeConstant = 0.6;
+      this.game.connect(this.an); this.an.connect(this.out);
+      this.musicBus = c.createGain(); this.musicBus.gain.value = 0.7;
+      this.sfxBus = c.createGain(); this.sfxBus.gain.value = 0.9; this.sfxBus.connect(this.game);
+      const lo = c.createBiquadFilter(), mid = c.createBiquadFilter(), hi = c.createBiquadFilter();     /* the game's 3-band EQ */
+      lo.type = 'lowshelf'; lo.frequency.value = 250; mid.type = 'peaking'; mid.frequency.value = 1000; mid.Q.value = 0.7; hi.type = 'highshelf'; hi.frequency.value = 3000;
+      this.musicBus.connect(lo); lo.connect(mid); mid.connect(hi); hi.connect(this.game); this.eqf = [lo, mid, hi];
+      c.onstatechange = () => { this.sendState(); renderSound(); };
+      const unlock = () => { if (this.ctx && this.ctx.state === 'suspended' && !document.hidden) this.ctx.resume().catch(() => {}); };
       ['pointerdown', 'keydown', 'touchend', 'mousedown'].forEach((ev) => addEventListener(ev, unlock, { capture: true, passive: true }));
-      this.sendClock();
+      this.timer = setInterval(() => this.sendState(), 250);
+      this.loadIndex(); this.loadPack();
     } catch (e) { this.failed = true; if (!this.warned) { this.warned = true; toast('Sound is not available in this browser', 4000); } }
     return this.ctx;
   },
   applyVolume() { if (this.out) this.out.gain.setTargetAtTime(prefs.muted ? 0 : prefs.vol, this.ctx.currentTime, 0.02); },
-  sendClock() {
-    if (!this.ctx || !worker) return;
-    worker.postMessage({ t: 'aclock', ct: this.ctx.currentTime, wall: performance.timeOrigin + performance.now(), state: this.ctx.state, sr: this.ctx.sampleRate });
+  decode(buf) { return new Promise((res, rej) => { const r = this.ctx.decodeAudioData(buf, res, rej); if (r && r.then) r.then(res, rej); }); },
+  fetchBuf(url) { return fetch(url).then((r) => { if (!r.ok) throw new Error(url + ': HTTP ' + r.status); return r.arrayBuffer(); }); },
+  loadIndex() {
+    if (!this.songsP) this.songsP = fetch('data/music.json').then((r) => r.json()).then((d) => { this.songs = new Map(d.songs.map((x) => [x.id, x])); return this.songs; })
+      .catch((e) => { this.songsP = null; console.warn('[sound] no song list', e); return null; });
+    return this.songsP;
   },
-  reset() {                               /* the game restarted and built a new engine: drop the old graph, keep the context */
-    for (const n of this.nodes.values()) { try { if (n.stop) n.stop(); } catch (e) {} try { n.disconnect(); } catch (e) {} }
-    this.nodes.clear(); this.analysers = [];
+  loadPack() {
+    if (this.packP) return this.packP;
+    this.packP = Promise.all([fetch('audio/sfx.json').then((r) => r.json()), this.fetchBuf('audio/sfx.mp3').then((b) => this.decode(b))]).then(([idx, buf]) => {
+      // MP3 decoders may add a short delay at the start: the file begins with a single click at a known time, so measure it
+      const d = buf.getChannelData(0), sr = buf.sampleRate, want = idx.mark * sr; let at = -1;
+      for (let i = 0, n = Math.min(d.length, Math.round(sr * 0.8)); i < n; i++) if (Math.abs(d[i]) > 0.3) { at = i; break; }
+      this.packDelay = at < 0 ? 0 : Math.max(-0.1, Math.min(0.2, (at - want) / sr));
+      this.packIdx = idx.sfx; this.pack = buf;
+    }).catch((e) => { this.packP = null; console.warn('[sound] no effects', e); });
+    return this.packP;
   },
-  node(id) { return id === 0 ? this.out : this.nodes.get(id); },
-  run(ops) {
+  loadSong(sid) {
+    if (this.cache.has(sid)) { const p = this.cache.get(sid); this.cache.delete(sid); this.cache.set(sid, p); return p; }     /* most recent last */
+    const info = this.songs && this.songs.get(sid);
+    if (!info) return Promise.resolve(null);
+    const p = this.fetchBuf(info.a).then((b) => this.decode(b));
+    p.catch(() => this.cache.delete(sid));
+    this.cache.set(sid, p);
+    while (this.cache.size > 3) {                                 /* decoded songs are big: keep the newest few */
+      const old = this.cache.keys().next().value; if (this.cur && this.cur.sid === old) { this.cache.delete(old); this.cache.set(old, p); break; }
+      this.cache.delete(old);
+    }
+    return p;
+  },
+  music(sid, fade) {
+    const gen = ++this.gen, c = this.ctx; this.ended = '';
+    const old = this.cur; this.cur = null;
+    if (old) {
+      const t = c.currentTime, f = Math.max(0.15, Math.min(+fade || 0.3, 2.5));
+      try { old.g.gain.cancelScheduledValues(t); old.g.gain.setTargetAtTime(0, t, f / 4); old.src.stop(t + f); } catch (e) {}
+    }
+    if (!sid) return;
+    this.loadIndex().then(() => this.loadSong(sid)).then((buf) => {
+      if (gen !== this.gen || !buf) return;
+      const info = this.songs.get(sid), dur = buf.duration;
+      const le = Math.min(info.le || dur, dur), lp = Math.min(info.lp || 0, Math.max(0, le - 1));
+      const src = c.createBufferSource(), g = c.createGain();
+      src.buffer = buf; src.loop = this.loop; src.loopStart = lp; src.loopEnd = le;
+      g.gain.setValueAtTime(0, c.currentTime); g.gain.setTargetAtTime(1, c.currentTime, 0.04);
+      src.connect(g); g.connect(this.musicBus);
+      const cur = this.cur = { sid, src, g, t0: c.currentTime, lp, le };
+      src.onended = () => { if (this.cur === cur) { this.cur = null; this.ended = sid; this.sendState(); } };
+      src.start();
+    }).catch((e) => { if (++this.errors < 5) console.warn('[sound] song', sid, e); });
+  },
+  sfx(name, vol, pan, rate) {
+    const c = this.ctx, at = this.packIdx && this.packIdx[name];
+    if (!at || this.live > 24) return;                            /* not loaded yet, unknown, or already very busy */
+    const src = c.createBufferSource(); src.buffer = this.pack; src.playbackRate.value = rate > 0 ? rate : 1;
+    const g = c.createGain(); g.gain.value = vol;
+    let tail = g;
+    if (pan && c.createStereoPanner) { const p = c.createStereoPanner(); p.pan.value = pan; g.connect(p); tail = p; }
+    src.connect(g); tail.connect(this.sfxBus);
+    this.live++; this.played++;
+    src.onended = () => { this.live--; try { tail.disconnect(); } catch (e) {} };
+    src.start(0, Math.max(0, at[0] + this.packDelay), at[1] + 0.02);
+  },
+  run(json) {
+    let ops; try { ops = JSON.parse(json); } catch (e) { return; }
+    if (!this.ensure()) return;
+    const c = this.ctx;
     for (const op of ops) {
-      try { this.op(op); } catch (e) { if (++this.errors < 5) console.warn('[audio]', op[0], e); }
+      this.ops++;
+      try {
+        switch (op[0]) {
+          case 's': this.sfx(op[1], op[2], op[3], op[4]); break;
+          case 'm': this.music(op[1], op[2]); break;
+          case 'v': this.game.gain.setTargetAtTime(op[1], c.currentTime, 0.03); this.musicBus.gain.setTargetAtTime(op[2], c.currentTime, 0.03); this.sfxBus.gain.setTargetAtTime(op[3], c.currentTime, 0.03); break;
+          case 'e': this.eqf.forEach((f, i) => f.gain.setTargetAtTime(op[i + 1], c.currentTime, 0.03)); break;
+          case 'l': this.loop = !!op[1]; if (this.cur) this.cur.src.loop = this.loop; break;
+          case 'p': if (this.cache.size < 2) this.loadIndex().then(() => this.loadSong(op[1])).catch(() => {}); break;
+          case 'r': if (c.state === 'suspended' && navigator.userActivation && navigator.userActivation.hasBeenActive) c.resume().catch(() => {}); break;
+          case 'x': case 'reset': this.music('', 0.3); this.ended = ''; break;
+        }
+      } catch (e) { if (++this.errors < 5) console.warn('[sound]', op[0], e); }
     }
   },
-  op(op) {
-    const k = op[0];
-    if (k === 'ctx') { if (this.ensure()) { this.reset(); this.startSpectrum(); } return; }
-    const ctx = this.ctx; if (!ctx) return;
-    this.ops++;
-    switch (k) {
-      case 'n': {
-        const [, id, kind, a] = op; let n = null;
-        if (kind === 'gain') n = ctx.createGain();
-        else if (kind === 'panner') n = ctx.createStereoPanner ? ctx.createStereoPanner() : ctx.createGain();
-        else if (kind === 'biquad') n = ctx.createBiquadFilter();
-        else if (kind === 'analyser') { n = ctx.createAnalyser(); this.analysers.push(n); }
-        else if (kind === 'source') { n = ctx.createBufferSource(); n.onended = () => { if (this.nodes.get(id) === n) this.nodes.delete(id); try { n.disconnect(); } catch (e) {} }; }
-        else if (kind === 'buffer') n = ctx.createBuffer(a[0], a[1], a[2]);
-        if (n) this.nodes.set(id, n);
-        break;
-      }
-      case 'c': { const a = this.nodes.get(op[1]), b = this.node(op[2]); if (a && b) a.connect(b); break; }
-      case 'd': { const a = this.nodes.get(op[1]); if (a) a.disconnect(); break; }
-      case 'p': { const a = this.nodes.get(op[1]); if (a && a[op[2]]) a[op[2]].value = op[3]; break; }
-      case 'pa': { const a = this.nodes.get(op[1]); if (a && a[op[2]]) a[op[2]][op[3]](...op.slice(4)); break; }
-      case 's': {
-        const a = this.nodes.get(op[1]); if (!a) break;
-        if (op[2] === 'buffer') a.buffer = this.nodes.get(op[3]) || null; else a[op[2]] = op[3];
-        break;
-      }
-      case 'bd': { const b = this.nodes.get(op[1]); if (b) b.copyToChannel(op[3], op[2]); break; }
-      case 'st': { const a = this.nodes.get(op[1]); if (a) a.start(Math.max(0, op[2])); break; }
-      case 'sp': { const a = this.nodes.get(op[1]); if (a) a.stop(Math.max(0, op[2])); break; }
-      case 'free': { const a = this.nodes.get(op[1]); if (a && !(a instanceof AudioBufferSourceNode)) this.nodes.delete(op[1]); break; }
-      case 'resume': if (ctx.state === 'suspended' && navigator.userActivation && navigator.userActivation.hasBeenActive) ctx.resume().catch(() => {}); break;
-    }
+  position() {
+    const cur = this.cur; if (!cur) return [0, 0];
+    let t = this.ctx.currentTime - cur.t0;
+    if (cur.src.loop && t > cur.le && cur.le > cur.lp) t = cur.lp + (t - cur.le) % (cur.le - cur.lp);
+    return [Math.max(0, Math.min(t, cur.le)), cur.le];
   },
-  startSpectrum() {                       /* the game's analyser readings go back to the worker for the in-game jukebox */
-    clearInterval(this.specTimer);
-    let buf = null;
-    this.specTimer = setInterval(() => {
-      const an = this.analysers[this.analysers.length - 1];
-      if (!an || !worker || !this.ctx || this.ctx.state !== 'running') return;
-      if (!buf || buf.length !== an.frequencyBinCount) buf = new Uint8Array(an.frequencyBinCount);
-      an.getByteFrequencyData(buf);
-      worker.postMessage({ t: 'aspec', d: buf.slice() });
-    }, 66);
+  spectrum() {                                                     /* the game's own 16-band reading (WebAudio.tick) */
+    if (!this.an || this.ctx.state !== 'running') return '';
+    const n = this.an.frequencyBinCount; if (!this.specBuf || this.specBuf.length !== n) this.specBuf = new Uint8Array(n);
+    this.an.getByteFrequencyData(this.specBuf);
+    let s = ''; for (let k = 0; k < 16; k++) s += Math.min(9, Math.floor(this.specBuf[Math.min(n - 1, Math.floor(n * (Math.pow(2, k * 0.45) - 1) / Math.pow(2, 7.2)))] / 28));
+    return s;
+  },
+  sendState() {
+    if (!this.ctx || !worker) return;
+    const [pos, dur] = this.position();
+    worker.postMessage({ t: 'sndstate', sid: this.cur ? this.cur.sid : '', pos: Math.floor(pos), dur: Math.floor(dur), spec: this.spectrum(), ended: this.ended });
   },
 };
-window.__audio = AudioHost;                 // for the diagnostics overlay and automated tests
+const AudioHost = SoundHost;                // older name, still used by the sound dialog and tests
+window.__audio = SoundHost;                 // for the diagnostics overlay and automated tests
 document.addEventListener('visibilitychange', () => {
   const c = AudioHost.ctx; if (!c) return;
-  if (document.hidden && c.state === 'running') c.suspend().then(() => AudioHost.sendClock(), () => {});
-  else if (!document.hidden && c.state === 'suspended' && navigator.userActivation && navigator.userActivation.hasBeenActive) c.resume().then(() => AudioHost.sendClock(), () => {});
+  if (document.hidden && c.state === 'running') c.suspend().then(() => SoundHost.sendState(), () => {});
+  else if (!document.hidden && c.state === 'suspended' && navigator.userActivation && navigator.userActivation.hasBeenActive) c.resume().then(() => SoundHost.sendState(), () => {});
 });
 
 // the game rings the terminal bell on impacts when its AUDIO setting is BELL ONLY
@@ -1636,7 +1740,7 @@ function renderSound() {
   if ($('m-sound').hidden) return;
   const kv = $('sound-kv'); kv.textContent = '';
   const st = AudioHost.failed ? ['Unavailable in this browser', 'bad'] : !AudioHost.ctx ? ['Starting with the game', ''] : AudioHost.ctx.state === 'running' ? ['Playing', 'good'] : ['Waiting for a click, tap or key press', 'warn'];
-  [['Status', st[0], st[1]], ['Engine', 'The game’s own synthesizer, through Web Audio'], ['Output', AudioHost.ctx ? AudioHost.ctx.sampleRate + ' Hz' : '-']].forEach(([k, v, c]) => {
+  [['Status', st[0], st[1]], ['Engine', 'The game’s own music and effects, rendered ahead of time and played through Web Audio'], ['Output', AudioHost.ctx ? AudioHost.ctx.sampleRate + ' Hz' : '-']].forEach(([k, v, c]) => {
     const a = document.createElement('span'), bb = document.createElement('span'); a.textContent = k; bb.textContent = v; if (c) bb.className = c; kv.append(a, bb);
   });
   $('s-vol').value = Math.round(prefs.vol * 100); $('s-volv').textContent = Math.round(prefs.vol * 100) + '%';
@@ -1667,7 +1771,7 @@ function onWorker(e) {
     case 'cells': term.applyCells(m, () => worker.postMessage({ t: 'ack' })); break;
     case 'out': term.write(m.d, () => worker.postMessage({ t: 'ack' })); break;
     case 'bell': beep(); break;
-    case 'audio': AudioHost.run(m.ops); break;
+    case 'snd': SoundHost.run(m.ops); break;
     case 'state': onGameState(m.s); break;
     case 'stage': stage(m.id, m.state, m.msg); break;
     case 'persist': storageMode = m.persistent; break;
@@ -1756,9 +1860,6 @@ addEventListener('keydown', (e) => {
 els.termwrap.addEventListener('pointerdown', () => { if (term && !modalOpen()) term.focus(); });
 
 let coarseMode = false;
-const PAD = {
-  dpad: [[null], ['UP'], [null], ['LEFT'], [null], ['RIGHT'], [null], ['DOWN'], [null]],
-};
 function buildPad() {
   const pad = els.pad; pad.innerHTML = '';
   const mkBtn = (label, cls, onDown, repeat) => {
@@ -1774,22 +1875,31 @@ function buildPad() {
     b.addEventListener('contextmenu', (e) => e.preventDefault());
     return b;
   };
-  const dpad = document.createElement('div'); dpad.className = 'cluster dpad';
-  PAD.dpad.forEach(([dir]) => {
-    if (!dir) { dpad.appendChild(document.createElement('span')); return; }
-    dpad.appendChild(mkBtn({ UP: '&#9650;', DOWN: '&#9660;', LEFT: '&#9664;', RIGHT: '&#9654;' }[dir], '', () => send(seq(dir, coarseMode)), true));
+  const ICON = {
+    arrow: '<svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg>',
+    keys: '<svg viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>',
+    pause: '<svg viewBox="0 0 24 24"><path d="M9 6v12M15 6v12"/></svg>',
+    big: '<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6M5 6v12"/></svg>',
+  };
+  const named = (b, name) => { b.setAttribute('aria-label', name); b.title = name; return b; };
+  const dpad = document.createElement('div'); dpad.className = 'cluster dpad'; dpad.setAttribute('role', 'group'); dpad.setAttribute('aria-label', 'Direction pad: aim and power, or move in menus');
+  ['UP', 'LEFT', 'RIGHT', 'DOWN'].forEach((dir) => {
+    dpad.appendChild(named(mkBtn(ICON.arrow, 'd-' + dir.toLowerCase(), () => send(seq(dir, coarseMode)), true), { UP: 'Up (power up)', DOWN: 'Down (power down)', LEFT: 'Left (aim)', RIGHT: 'Right (aim)' }[dir]));
   });
+  const hub = document.createElement('span'); hub.className = 'hub'; dpad.appendChild(hub);
   const mid = document.createElement('div'); mid.className = 'mid';
-  const shift = mkBtn('SHIFT', 'small', (b) => { coarseMode = !coarseMode; b.classList.toggle('on', coarseMode); toast(coarseMode ? 'Big steps ON' : 'Big steps OFF', 900); });
-  const kb = mkBtn('KEY', 'small', () => { if (term && term.textarea) { term.textarea.focus({ preventScroll: true }); } });
-  const hh = mkBtn('H', 'small', () => send('h'));
-  const tab = mkBtn('P', 'small', () => send('p'));
-  mid.append(shift, kb, hh, tab);
+  const shift = named(mkBtn(ICON.big + 'SHIFT', 'pill', (b) => { coarseMode = !coarseMode; b.classList.toggle('on', coarseMode); b.setAttribute('aria-pressed', String(coarseMode)); toast(coarseMode ? 'Big steps on: the D-pad aims and sets power in large steps' : 'Big steps off', 1300); }), 'Shift: big aim and power steps');
+  shift.setAttribute('aria-pressed', 'false');
+  const kb = named(mkBtn(ICON.keys + 'KEYS', 'pill', () => { if (term && term.textarea) { term.textarea.focus({ preventScroll: true }); } }), 'Show the keyboard (to type names and codes)');
+  const hh = named(mkBtn('H', 'pill', () => send('h')), 'H: change the home screen');
+  const pp = named(mkBtn(ICON.pause + 'PAUSE', 'pill', () => send('p')), 'Pause (P)');
+  mid.append(shift, kb, hh, pp);
   const act = document.createElement('div'); act.className = 'cluster act';
-  const esc = mkBtn('ESC', 'small', () => send('\x1b')); const ent = mkBtn('ENTER', 'small', () => send('\r'));
-  const fire = mkBtn('FIRE', 'fire', () => send(' '));
-  const xb = mkBtn('X', 'small xbtn', () => special(xb)); xb.id = 'pad-x'; xb.title = 'Special attack (X)'; xb.setAttribute('aria-label', 'Special attack (X)');
-  act.style.gridTemplateColumns = 'auto auto auto'; act.append(xb, esc, ent); fire.style.gridColumn = '1 / span 3'; act.appendChild(fire);
+  const pills = document.createElement('div'); pills.className = 'pills';
+  pills.append(named(mkBtn('ESC', 'pill', () => send('\x1b')), 'Escape: back / menu'), named(mkBtn('ENTER', 'pill', () => send('\r')), 'Enter: confirm'));
+  const fire = named(mkBtn('FIRE', 'face fire', () => send(' ')), 'Fire (Space)');
+  const xb = mkBtn('X<small>SPECIAL</small>', 'face xbtn', () => special(xb)); xb.id = 'pad-x'; named(xb, 'Special attack (X)');
+  act.append(pills, xb, fire);
   pad.append(dpad, mid, act);
   renderX();
 }

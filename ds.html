@@ -29,18 +29,27 @@
       </div>
       <p class="muted" id="ds-meta">Version 1.5.0 port &middot; one .nds file</p>
     </div>
-    <figure class="ds-device" aria-label="Terminal Tanks DS running: a shot fired from the touch screen">
-      <div class="ds-shell">
-        <div class="ds-lid"><span class="ds-cam"></span></div>
-        <div class="ds-screens">
-          <video id="ds-clip" muted loop playsinline autoplay poster="ds/ds-fire.png" aria-hidden="true">
-            <source src="ds/ds-fire.webm" type="video/webm"><source src="ds/ds-fire.mp4" type="video/mp4">
-          </video>
-          <i class="ds-hinge" aria-hidden="true"></i>
+    <figure class="ds-device" aria-label="Terminal Tanks DS running on a Nintendo DS Lite: a shot fired from the touch screen">
+      <div class="nds" aria-hidden="true">
+        <div class="nds-top">
+          <span class="nds-spk"></span>
+          <div class="nds-glass"><canvas id="ds-top" width="256" height="192"></canvas></div>
+          <span class="nds-spk"></span>
         </div>
-        <div class="ds-pads" aria-hidden="true"><span class="ds-dpad"></span><span class="ds-abxy"><b>X</b><b>A</b><b>B</b><b>Y</b></span></div>
+        <div class="nds-hinge"><i class="nds-led on"></i><i class="nds-led"></i></div>
+        <div class="nds-bot">
+          <span class="nds-shoulder l"></span><span class="nds-shoulder r"></span>
+          <span class="nds-dpad"><i></i></span>
+          <div class="nds-touch"><canvas id="ds-bot" width="256" height="192"></canvas></div>
+          <span class="nds-face"><b>X</b><b>Y</b><b>A</b><b>B</b></span>
+          <span class="nds-ss"><i>START</i><i>SELECT</i></span>
+          <span class="nds-mic"></span>
+        </div>
       </div>
-      <figcaption>Captured from the real ROM: a shot fired with the stylus, top screen above, touch screen below.</figcaption>
+      <video id="ds-clip" muted loop playsinline preload="auto" poster="ds/ds-fire.png" hidden>
+        <source src="ds/ds-fire.webm" type="video/webm"><source src="ds/ds-fire.mp4" type="video/mp4">
+      </video>
+      <figcaption>Captured from the real ROM at the DS's own 60 frames a second: a shot fired with the stylus. The top screen shows the battlefield; the touch screen holds the controls.</figcaption>
     </figure>
   </div>
 
@@ -88,9 +97,9 @@
   </table></div>
 
   <h2>WHERE THE DS VERSION STANDS</h2>
-  <p>The DS port is version <b>1.5.0</b>; the PC and browser game is at <b id="pc-ver">1.6.0</b>. The port intentionally trails the main game, so the newest additions have not reached it yet. These numbers come from each version's own cheat-code screen.</p>
+  <p>The DS port is version <b class="dsv">1.5.0</b>; the PC and browser game is at <b id="pc-ver">1.6.0</b>. The port intentionally trails the main game, so the newest additions have not reached it yet. These numbers come from each version's own cheat-code screen.</p>
   <div class="scroll"><table class="ds-cmp">
-    <thead><tr><th></th><th>DS 1.5.0</th><th>PC and browser <span class="pcv">1.6.0</span></th></tr></thead>
+    <thead><tr><th></th><th>DS <span class="dsv">1.5.0</span></th><th>PC and browser <span class="pcv">1.6.0</span></th></tr></thead>
     <tbody id="ds-cmp">
       <tr><td>Tanks</td><td>112</td><td class="n" data-k="menuTanks">122</td></tr>
       <tr><td>Ammo types</td><td>111</td><td class="n" data-k="menuAmmo">121</td></tr>
@@ -136,6 +145,7 @@
   <p class="muted">Check the download with <code>sha256sum terminaltanks-ds.nds</code> (Linux), <code>shasum -a 256 terminaltanks-ds.nds</code> (macOS) or <code>certutil -hashfile terminaltanks-ds.nds SHA256</code> (Windows). Terminal Tanks DS is fan-made homebrew; it is not affiliated with or endorsed by Nintendo.</p>
   <div class="row">
     <a class="btn big hot" href="downloads/terminaltanks-ds.nds" download>Download the ROM</a>
+    <a class="btn big" href="https://github.com/ethanlabs101/TerminalTanks-DS" target="_blank" rel="noopener">Terminal Tanks DS on GitHub</a>
     <a class="btn big" href="https://github.com/ethanlabs101/TerminalTanks" target="_blank" rel="noopener">Terminal Tanks on GitHub</a>
     <a class="btn big" href="play.html">Play the latest version in your browser</a>
   </div>
@@ -149,6 +159,7 @@
   const kb = (n) => Math.round(n / 1024).toLocaleString('en-US') + ' KB';
   fetch('downloads/ds-info.json').then((r) => r.json()).then((i) => {
     $('ds-size').textContent = kb(i.bytes); document.querySelectorAll('.ds-size2').forEach((e) => { e.textContent = kb(i.bytes); });
+    document.querySelectorAll('.dsv').forEach((e) => { e.textContent = i.version; });
     $('ds-meta').textContent = 'Version ' + i.version + ' port · ' + kb(i.bytes) + ' · runs on ' + i.header.unit;
     $('ds-dl').textContent = 'Download Terminal Tanks DS (' + kb(i.bytes) + ')';
     if (i.save_folder) $('ds-folder').textContent = i.save_folder;
@@ -158,8 +169,18 @@
       ['SHA-256', i.sha256], ['MD5', i.md5]];
     $('ds-kv').innerHTML = rows.map(([k, v]) => '<span>' + k + '</span><span' + (k === 'SHA-256' || k === 'MD5' ? ' class="hash"' : '') + '>' + String(v).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]) + '</span>').join('');
   }).catch(() => {});
-  const v = $('ds-clip');
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { v.removeAttribute('autoplay'); v.pause(); v.controls = true; }
+  // One recorded clip (both screens stacked, as the DS draws them) is split onto the two screens of the drawing, so they can
+  // never drift apart. A new picture is drawn only when the video has a new frame, and only while the device is on screen.
+  const v = $('ds-clip'), tops = $('ds-top').getContext('2d'), bots = $('ds-bot').getContext('2d');
+  tops.imageSmoothingEnabled = bots.imageSmoothingEnabled = false;
+  const paint = (src, w, h) => { tops.drawImage(src, 0, 0, w, h / 2, 0, 0, 256, 192); bots.drawImage(src, 0, h / 2, w, h / 2, 0, 0, 256, 192); };
+  const poster = new Image(); poster.onload = () => paint(poster, poster.naturalWidth, poster.naturalHeight); poster.src = v.getAttribute('poster');
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const tick = () => { if (v.videoWidth) paint(v, v.videoWidth, v.videoHeight); if (!v.paused) next(); };
+  const next = () => { if (v.requestVideoFrameCallback) v.requestVideoFrameCallback(tick); else requestAnimationFrame(tick); };
+  v.addEventListener('play', next);
+  if (!still) new IntersectionObserver((e) => { if (e[0].isIntersecting) v.play().catch(() => {}); else v.pause(); }, { threshold: 0.2 }).observe($('ds-top'));
+  else document.querySelector('.ds-device').addEventListener('click', () => { if (v.paused) v.play().catch(() => {}); else v.pause(); });
   const lb = $('ds-lb');
   $('ds-gallery').addEventListener('click', (e) => { const im = e.target.closest('img'); if (!im) return; $('ds-lbi').src = im.src; $('ds-lbi').alt = im.alt; lb.showModal(); });
   $('ds-lbc').onclick = () => lb.close(); lb.addEventListener('click', (e) => { if (e.target === lb) lb.close(); });

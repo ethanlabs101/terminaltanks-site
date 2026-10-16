@@ -19,6 +19,18 @@
       "url": "https://github.com/ethanlabs101/TerminalTanks"
     },
     {
+      "group": "Get the game",
+      "name": "Terminal Tanks DS on GitHub",
+      "text": "The Nintendo DS port: source code and ROM releases.",
+      "url": "https://github.com/ethanlabs101/TerminalTanks-DS"
+    },
+    {
+      "group": "Get the game",
+      "name": "This website on GitHub",
+      "text": "The source of this site: every page, the catalog data and the tools that build it.",
+      "url": "https://github.com/ethanlabs101/terminaltanks-site"
+    },
+    {
       "group": "Follow along",
       "name": "Discord",
       "text": "Chat with other players and find a LAN opponent.",

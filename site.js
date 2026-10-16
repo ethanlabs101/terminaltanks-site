@@ -29,7 +29,7 @@ const TT = Object.assign({}, TT_DATA, {
   document.head.appendChild(icon);
 
   const mk = (n) => Array.from({ length: n }, () => `${(Math.random() * 100).toFixed(1)}vw ${(Math.random() * 78).toFixed(1)}vh ${Math.random() < .2 ? '#bfe9ff' : '#fff'}`).join(',');
-  const nav = [['play.html', 'Play', 'play'], ['home.html', 'Home', 'home'], ['catalog.html', 'Catalog', 'catalog'], ['workshop.html', 'Workshop', 'workshop'], ['jukebox.html', 'Jukebox', 'jukebox'], ['cheats.html', 'Cheats', 'cheats'], ['save-forge.html', 'Save forge', 'forge'], ['install.html', 'Install', 'install'], ['ds.html', 'DS', 'ds'], ['coming-soon.html', 'Coming Soon', 'coming soon'], ['about.html', 'About', 'about'], ['links.html', 'Links', 'links']];
+  const nav = [['play.html', 'Play', 'play'], ['home.html', 'Home', 'home'], ['catalog.html', 'Catalog', 'catalog'], ['workshop.html', 'Workshop', 'workshop'], ['jukebox.html', 'Jukebox', 'jukebox'], ['cheats.html', 'Cheats', 'cheats'], ['save-forge.html', 'Save forge', 'forge'], ['install.html', 'Install', 'install'], ['ds.html', 'DS', 'ds'], ['coming-soon.html', 'Coming Soon', 'soon'], ['about.html', 'About', 'about'], ['links.html', 'Links', 'links']];
   const main = document.querySelector('main');
   main.classList.add('stage');
   const title = main.dataset.title || '';

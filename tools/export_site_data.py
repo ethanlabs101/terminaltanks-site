@@ -339,6 +339,8 @@ def music_meta(tt) -> dict:
             "id": sid, "n": sp.name, "g": grp, "gl": GROUP_LABEL.get(grp, grp), "d": sp.desc, "bpm": sp.bpm,
             "key": f"{notes[sp.root % 12]} {scales.get(sp.scale, sp.scale.upper()).title()}", "m": meters.get(sp.meter, sp.meter), "st": sp.style,
             "len": round(song.total / tt.AU_SR, 1), "hand": sid in hand, "w": where, "i": i + 1,
+            # where the game loops it: back to section A at the end (the play page loops the MP3 there, like the game does)
+            "lp": round(song.secs.get("A", 0) / tt.AU_SR, 4), "le": round(song.total / tt.AU_SR, 4),
             "a": f"music/{slug}.mp3", "cv": f"music/covers/{slug}.png",
             "disc": {k: (list(v) if isinstance(v, tuple) else v) for k, v in tt.song_disc(sid).items() if k in ("kind", "bold", "avg", "second", "label", "rpm")},
         })
