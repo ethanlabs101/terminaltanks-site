@@ -45,6 +45,7 @@
       <button class="btn" id="eq-flat" type="button">Flat</button>
       <button class="btn" id="viz-toggle" type="button" title="Switch the analyser view">View</button>
     </div>
+    <p class="muted eq-note">At flat, music plays straight through your browser's media player. Moving the EQ sends it through Web Audio filters; if that ever crackles on your computer, press Flat and reload the page.</p>
   </section>
 
   <h2>THE LIBRARY</h2>
@@ -79,7 +80,7 @@
   </div>
   <div class="pb-msg" id="pb-msg" role="status" aria-live="polite"></div>
 </div>
-<audio id="audio" preload="none" crossorigin="anonymous"></audio>
+<audio id="audio" preload="none"></audio>
 
 <script src="site.js"></script>
 <script>
@@ -134,23 +135,24 @@
   $('tracks').addEventListener('click', (e) => { const li = e.target.closest('.trk'); if (li) start(byId.get(li.dataset.id), true); });
   $('tracks').addEventListener('keydown', (e) => { const li = e.target.closest('.trk'); if (li && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); start(byId.get(li.dataset.id), true); } });
 
-  /* ---- audio graph: <audio> -> 3-band EQ (the game's own filters) -> analyser -> speakers ------------------------ */
-  let ctx = null, an = null, eqf = [], gain = null, freq = null, wave = null;
+  /* ---- sound: the browser's own media player plays the music directly, the steadiest path there is (no Web Audio graph,
+     which can crackle and drop out on slower computers). Only if you move the EQ off flat does the music go through
+     Web Audio, because filters need it; Flat keeps it there, at 0 dB, until the page is reloaded. ------------------ */
+  let ctx = null, eqf = [], gain = null;
   const eqVals = store.get('eq', [0, 0, 0]);
+  const eqUsed = () => eqVals.some((v) => v !== 0);
   function graph() {
     if (ctx) return ctx;
     try {
       const AC = window.AudioContext || window.webkitAudioContext;
-      try { ctx = new AC({ latencyHint: 'playback' }); } catch (e) { ctx = new AC(); }   /* big output buffer: music never needs low latency, and small buffers crackle and drop out on slower computers */
+      try { ctx = new AC({ latencyHint: 'playback' }); } catch (e) { ctx = new AC(); }
       const src = ctx.createMediaElementSource(A);
       const lo = ctx.createBiquadFilter(), mid = ctx.createBiquadFilter(), hi = ctx.createBiquadFilter();
       lo.type = 'lowshelf'; lo.frequency.value = 250; mid.type = 'peaking'; mid.frequency.value = 1000; mid.Q.value = 0.7; hi.type = 'highshelf'; hi.frequency.value = 3000;
       eqf = [lo, mid, hi]; eqf.forEach((f, i) => { f.gain.value = eqVals[i]; });
-      an = ctx.createAnalyser(); an.fftSize = 2048; an.smoothingTimeConstant = 0.72;
       gain = ctx.createGain();
-      src.connect(lo); lo.connect(mid); mid.connect(hi); hi.connect(an); an.connect(gain); gain.connect(ctx.destination);
-      freq = new Uint8Array(an.frequencyBinCount); wave = new Uint8Array(an.fftSize);
-      A.volume = 1; applyVol();
+      src.connect(lo); lo.connect(mid); mid.connect(hi); hi.connect(gain); gain.connect(ctx.destination);
+      applyVol();
     } catch (e) { ctx = null; msg('The equalizer is not available in this browser; music plays without it.'); }
     return ctx;
   }
@@ -161,7 +163,7 @@
   function msg(t, ms) { $('pb-msg').textContent = t; $('pb-msg').classList.add('show'); clearTimeout(msgTimer); msgTimer = setTimeout(() => $('pb-msg').classList.remove('show'), ms || 3500); }
   function applyVol() {
     const v = muted ? 0 : vol;
-    if (gain) { gain.gain.setTargetAtTime(v, ctx.currentTime, 0.015); A.volume = 1; } else A.volume = v;
+    if (gain) { gain.gain.setTargetAtTime(v, ctx.currentTime, 0.015); A.volume = 1; } else A.volume = v;   /* plain playback: the element's own volume */
     $('vol').value = Math.round(vol * 100); $('mute').innerHTML = muted || vol === 0 ? '&#128263;' : '&#128266;';
     $('mute').setAttribute('aria-label', muted ? 'Unmute' : 'Mute'); $('mute').setAttribute('aria-pressed', String(muted));
   }
@@ -182,8 +184,8 @@
   }
   function start(s, user) {
     if (!s) return;
-    cur = s; show(s);
-    graph();
+    cur = s; show(s); loadSpec(s);
+    if (eqUsed()) graph();
     if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {});
     A.preload = 'auto'; A.src = s.a; A.loop = MODES[modeIdx][0] === 'one';   /* fetch the whole song ahead, so a slow connection doesn't stall it mid-way */
     const p = A.play();
@@ -201,7 +203,8 @@
   }
   function toggle() {
     if (!cur) return start(queue()[0] || songs[0], true);
-    graph(); if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {});
+    if (eqUsed()) graph();
+    if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {});
     if (A.paused) A.play().catch((e) => msg('Playback failed: ' + e.message)); else A.pause();
   }
   $('play').onclick = toggle; $('next').onclick = () => step(1); $('prev').onclick = () => (A.currentTime > 3 ? (A.currentTime = 0) : step(-1));
@@ -236,66 +239,73 @@
 
   /* ---- equalizer controls ----------------------------------------------------------------------------------------- */
   const eqShow = () => eqVals.forEach((v, i) => { $('eq-' + i).value = v; $('eq-' + i + 'v').textContent = (v > 0 ? '+' : '') + v + ' dB'; });
-  [0, 1, 2].forEach((i) => { $('eq-' + i).oninput = (e) => { eqVals[i] = +e.target.value; if (eqf[i]) eqf[i].gain.setTargetAtTime(eqVals[i], ctx.currentTime, 0.02); store.set('eq', eqVals); eqShow(); }; });
+  [0, 1, 2].forEach((i) => { $('eq-' + i).oninput = (e) => { eqVals[i] = +e.target.value; if (eqUsed()) graph(); if (eqf[i]) eqf[i].gain.setTargetAtTime(eqVals[i], ctx.currentTime, 0.02); store.set('eq', eqVals); eqShow(); }; });
   $('eq-flat').onclick = () => { [0, 1, 2].forEach((i) => { eqVals[i] = 0; if (eqf[i]) eqf[i].gain.setTargetAtTime(0, ctx.currentTime, 0.02); }); store.set('eq', eqVals); eqShow(); };
 
-  /* ---- the analyser: 32 log-spaced bands from 55 Hz to 10 kHz (the game's own range), peak caps and a scope ---------- */
+  /* ---- the analyser: 32 log-spaced bands from 55 Hz to 10 kHz (the game's own range), with peak caps. The readings are
+     pre-computed from each song's audio (music/spec/*.bin, tools/render_spectrum.py: the same scale and smoothing as a
+     browser analyser) and played back in step with the song, so the bars cost no audio processing at all. ----------- */
   const cv = $('viz'), g2 = cv.getContext('2d'), still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const NB = 32, peaks = new Float32Array(NB), levels = new Float32Array(NB);
-  let view = store.get('view', 0);
-  const VIEWS = ['SPECTRUM', 'SCOPE'];
+  const NB = 32, peaks = new Float32Array(NB), levels = new Float32Array(NB), now32 = new Float32Array(NB);
+  let view = store.get('view', 0) % 2;
+  const VIEWS = ['SPECTRUM', 'MIRROR'];
   $('viz-toggle').onclick = () => { view = (view + 1) % VIEWS.length; store.set('view', view); $('viz-mode').textContent = VIEWS[view]; settle = Math.max(settle, 1); wake(); };
   $('viz-mode').textContent = VIEWS[view];
-  function bandOf(k) { return 55 * Math.pow(10000 / 55, k / NB); }
+  let spec = null, specFor = '';
+  function loadSpec(s) {
+    if (specFor === s.id) return; specFor = s.id; spec = null;
+    fetch(s.a.replace('music/', 'music/spec/').replace(/\.mp3$/, '.bin')).then((r) => (r.ok ? r.arrayBuffer() : null)).then((b) => {
+      if (!b || specFor !== s.id) return;
+      const u = new Uint8Array(b);
+      if (u[0] === 84 && u[1] === 84 && u[2] === 83) spec = { fps: u[4], bands: u[5], d: u.subarray(6) };
+    }).catch(() => {});
+  }
+  function reading(t) {                                            /* the 32 bands at time t, between the two nearest rows */
+    if (!spec) { now32.fill(0); return now32; }
+    const n = spec.bands, rows = spec.d.length / n, f = Math.max(0, t * spec.fps), i = Math.min(rows - 1, Math.floor(f)), j = Math.min(rows - 1, i + 1), k = f - Math.floor(f);
+    for (let b = 0; b < NB; b++) { const bb = Math.min(n - 1, b); now32[b] = (spec.d[i * n + bb] * (1 - k) + spec.d[j * n + bb] * k) / 255; }
+    return now32;
+  }
   function fit() { const r = cv.getBoundingClientRect(), d = 0.5;   /* drawn at half size and scaled up crisply (image-rendering: pixelated): a quarter of the pixels to push each frame */ if (r.width) { cv.width = Math.round(r.width * d); cv.height = Math.round(r.height * d); } }
   new ResizeObserver(fit).observe(cv); fit();
-  const col = (t) => { const s = [[0, [60, 220, 160]], [0.55, [255, 214, 90]], [1, [255, 80, 90]]]; for (let i = 0; i < 2; i++) { const [a, ca] = s[i], [b, cb] = s[i + 1]; if (t <= b) { const k = (t - a) / (b - a); return 'rgb(' + ca.map((c, j) => Math.round(c + (cb[j] - c) * k)).join(',') + ')'; } } return 'rgb(255,80,90)'; };
   // one vertical gradient per canvas size: each band is a single rectangle, and the gaps between cells are drawn once
   // across all bands, so a frame is about 60 drawing calls instead of hundreds
-  let grad = null, gradFor = 0;
-  function gradient(H, cell) { if (gradFor !== H || !grad) { gradFor = H; grad = g2.createLinearGradient(0, H, 0, cell); grad.addColorStop(0, 'rgb(60,220,160)'); grad.addColorStop(0.55, 'rgb(255,214,90)'); grad.addColorStop(1, 'rgb(255,80,90)'); } return grad; }
+  let grad = null, gradFor = '';
+  function gradient(H, cell, mirror) { const key = H + ':' + mirror; if (gradFor !== key || !grad) { gradFor = key; grad = mirror ? g2.createLinearGradient(0, H / 2, 0, 0) : g2.createLinearGradient(0, H, 0, cell); grad.addColorStop(0, 'rgb(60,220,160)'); grad.addColorStop(0.55, 'rgb(255,214,90)'); grad.addColorStop(1, 'rgb(255,80,90)'); } return grad; }
   // The analyser draws at most 30 times a second, only while music plays (or the bars are still falling), only while it
-  // is on screen and the tab is visible. A loop that never rests starves the audio on slower computers.
+  // is on screen and the tab is visible.
   let raf = 0, lastDraw = 0, onScreen = true, settle = 0;
   new IntersectionObserver((e) => { onScreen = e[0].isIntersecting; wake(); }).observe(cv);
   function wake() { if (!raf) raf = requestAnimationFrame(draw); }
   function draw(now) {
     raf = 0;
-    const live = an && !A.paused;
+    const live = !A.paused;
     if (!onScreen || document.hidden || (!live && settle <= 0)) return;      /* rests until play, scroll-in or tab-in */
     raf = requestAnimationFrame(draw);
     if (now - lastDraw < 32) return;
     lastDraw = now;
     settle = live ? 90 : settle - 1;
-    const W = cv.width, H = cv.height;
+    const W = cv.width, H = cv.height, mirror = view === 1;
     g2.fillStyle = '#04080d'; g2.fillRect(0, 0, W, H);
     g2.strokeStyle = 'rgba(38,118,128,.18)'; g2.lineWidth = 1; g2.beginPath();
     for (let y = 1; y < 8; y++) { g2.moveTo(0, Math.round(H * y / 8) + .5); g2.lineTo(W, Math.round(H * y / 8) + .5); }
     g2.stroke();
-    if (live) an.getByteFrequencyData(freq);
-    if (view === 1 && live) {                                         /* oscilloscope: the waveform itself */
-      an.getByteTimeDomainData(wave);
-      g2.lineWidth = Math.max(1.5, W / 400); g2.strokeStyle = cur && cur.disc ? 'rgb(' + cur.disc.bold.join(',') + ')' : '#60e8d4';
-      g2.beginPath();
-      const stepX = Math.max(1, Math.floor(W / 600));
-      for (let x = 0; x < W; x += stepX) { const v = wave[Math.floor(x / W * wave.length)] / 128 - 1, y = H / 2 + v * H * 0.45; x ? g2.lineTo(x, y) : g2.moveTo(x, y); }
-      g2.stroke(); return;
-    }
-    const nyq = ctx ? ctx.sampleRate / 2 : 22050, bins = freq ? freq.length : 1, gap = Math.max(2, W / NB * 0.22), bw = W / NB - gap, cell = Math.max(4, Math.round(H / 26));
-    g2.fillStyle = gradient(H, cell);
+    const v32 = live ? reading(A.currentTime) : null;
+    const gap = Math.max(2, W / NB * 0.22), bw = W / NB - gap, cell = Math.max(3, Math.round(H / 26)), top = mirror ? H / 2 : H - cell;
+    g2.fillStyle = gradient(H, cell, mirror);
     for (let k = 0; k < NB; k++) {
-      let v = 0;
-      if (live) { const i0 = Math.floor(bandOf(k) / nyq * bins), i1 = Math.max(i0 + 1, Math.floor(bandOf(k + 1) / nyq * bins)); for (let i = i0; i < i1 && i < bins; i++) v = Math.max(v, freq[i]); v /= 255; }
+      const v = v32 ? v32[k] : 0;
       levels[k] += (v - levels[k]) * (v > levels[k] ? 0.6 : 0.18);
       peaks[k] = Math.max(levels[k], peaks[k] - (still ? 1 : 0.016));
-      const x = k * (bw + gap) + gap / 2, h = levels[k] * (H - cell), n = Math.floor(h / cell);
-      if (n) g2.fillRect(x, H - n * cell, bw, n * cell);
+      const x = k * (bw + gap) + gap / 2, n = Math.floor(levels[k] * top / cell);
+      if (!n) continue;
+      if (mirror) { g2.fillRect(x, H / 2 - n * cell, bw, n * cell); g2.fillRect(x, H / 2, bw, n * cell); }
+      else g2.fillRect(x, H - n * cell, bw, n * cell);
     }
     g2.fillStyle = '#04080d';                                         /* the gaps that make the bars look like stacked cells */
-    for (let y = H - cell; y > 0; y -= cell) g2.fillRect(0, y - 1, W, 2);
-    g2.fillStyle = '#e8f6ff';
-    for (let k = 0; k < NB; k++) if (peaks[k] > 0.02) g2.fillRect(k * (bw + gap) + gap / 2, H - peaks[k] * (H - cell) - cell, bw, Math.max(2, cell / 3));
-    g2.fillStyle = gradient(H, cell);
+    if (mirror) { for (let y = cell; y < H / 2; y += cell) { g2.fillRect(0, H / 2 - y - 1, W, 2); g2.fillRect(0, H / 2 + y - 1, W, 2); } }
+    else for (let y = H - cell; y > 0; y -= cell) g2.fillRect(0, y - 1, W, 2);
+    if (!mirror) { g2.fillStyle = '#e8f6ff'; for (let k = 0; k < NB; k++) if (peaks[k] > 0.02) g2.fillRect(k * (bw + gap) + gap / 2, H - peaks[k] * top - cell, bw, Math.max(2, cell / 3)); }
   }
   A.addEventListener('play', wake); A.addEventListener('pause', () => { settle = 60; wake(); });
   document.addEventListener('visibilitychange', wake);
@@ -305,7 +315,7 @@
   eqShow(); applyVol(); renderMode(); renderShuf(); render();
   const deep = decodeURIComponent((location.hash.match(/song=([^&]+)/) || [])[1] || '');
   const first = byId.get(deep) || byId.get(store.get('last', '')) || songs[0];
-  cur = first; show(first); A.src = first.a; render();
+  cur = first; show(first); loadSpec(first); A.src = first.a; render();
   if (deep && byId.get(deep)) document.getElementById('deck').scrollIntoView({ block: 'start' });
 })();
 </script>

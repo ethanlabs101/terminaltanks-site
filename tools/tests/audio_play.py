@@ -1,6 +1,6 @@
 """Boots play.html, presses Enter (a user gesture, which unlocks audio) and checks the game's sound really plays: the
-page's AudioContext runs, the game's music starts from its MP3 (the song the game asked for), the effects file loads and
-effects play, the analyser hears non-silent audio, and the game's now-playing state gets the song back from the page."""
+game's music plays from its MP3 on a media element (the song the game asked for, and its position advances), the effects
+file loads and effects play on the Web Audio context, and the page hands the game a live spectrum for its analyser."""
 import sys, time, json
 from playwright.sync_api import sync_playwright
 from pw_common import BASE, route_pyodide
@@ -21,8 +21,9 @@ with sync_playwright() as p:
     for i in range(40):
         time.sleep(0.5)
         st = pg.evaluate("""() => { const a = window.__audio; if (!a || !a.ctx) return null;
-            let peak = 0; if (a.an) { const d = new Uint8Array(a.an.frequencyBinCount); a.an.getByteFrequencyData(d); peak = Math.max(...d); }
-            return { state: a.ctx.state, ops: a.ops, song: a.cur ? a.cur.sid : '', pack: !!a.pack, effects: a.played, peak, errors: a.errors, sr: a.ctx.sampleRate }; }""")
+            const sp = a.spectrum(), peak = sp ? Math.max(...sp.split('').map(Number)) * 28 : 0;
+            return { state: a.ctx.state, ops: a.ops, song: a.cur ? a.cur.sid : '', playing: !!(a.cur && !a.cur.el.paused), t: a.cur ? +a.cur.el.currentTime.toFixed(2) : 0,
+                     vol: a.cur ? +a.cur.el.volume.toFixed(2) : 0, pack: !!a.pack, effects: a.played, peak, errors: a.errors }; }""")
         if st:
             peak = max(peak, st["peak"])
         if st and st["peak"] > 40 and st["song"] and i > 6:
@@ -33,7 +34,10 @@ with sync_playwright() as p:
     st["effects"] = pg.evaluate("() => window.__audio.played")
     print(json.dumps(st))
     print("peak level heard by the analyser:", peak)
-    ok = bool(st) and st["state"] == "running" and st["song"] != "" and st["pack"] and st["effects"] > 0 and peak > 40 and st["errors"] == 0
+    t1 = pg.evaluate("() => window.__audio.cur ? window.__audio.cur.el.currentTime : 0"); time.sleep(1.5)
+    t2 = pg.evaluate("() => window.__audio.cur ? window.__audio.cur.el.currentTime : 0")
+    print(f"song position advanced {t1:.2f} -> {t2:.2f} s")
+    ok = bool(st) and st["state"] == "running" and st["song"] != "" and st["playing"] and st["vol"] > 0 and t2 - t1 > 1.0 and st["pack"] and st["effects"] > 0 and peak > 40 and st["errors"] == 0
     pg.screenshot(path="/tmp/claude-0/-home-claude/11bf1376-f4ec-5c96-955d-8e63870b06ca/scratchpad/audio.png")
     print("errors:", errs[:10])
     ok &= not errs

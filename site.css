@@ -258,31 +258,44 @@ fieldset .chk { margin:8px 0; color:var(--text); }
 .ds-hero { display:grid; grid-template-columns:1fr minmax(260px,380px); gap:24px; align-items:center; }
 .ds-copy h2 { font-size:clamp(16px,2.6vw,22px) !important; background:linear-gradient(90deg,#96ffeb,#3296eb); -webkit-background-clip:text; background-clip:text; color:transparent !important; }
 .ds-device { margin:0; container-type:inline-size; }
-/* A Nintendo DS Lite, drawn to its real proportions (133 x 74 mm halves, 3-inch 4:3 screens); sizes are in cqw, so the
-   whole device scales with its column. */
-.nds { --shell:#1d232b; --shell2:#2b333d; --edge:#0b0f14; width:100cqw; filter:drop-shadow(0 14px 22px rgba(0,0,0,.55)); }
-.nds-top, .nds-bot { position:relative; height:55.6cqw; background:linear-gradient(170deg,var(--shell2),var(--shell) 55%,#151a20); border:.5cqw solid var(--edge); }
-.nds-top { border-radius:7cqw 7cqw 2cqw 2cqw; display:flex; align-items:center; justify-content:center; gap:5cqw; box-shadow:inset 0 .6cqw 0 rgba(255,255,255,.08); }
-.nds-glass { padding:2.4cqw 3cqw; border-radius:1.6cqw; background:linear-gradient(160deg,#0d1116,#05070a); box-shadow:inset 0 0 0 .3cqw #000, inset 0 .5cqw 1cqw rgba(255,255,255,.06); }
-.nds-top canvas, .nds-bot canvas { display:block; width:46.5cqw; height:34.9cqw; image-rendering:pixelated; background:#000; }
-.nds-spk { width:6cqw; height:10cqw; background:radial-gradient(circle,#05070a 32%,transparent 36%) 0 0/2cqw 2cqw; opacity:.9; }
-.nds-hinge { position:relative; z-index:1; height:6cqw; margin:-1.5cqw 9cqw; border-radius:3cqw; background:linear-gradient(#3a434f,#1a2028 45%,#0d1116); border:.4cqw solid var(--edge); display:flex; align-items:center; justify-content:flex-end; gap:1.4cqw; padding:0 4cqw; }
-.nds-led { width:1.3cqw; height:1.3cqw; border-radius:50%; background:#26303b; } .nds-led.on { background:#5cf08a; box-shadow:0 0 1.2cqw #5cf08a; }
-.nds-bot { border-radius:2cqw 2cqw 7cqw 7cqw; box-shadow:inset 0 .6cqw 0 rgba(255,255,255,.06); }
-.nds-touch { position:absolute; left:50%; top:47%; transform:translate(-50%,-50%); padding:.8cqw; border-radius:.8cqw; background:#05070a; box-shadow:inset 0 0 0 .3cqw #000, 0 .3cqw 0 rgba(255,255,255,.06); }
-.nds-shoulder { position:absolute; top:-.6cqw; width:16cqw; height:2.2cqw; background:linear-gradient(#3b4552,#1a2028); border-radius:1.2cqw 1.2cqw 0 0; } .nds-shoulder.l { left:5cqw; } .nds-shoulder.r { right:5cqw; }
-.nds-dpad { position:absolute; left:6.5cqw; top:13cqw; width:13cqw; height:13cqw; }
-.nds-dpad::before, .nds-dpad::after { content:""; position:absolute; background:linear-gradient(#2c343e,#11161c); border-radius:.8cqw; box-shadow:0 .4cqw 0 #070a0d; }
-.nds-dpad::before { left:4.3cqw; top:0; width:4.4cqw; height:13cqw; } .nds-dpad::after { left:0; top:4.3cqw; width:13cqw; height:4.4cqw; }
-.nds-dpad i { position:absolute; z-index:1; left:5.5cqw; top:5.5cqw; width:2cqw; height:2cqw; border-radius:50%; background:radial-gradient(#0b0f13,#232b34); }
-.nds-face { position:absolute; right:6cqw; top:11.5cqw; width:15cqw; height:15cqw; }
-.nds-face b { position:absolute; width:4.8cqw; height:4.8cqw; border-radius:50%; display:grid; place-items:center; font:800 2.2cqw/1 system-ui,sans-serif; color:#9aa6b2;
-  background:radial-gradient(circle at 40% 32%,#3f4954,#1b2128); box-shadow:0 .45cqw 0 #070a0d; }
-.nds-face b:nth-child(1) { left:5.1cqw; top:0; } .nds-face b:nth-child(2) { left:0; top:5.1cqw; } .nds-face b:nth-child(3) { right:0; top:5.1cqw; } .nds-face b:nth-child(4) { left:5.1cqw; bottom:0; }
-.nds-ss { position:absolute; right:6.5cqw; top:31cqw; display:flex; flex-direction:column; gap:2cqw; }
-.nds-ss i { position:relative; padding-left:3.4cqw; font:700 1.6cqw/2.4cqw system-ui,sans-serif; font-style:normal; letter-spacing:.1em; color:#7c8894; }
-.nds-ss i::before { content:""; position:absolute; left:0; top:0; width:2.4cqw; height:2.4cqw; border-radius:50%; background:radial-gradient(circle at 40% 32%,#3f4954,#1b2128); box-shadow:0 .3cqw 0 #070a0d; }
-.nds-mic { position:absolute; left:50%; bottom:3cqw; width:1.2cqw; height:1.2cqw; margin-left:-.6cqw; border-radius:50%; background:#05070a; }
+/* A Nintendo DS Lite drawn to its real measurements: halves 133 x 73.9 mm, 3-inch screens 61 x 45.7 mm, 20.4 mm apart.
+   1 cqw = 1.33 mm. The clip (ds/ds-fire.*) has the same gap, so one video lines up with both screen windows. */
+.nds { --s1:#2d343d; --s2:#161a20; --s3:#0b0d10; position:relative; width:100cqw; height:111.87cqw; }
+.nds-half { position:absolute; left:0; width:100cqw; height:55.56cqw; background:linear-gradient(180deg,var(--s1),var(--s2) 46%,var(--s3));
+  box-shadow:inset 0 .35cqw 0 rgba(255,255,255,.14), inset 0 -.5cqw 1cqw rgba(0,0,0,.45), 0 1.5cqw 3cqw rgba(0,0,0,.55); }
+.nds-top { top:0; border-radius:6cqw 6cqw 2.4cqw 2.4cqw; }
+.nds-bot { top:56.31cqw; border-radius:2.4cqw 2.4cqw 6.5cqw 6.5cqw; }
+.nds-panel { position:absolute; inset:2.6cqw 2.6cqw 3.2cqw; border-radius:4cqw 4cqw 1.6cqw 1.6cqw; background:linear-gradient(170deg,#11151a,#050608 60%,#0a0c0f);
+  box-shadow:inset 0 0 0 .25cqw rgba(255,255,255,.05), inset 0 .3cqw .6cqw rgba(255,255,255,.06); }
+.nds-spk { position:absolute; top:24.5cqw; width:6cqw; height:7.5cqw; background:radial-gradient(circle,#000 0 .45cqw,rgba(70,80,92,.35) .5cqw,transparent .75cqw) 0 0/2cqw 2.5cqw; }
+.nds-spk.l { left:11cqw; } .nds-spk.r { right:11cqw; }
+.nds-lcd { position:absolute; left:26.07cqw; width:47.86cqw; height:36.4cqw; background:#000; border-radius:.6cqw; box-shadow:0 0 0 .3cqw #1c2128, inset 0 0 0 .2cqw #000; }
+.nds-lcd.t { top:10.3cqw; } .nds-lcd.b { top:8.81cqw; box-shadow:0 0 0 .45cqw #232931, 0 .5cqw 0 .45cqw #07090b, inset 0 0 0 .2cqw #000; }
+.nds-video { position:absolute; z-index:2; left:27.07cqw; top:11.3cqw; width:45.86cqw; height:89.21cqw; object-fit:fill; image-rendering:pixelated; background:transparent;
+  -webkit-mask:linear-gradient(#000 0 0) top/100% 38.554% no-repeat, linear-gradient(#000 0 0) bottom/100% 38.554% no-repeat;
+          mask:linear-gradient(#000 0 0) top/100% 38.554% no-repeat, linear-gradient(#000 0 0) bottom/100% 38.554% no-repeat; }
+.nds-glare { position:absolute; z-index:3; left:27.07cqw; width:45.86cqw; height:34.4cqw; pointer-events:none;
+  background:linear-gradient(118deg,rgba(255,255,255,.10),rgba(255,255,255,.03) 28%,transparent 42%,transparent 70%,rgba(255,255,255,.04)); }
+.nds-glare.t { top:11.3cqw; } .nds-glare.b { top:66.12cqw; opacity:.6; }
+.nds-hinge { position:absolute; z-index:1; left:8cqw; width:84cqw; top:53.9cqw; height:4.6cqw; border-radius:2.3cqw;
+  background:linear-gradient(180deg,#3c444f,#1d232a 40%,#0f1216 75%,#262c34); box-shadow:inset 0 .25cqw 0 rgba(255,255,255,.18), 0 .4cqw .8cqw rgba(0,0,0,.6); }
+.nds-mic { position:absolute; left:50%; top:50%; width:1cqw; height:1cqw; margin:-.5cqw; border-radius:50%; background:#000; box-shadow:0 0 0 .2cqw #2a3038; }
+.nds-leds { position:absolute; right:5cqw; top:50%; transform:translateY(-50%); display:flex; gap:1.2cqw; }
+.nds-leds i { width:1.1cqw; height:1.1cqw; border-radius:50%; background:#20262d; box-shadow:inset 0 0 .2cqw #000; }
+.nds-leds i.pw { background:#59e6ff; box-shadow:0 0 1cqw #59e6ff, inset 0 0 .2cqw rgba(255,255,255,.6); }
+.nds-sh { position:absolute; top:-.9cqw; width:17cqw; height:2.4cqw; background:linear-gradient(#3a424c,#1a1f25); }
+.nds-sh.l { left:3.5cqw; border-radius:4cqw 1cqw 0 0; } .nds-sh.r { right:3.5cqw; border-radius:1cqw 4cqw 0 0; }
+.nds-dpad { position:absolute; left:6.3cqw; top:20.6cqw; width:13.2cqw; height:13.2cqw; }
+.nds-dpad::before, .nds-dpad::after { content:""; position:absolute; border-radius:.9cqw; background:linear-gradient(160deg,#2f3741,#14181d 70%); box-shadow:0 .45cqw 0 #050607, inset 0 .2cqw 0 rgba(255,255,255,.12); }
+.nds-dpad::before { left:4.4cqw; top:0; width:4.4cqw; height:13.2cqw; } .nds-dpad::after { left:0; top:4.4cqw; width:13.2cqw; height:4.4cqw; }
+.nds-dpad i { position:absolute; z-index:1; left:4.9cqw; top:4.9cqw; width:3.4cqw; height:3.4cqw; border-radius:50%; background:radial-gradient(circle at 50% 60%,#0e1114,#262d35); }
+.nds-face { position:absolute; right:5.6cqw; top:18.4cqw; width:16cqw; height:16cqw; }
+.nds-face b { position:absolute; width:5.1cqw; height:5.1cqw; border-radius:50%; display:grid; place-items:center; font:700 2.3cqw/1 system-ui,sans-serif; color:#aab4be;
+  background:radial-gradient(circle at 38% 30%,#46505b,#1c2228 70%); box-shadow:0 .5cqw 0 #050607, inset 0 .2cqw 0 rgba(255,255,255,.18); }
+.nds-face .x { left:5.45cqw; top:0; } .nds-face .y { left:0; top:5.45cqw; } .nds-face .a { right:0; top:5.45cqw; } .nds-face .b { left:5.45cqw; bottom:0; }
+.nds-ss { position:absolute; right:7.4cqw; top:37.8cqw; display:flex; flex-direction:column; gap:1.6cqw; }
+.nds-ss i { display:flex; align-items:center; gap:1cqw; font:700 1.45cqw/1 system-ui,sans-serif; font-style:normal; letter-spacing:.14em; color:#78838f; }
+.nds-ss u { width:2.6cqw; height:2.6cqw; border-radius:50%; background:radial-gradient(circle at 38% 30%,#46505b,#1c2228 70%); box-shadow:0 .35cqw 0 #050607; }
 .ds-device figcaption { margin-top:8px; font-size:11px; color:var(--muted); text-align:center; }
 .ds-feats { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr)); gap:12px; } .ds-feats .card { margin:0; } .ds-feats h3 { margin-top:0; }
 .ds-gallery { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px; }
@@ -304,3 +317,5 @@ figure.blessing figcaption { padding:6px 10px; font-size:11px; color:var(--muted
 /* narrow screens: long values and long button labels wrap instead of pushing the page sideways */
 .kv > * { min-width:0; overflow-wrap:anywhere; }
 @media (max-width:760px) { .btn.big { white-space:normal; max-width:100%; text-align:center; } }
+
+.eq-note { font-size:11px; margin:6px 0 0; }

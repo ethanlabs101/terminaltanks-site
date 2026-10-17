@@ -1024,6 +1024,7 @@ def tt_boot(source, argv):
         _state["mod"] = mod
         _state["app"] = None
         _use_page_audio(mod)
+        _speedups(mod)
         app_cls = getattr(mod, "Application", None)
         if isinstance(app_cls, type) and "__init__" in vars(app_cls):   # remember the running game so tt_state() can read it
             real_init = app_cls.__init__
@@ -1062,8 +1063,38 @@ def tt_stop():
             pass
 
 
+_FRAME = [0]
+
+
+def _speedups(mod):
+    """Browser-only shortcuts that change nothing the game does, only how often it recomputes the same answer.
+    SaveData.home_modes() (which home screens you own) checks every home screen's unlock rule, and each check rebuilds
+    the whole reward list; the home screen and the music director ask it about eight times a frame. The answer cannot
+    change inside a frame, so it is kept for the rest of the frame, and forgotten whenever the save is written."""
+    sd = getattr(mod, "SaveData", None)
+    if sd is None or not callable(getattr(sd, "home_modes", None)) or not callable(getattr(sd, "flush", None)):
+        return
+    real_modes, real_flush, memo = sd.home_modes, sd.flush, {}
+
+    def home_modes(self):
+        hit = memo.get(id(self))
+        if hit is not None and hit[0] == _FRAME[0] and hit[1] is self:
+            return list(hit[2])
+        r = real_modes(self)
+        memo[id(self)] = (_FRAME[0], self, tuple(r))
+        return list(r)
+
+    def flush(self, *a, **k):
+        memo.pop(id(self), None)
+        return real_flush(self, *a, **k)
+
+    home_modes.__doc__, flush.__doc__ = real_modes.__doc__, real_flush.__doc__
+    sd.home_modes, sd.flush = home_modes, flush
+
+
 def tt_step():
     """Runs one frame. 0 = running, 1 = the game exited, 2 = it crashed."""
+    _FRAME[0] += 1
     gen = _state["gen"]
     if gen is None:
         return 1
@@ -1573,44 +1604,49 @@ matchMedia('(resolution: 1dppx)').addEventListener?.('change', fitTerminal);
 
 // ---- sound ------------------------------------------------------------------------------------------------------------
 // SoundHost plays the game's sound on the page. The game (in the worker) only says what to play - "song X", "effect Y at
-// this volume, pan and pitch" - and the sound itself comes from files rendered ahead of time by the game's own engine:
-// music/<song>.mp3 (looped at the same point the game loops them, data/music.json) and audio/sfx.mp3 (every effect, with
-// its index in audio/sfx.json). So the game never synthesises sound while you play. Everything passes through one master
-// gain for the page's volume and mute. Browsers keep sound off until a click, tap or key press; the first one unlocks it.
-const SPEC_FFT = 512;
+// this volume, pan and pitch" - and the sound itself comes from files rendered ahead of time by the game's own engine, so
+// the game never synthesises audio while you play.
+//  - Music plays through the browser's plain media player (an <audio> element per song), the steadiest path there is: no
+//    Web Audio graph, which can crackle and drop out on slower computers. Songs loop back to the same point the game
+//    loops them (data/music.json). The game's analyser readings come from each song's pre-computed spectrum
+//    (music/spec/*.bin). Only if the in-game EQ is moved off flat does music go through Web Audio filters.
+//  - Effects play from audio/sfx.mp3 (every effect, indexed by audio/sfx.json) on a Web Audio context.
+// Browsers keep sound off until a click, tap or key press; the first one starts it.
 const SoundHost = {
-  ctx: null, out: null, game: null, musicBus: null, sfxBus: null, eqf: [], an: null, failed: false, warned: false,
-  ops: 0, errors: 0, played: 0, loop: true, gen: 0, cur: null, ended: '', cache: new Map(), songs: null, songsP: null,
-  pack: null, packIdx: null, packDelay: 0, packP: null, live: 0, timer: 0, specBuf: null,
+  ctx: null, out: null, sfxBus: null, failed: false, warned: false, ops: 0, errors: 0, played: 0, live: 0,
+  vols: [0.85, 0.7, 0.9], eq: [0, 0, 0], eqOn: false, eqNodes: null, loop: true, gen: 0, cur: null, fading: [], ended: '',
+  songs: null, songsP: null, pre: new Map(), specs: new Map(), pack: null, packIdx: null, packDelay: 0, packP: null, timer: 0, ticker: 0,
   ensure() {
     if (this.ctx || this.failed) return this.ctx;
     try {
       const AC = window.AudioContext || window.webkitAudioContext;
       if (!AC) throw new Error('no Web Audio');
-      // the game's sound is 22.05 kHz, so a 22.05 kHz context halves the memory and work (the browser converts on output);
-      // 'balanced' output buffers: quick enough for effects, without the drop-outs tiny buffers cause on slower computers
-      try { this.ctx = new AC({ latencyHint: 'balanced', sampleRate: 22050 }); } catch (e) { this.ctx = new AC({ latencyHint: 'balanced' }); }
+      this.ctx = new AC({ latencyHint: 'balanced' });
       const c = this.ctx;
-      this.out = c.createGain(); this.out.connect(c.destination); this.applyVolume();
-      this.game = c.createGain(); this.game.gain.value = 0.85;
-      this.an = c.createAnalyser(); this.an.fftSize = SPEC_FFT; this.an.smoothingTimeConstant = 0.6;
-      this.game.connect(this.an); this.an.connect(this.out);
-      this.musicBus = c.createGain(); this.musicBus.gain.value = 0.7;
-      this.sfxBus = c.createGain(); this.sfxBus.gain.value = 0.9; this.sfxBus.connect(this.game);
-      const lo = c.createBiquadFilter(), mid = c.createBiquadFilter(), hi = c.createBiquadFilter();     /* the game's 3-band EQ */
-      lo.type = 'lowshelf'; lo.frequency.value = 250; mid.type = 'peaking'; mid.frequency.value = 1000; mid.Q.value = 0.7; hi.type = 'highshelf'; hi.frequency.value = 3000;
-      this.musicBus.connect(lo); lo.connect(mid); mid.connect(hi); hi.connect(this.game); this.eqf = [lo, mid, hi];
-      c.onstatechange = () => { this.sendState(); renderSound(); };
-      const unlock = () => { if (this.ctx && this.ctx.state === 'suspended' && !document.hidden) this.ctx.resume().catch(() => {}); };
+      this.out = c.createGain(); this.out.connect(c.destination);
+      this.sfxBus = c.createGain(); this.sfxBus.connect(this.out);
+      this.applyVolume();
+      c.onstatechange = () => renderSound();
+      const unlock = () => {
+        if (document.hidden) return;
+        if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
+        if (this.cur && this.cur.el.paused && !this.cur.done) this.cur.el.play().catch(() => {});
+      };
       ['pointerdown', 'keydown', 'touchend', 'mousedown'].forEach((ev) => addEventListener(ev, unlock, { capture: true, passive: true }));
       this.timer = setInterval(() => this.sendState(), 250);
+      this.ticker = setInterval(() => this.tick(), 25);
       this.loadIndex(); this.loadPack();
     } catch (e) { this.failed = true; if (!this.warned) { this.warned = true; toast('Sound is not available in this browser', 4000); } }
     return this.ctx;
   },
-  applyVolume() { if (this.out) this.out.gain.setTargetAtTime(prefs.muted ? 0 : prefs.vol, this.ctx.currentTime, 0.02); },
-  decode(buf) { return new Promise((res, rej) => { const r = this.ctx.decodeAudioData(buf, res, rej); if (r && r.then) r.then(res, rej); }); },
+  pageVol() { return prefs.muted ? 0 : prefs.vol; },
+  musicVol(fade) { return Math.max(0, Math.min(1, (this.eqOn ? 1 : this.pageVol()) * this.vols[0] * this.vols[1] * fade)); },
+  applyVolume() {
+    if (this.out) this.out.gain.setTargetAtTime(this.pageVol(), this.ctx.currentTime, 0.02);
+    if (this.cur) this.cur.el.volume = this.musicVol(this.cur.fade);
+  },
   fetchBuf(url) { return fetch(url).then((r) => { if (!r.ok) throw new Error(url + ': HTTP ' + r.status); return r.arrayBuffer(); }); },
+  decode(buf) { return new Promise((res, rej) => { const r = this.ctx.decodeAudioData(buf, res, rej); if (r && r.then) r.then(res, rej); }); },
   loadIndex() {
     if (!this.songsP) this.songsP = fetch('data/music.json').then((r) => r.json()).then((d) => { this.songs = new Map(d.songs.map((x) => [x.id, x])); return this.songs; })
       .catch((e) => { this.songsP = null; console.warn('[sound] no song list', e); return null; });
@@ -1627,45 +1663,63 @@ const SoundHost = {
     }).catch((e) => { this.packP = null; console.warn('[sound] no effects', e); });
     return this.packP;
   },
-  loadSong(sid) {
-    if (this.cache.has(sid)) { const p = this.cache.get(sid); this.cache.delete(sid); this.cache.set(sid, p); return p; }     /* most recent last */
-    const info = this.songs && this.songs.get(sid);
-    if (!info) return Promise.resolve(null);
-    const p = this.fetchBuf(info.a).then((b) => this.decode(b));
-    p.catch(() => this.cache.delete(sid));
-    this.cache.set(sid, p);
-    while (this.cache.size > 3) {                                 /* decoded songs are big: keep the newest few */
-      const old = this.cache.keys().next().value; if (this.cur && this.cur.sid === old) { this.cache.delete(old); this.cache.set(old, p); break; }
-      this.cache.delete(old);
-    }
-    return p;
+  loadSpec(info) {
+    if (this.specs.has(info.id)) return;
+    this.specs.set(info.id, null);
+    while (this.specs.size > 4) this.specs.delete(this.specs.keys().next().value);
+    fetch(info.a.replace('music/', 'music/spec/').replace(/\.mp3$/, '.bin')).then((r) => (r.ok ? r.arrayBuffer() : null)).then((b) => {
+      if (!b) return; const u = new Uint8Array(b);
+      if (u[0] === 84 && u[1] === 84 && u[2] === 83) this.specs.set(info.id, { fps: u[4], bands: u[5], d: u.subarray(6) });
+    }).catch(() => {});
+  },
+  element(sid) {                                                  /* a media element for a song: a prefetched one if there is one */
+    let el = this.pre.get(sid);
+    if (el) { this.pre.delete(sid); return el; }
+    el = new Audio(); el.preload = 'auto'; el.src = this.songs.get(sid).a;
+    return el;
+  },
+  connectEq(el) {                                                 /* only once the EQ has been used: the music through filters */
+    if (el._eq || !this.eqNodes) return;
+    try { const src = this.ctx.createMediaElementSource(el); src.connect(this.eqNodes[0]); el._eq = true; } catch (e) {}
   },
   music(sid, fade) {
-    const gen = ++this.gen, c = this.ctx; this.ended = '';
+    const gen = ++this.gen; this.ended = '';
     const old = this.cur; this.cur = null;
-    if (old) {
-      const t = c.currentTime, f = Math.max(0.15, Math.min(+fade || 0.3, 2.5));
-      try { old.g.gain.cancelScheduledValues(t); old.g.gain.setTargetAtTime(0, t, f / 4); old.src.stop(t + f); } catch (e) {}
-    }
+    if (old) { old.fadeTo = 0; old.fadeRate = 1 / Math.max(0.15, Math.min(+fade || 0.3, 2.5)); this.fading.push(old); }
     if (!sid) return;
-    this.loadIndex().then(() => this.loadSong(sid)).then((buf) => {
-      if (gen !== this.gen || !buf) return;
-      const info = this.songs.get(sid), dur = buf.duration;
-      const le = Math.min(info.le || dur, dur), lp = Math.min(info.lp || 0, Math.max(0, le - 1));
-      const src = c.createBufferSource(), g = c.createGain();
-      src.buffer = buf; src.loop = this.loop; src.loopStart = lp; src.loopEnd = le;
-      g.gain.setValueAtTime(0, c.currentTime); g.gain.setTargetAtTime(1, c.currentTime, 0.04);
-      src.connect(g); g.connect(this.musicBus);
-      const cur = this.cur = { sid, src, g, t0: c.currentTime, lp, le };
-      src.onended = () => { if (this.cur === cur) { this.cur = null; this.ended = sid; this.sendState(); } };
-      src.start();
-    }).catch((e) => { if (++this.errors < 5) console.warn('[sound] song', sid, e); });
+    this.loadIndex().then(() => {
+      if (gen !== this.gen) return;
+      const info = this.songs && this.songs.get(sid); if (!info) return;
+      this.loadSpec(info);
+      const el = this.element(sid);
+      const cur = this.cur = { sid, el, lp: info.lp || 0, le: info.le || info.len, fade: 0, fadeTo: 1, fadeRate: 1 / 0.25, done: false };
+      el.loop = false; el.volume = 0;
+      if (this.eqOn) this.connectEq(el);
+      el.onended = () => { if (this.cur === cur && !this.loop) { cur.done = true; this.ended = sid; this.sendState(); } };
+      el.onerror = () => { if (++this.errors < 5) console.warn('[sound] could not load', info.a); };
+      try { el.currentTime = 0; } catch (e) {}
+      if (!document.hidden) el.play().catch(() => {});        /* before the first click or key this waits for the unlock */
+    });
+  },
+  tick() {                                                        /* every 25 ms: song loop points and fades */
+    const cur = this.cur, step = 0.025;
+    if (cur) {
+      const el = cur.el;
+      if (this.loop && cur.le > cur.lp + 1 && el.currentTime >= cur.le - 0.02) { try { el.currentTime = cur.lp + Math.max(0, el.currentTime - cur.le); } catch (e) {} }
+      if (cur.fade !== cur.fadeTo) { cur.fade = Math.min(1, cur.fade + step * cur.fadeRate); }
+      el.volume = this.musicVol(cur.fade);
+    }
+    for (const f of this.fading) {
+      f.fade = Math.max(0, f.fade - step * f.fadeRate); f.el.volume = this.musicVol(f.fade);
+      if (f.fade <= 0) { f.el.pause(); f.el.removeAttribute('src'); try { f.el.load(); } catch (e) {} f.gone = true; }
+    }
+    if (this.fading.length) this.fading = this.fading.filter((f) => !f.gone);
   },
   sfx(name, vol, pan, rate) {
     const c = this.ctx, at = this.packIdx && this.packIdx[name];
     if (!at || this.live > 24) return;                            /* not loaded yet, unknown, or already very busy */
     const src = c.createBufferSource(); src.buffer = this.pack; src.playbackRate.value = rate > 0 ? rate : 1;
-    const g = c.createGain(); g.gain.value = vol;
+    const g = c.createGain(); g.gain.value = vol * this.vols[0] * this.vols[2];
     let tail = g;
     if (pan && c.createStereoPanner) { const p = c.createStereoPanner(); p.pan.value = pan; g.connect(p); tail = p; }
     src.connect(g); tail.connect(this.sfxBus);
@@ -1673,21 +1727,35 @@ const SoundHost = {
     src.onended = () => { this.live--; try { tail.disconnect(); } catch (e) {} };
     src.start(0, Math.max(0, at[0] + this.packDelay), at[1] + 0.02);
   },
+  setEq(b, m, t) {
+    this.eq = [b, m, t];
+    if (!this.eqOn && this.eq.every((v) => !v)) return;            /* flat and never used: music stays on the plain player */
+    const c = this.ctx;
+    if (!this.eqNodes) {
+      const lo = c.createBiquadFilter(), mid = c.createBiquadFilter(), hi = c.createBiquadFilter();
+      lo.type = 'lowshelf'; lo.frequency.value = 250; mid.type = 'peaking'; mid.frequency.value = 1000; mid.Q.value = 0.7; hi.type = 'highshelf'; hi.frequency.value = 3000;
+      lo.connect(mid); mid.connect(hi); hi.connect(this.out); this.eqNodes = [lo, mid, hi]; this.eqOn = true;
+      if (this.cur) this.connectEq(this.cur.el);
+    }
+    this.eqNodes.forEach((f, i) => f.gain.setTargetAtTime(this.eq[i], c.currentTime, 0.03));
+  },
   run(json) {
     let ops; try { ops = JSON.parse(json); } catch (e) { return; }
     if (!this.ensure()) return;
-    const c = this.ctx;
     for (const op of ops) {
       this.ops++;
       try {
         switch (op[0]) {
           case 's': this.sfx(op[1], op[2], op[3], op[4]); break;
           case 'm': this.music(op[1], op[2]); break;
-          case 'v': this.game.gain.setTargetAtTime(op[1], c.currentTime, 0.03); this.musicBus.gain.setTargetAtTime(op[2], c.currentTime, 0.03); this.sfxBus.gain.setTargetAtTime(op[3], c.currentTime, 0.03); break;
-          case 'e': this.eqf.forEach((f, i) => f.gain.setTargetAtTime(op[i + 1], c.currentTime, 0.03)); break;
-          case 'l': this.loop = !!op[1]; if (this.cur) this.cur.src.loop = this.loop; break;
-          case 'p': if (this.cache.size < 2) this.loadIndex().then(() => this.loadSong(op[1])).catch(() => {}); break;
-          case 'r': if (c.state === 'suspended' && navigator.userActivation && navigator.userActivation.hasBeenActive) c.resume().catch(() => {}); break;
+          case 'v': this.vols = [op[1], op[2], op[3]]; this.applyVolume(); break;
+          case 'e': this.setEq(op[1], op[2], op[3]); break;
+          case 'l': this.loop = !!op[1]; break;
+          case 'p': this.loadIndex().then(() => {                 /* warm up a song the game expects to play next */
+            if (this.pre.has(op[1]) || !this.songs.get(op[1]) || this.pre.size >= 2) return;
+            const el = new Audio(); el.preload = 'auto'; el.src = this.songs.get(op[1]).a; this.pre.set(op[1], el); this.loadSpec(this.songs.get(op[1]));
+          }).catch(() => {}); break;
+          case 'r': if (this.ctx.state === 'suspended' && navigator.userActivation && navigator.userActivation.hasBeenActive) this.ctx.resume().catch(() => {}); break;
           case 'x': case 'reset': this.music('', 0.3); this.ended = ''; break;
         }
       } catch (e) { if (++this.errors < 5) console.warn('[sound]', op[0], e); }
@@ -1695,29 +1763,31 @@ const SoundHost = {
   },
   position() {
     const cur = this.cur; if (!cur) return [0, 0];
-    let t = this.ctx.currentTime - cur.t0;
-    if (cur.src.loop && t > cur.le && cur.le > cur.lp) t = cur.lp + (t - cur.le) % (cur.le - cur.lp);
-    return [Math.max(0, Math.min(t, cur.le)), cur.le];
+    return [Math.max(0, Math.min(cur.el.currentTime || 0, cur.le)), cur.le];
   },
-  spectrum() {                                                     /* the game's own 16-band reading (WebAudio.tick) */
-    if (!this.an || this.ctx.state !== 'running') return '';
-    const n = this.an.frequencyBinCount; if (!this.specBuf || this.specBuf.length !== n) this.specBuf = new Uint8Array(n);
-    this.an.getByteFrequencyData(this.specBuf);
-    let s = ''; for (let k = 0; k < 16; k++) s += Math.min(9, Math.floor(this.specBuf[Math.min(n - 1, Math.floor(n * (Math.pow(2, k * 0.45) - 1) / Math.pow(2, 7.2)))] / 28));
+  spectrum() {                                                    /* the game's 16 bands, 0-9, from the song's spectrum file */
+    const cur = this.cur; if (!cur || cur.el.paused) return '';
+    const sp = this.specs.get(cur.sid); if (!sp) return '';
+    const n = sp.bands, rows = sp.d.length / n, i = Math.min(rows - 1, Math.max(0, Math.floor(cur.el.currentTime * sp.fps)));
+    let s = ''; for (let k = 0; k < 16; k++) { const v = Math.max(sp.d[i * n + Math.min(n - 1, 2 * k)], sp.d[i * n + Math.min(n - 1, 2 * k + 1)]); s += Math.min(9, Math.floor(v / 28)); }
     return s;
   },
   sendState() {
-    if (!this.ctx || !worker) return;
+    if (!worker) return;
     const [pos, dur] = this.position();
     worker.postMessage({ t: 'sndstate', sid: this.cur ? this.cur.sid : '', pos: Math.floor(pos), dur: Math.floor(dur), spec: this.spectrum(), ended: this.ended });
+  },
+  pauseAll(hidden) {                                              /* the tab is hidden: everything rests */
+    if (this.cur) { if (hidden) this.cur.el.pause(); else if (!this.cur.done) this.cur.el.play().catch(() => {}); }
   },
 };
 const AudioHost = SoundHost;                // older name, still used by the sound dialog and tests
 window.__audio = SoundHost;                 // for the diagnostics overlay and automated tests
 document.addEventListener('visibilitychange', () => {
   const c = AudioHost.ctx; if (!c) return;
-  if (document.hidden && c.state === 'running') c.suspend().then(() => SoundHost.sendState(), () => {});
-  else if (!document.hidden && c.state === 'suspended' && navigator.userActivation && navigator.userActivation.hasBeenActive) c.resume().then(() => SoundHost.sendState(), () => {});
+  SoundHost.pauseAll(document.hidden);
+  if (document.hidden && c.state === 'running') c.suspend().catch(() => {});
+  else if (!document.hidden && c.state === 'suspended' && navigator.userActivation && navigator.userActivation.hasBeenActive) c.resume().catch(() => {});
 });
 
 // the game rings the terminal bell on impacts when its AUDIO setting is BELL ONLY
@@ -1740,7 +1810,7 @@ function renderSound() {
   if ($('m-sound').hidden) return;
   const kv = $('sound-kv'); kv.textContent = '';
   const st = AudioHost.failed ? ['Unavailable in this browser', 'bad'] : !AudioHost.ctx ? ['Starting with the game', ''] : AudioHost.ctx.state === 'running' ? ['Playing', 'good'] : ['Waiting for a click, tap or key press', 'warn'];
-  [['Status', st[0], st[1]], ['Engine', 'The game’s own music and effects, rendered ahead of time and played through Web Audio'], ['Output', AudioHost.ctx ? AudioHost.ctx.sampleRate + ' Hz' : '-']].forEach(([k, v, c]) => {
+  [['Status', st[0], st[1]], ['Engine', 'The game’s own music and effects, rendered ahead of time: music through the browser’s media player, effects through Web Audio'], ['Output', AudioHost.ctx ? AudioHost.ctx.sampleRate + ' Hz' : '-']].forEach(([k, v, c]) => {
     const a = document.createElement('span'), bb = document.createElement('span'); a.textContent = k; bb.textContent = v; if (c) bb.className = c; kv.append(a, bb);
   });
   $('s-vol').value = Math.round(prefs.vol * 100); $('s-volv').textContent = Math.round(prefs.vol * 100) + '%';

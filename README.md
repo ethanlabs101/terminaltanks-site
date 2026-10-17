@@ -14,10 +14,10 @@ Jukebox and the video previews need for seeking.
 
 | page | what it is |
 |---|---|
-| play.html | the real `terminaltanks.py` running in the browser (Pyodide in a Web Worker), with sound, the X special button and saves in the browser. Sound plays from files rendered ahead of time (`music/`, `audio/sfx.mp3`), so the game never synthesises audio while you play |
+| play.html | the real `terminaltanks.py` running in the browser (Pyodide in a Web Worker), with sound, the X special button and saves in the browser. Sound plays from files rendered ahead of time: music through the browser's plain media player (`music/`), effects through Web Audio (`audio/sfx.mp3`), analyser bars from `music/spec/`. The game never synthesises audio while you play |
 | catalog.html | every tank, ammo, paint, map, home screen, workshop part, unlockable and boss (`catalog.json`, `shots/`) |
 | workshop.html | build a tank from parts, including animated paints and HOVER (`tank.js` draws tanks exactly like the game) |
-| jukebox.html | all 277 songs, with analyser, EQ and a persistent playbar (`data/music.json`, `music/`) |
+| jukebox.html | all 277 songs, with analyser, EQ and a persistent playbar (`data/music.json`, `music/`). Music plays on the plain media player; the analyser reads `music/spec/`; only a non-flat EQ uses Web Audio |
 | cheats.html | every cheat code (`data/cheats.json` adds any that are not written up yet) |
 | save-forge.html | read, edit and write real save files and backups (`forge.js`) |
 | install.html | desktop download (`downloads/terminaltanks.zip`, `downloads/info.json`) |
@@ -32,6 +32,7 @@ Put the new game at `terminaltanks.py`, then:
     python3 tools/render_catalog.py             # pictures/clips in shots/ for anything new or changed
     python3 tools/render_music.py               # new or changed songs (music/*.mp3, covers, discs); --all to redo every song
     python3 tools/render_sfx.py                 # every sound effect into audio/sfx.mp3 + audio/sfx.json (about 3 minutes)
+    python3 tools/render_spectrum.py            # each song's analyser readings, music/spec/*.bin (after render_music.py)
     python3 tools/release/build_download.py     # downloads/terminaltanks.zip + downloads/info.json (reproducible)
     python3 tools/export_site_data.py --check   # fails if the generated files are out of date
 
@@ -69,10 +70,11 @@ With the server running on port 8766 and Playwright installed:
     python3 tools/tests/site_check.py           # every page: links/files exist, no script errors, no sideways scroll at 375 px
     python3 tools/tests/perf_play.py            # the browser game's frame time with a 4x slower CPU (should stay near 30 fps)
     python3 tools/tests/perf_page.py jukebox.html --play   # how busy a page keeps the browser while it plays
+    python3 tools/tests/perf_main.py            # how busy play.html keeps the page on the home screen
 
 
 ## Deploy
 
 Commit and push to the branch GitHub Pages serves. Everything is static. Note that `music/` is about
-120 MB of MP3s (GitHub's limits are 100 MB per file and about 1 GB per Pages site; the largest song is well
+135 MB (MP3s plus 14 MB of analyser data) (GitHub's limits are 100 MB per file and about 1 GB per Pages site; the largest song is well
 under the per-file limit).

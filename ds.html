@@ -31,25 +31,25 @@
     </div>
     <figure class="ds-device" aria-label="Terminal Tanks DS running on a Nintendo DS Lite: a shot fired from the touch screen">
       <div class="nds" aria-hidden="true">
-        <div class="nds-top">
-          <span class="nds-spk"></span>
-          <div class="nds-glass"><canvas id="ds-top" width="256" height="192"></canvas></div>
-          <span class="nds-spk"></span>
+        <div class="nds-half nds-top">
+          <span class="nds-panel"></span>
+          <span class="nds-spk l"></span><span class="nds-spk r"></span>
+          <span class="nds-lcd t"></span>
         </div>
-        <div class="nds-hinge"><i class="nds-led on"></i><i class="nds-led"></i></div>
-        <div class="nds-bot">
-          <span class="nds-shoulder l"></span><span class="nds-shoulder r"></span>
+        <div class="nds-half nds-bot">
+          <span class="nds-sh l"></span><span class="nds-sh r"></span>
+          <span class="nds-lcd b"></span>
           <span class="nds-dpad"><i></i></span>
-          <div class="nds-touch"><canvas id="ds-bot" width="256" height="192"></canvas></div>
-          <span class="nds-face"><b>X</b><b>Y</b><b>A</b><b>B</b></span>
-          <span class="nds-ss"><i>START</i><i>SELECT</i></span>
-          <span class="nds-mic"></span>
+          <span class="nds-face"><b class="x">X</b><b class="y">Y</b><b class="a">A</b><b class="b">B</b></span>
+          <span class="nds-ss"><i><u></u>START</i><i><u></u>SELECT</i></span>
         </div>
+        <div class="nds-hinge"><span class="nds-mic"></span><span class="nds-leds"><i class="pw"></i><i></i></span></div>
+        <video id="ds-clip" class="nds-video" muted loop playsinline preload="auto" poster="ds/ds-fire.png">
+          <source src="ds/ds-fire.webm" type="video/webm"><source src="ds/ds-fire.mp4" type="video/mp4">
+        </video>
+        <span class="nds-glare t"></span><span class="nds-glare b"></span>
       </div>
-      <video id="ds-clip" muted loop playsinline preload="auto" poster="ds/ds-fire.png" hidden>
-        <source src="ds/ds-fire.webm" type="video/webm"><source src="ds/ds-fire.mp4" type="video/mp4">
-      </video>
-      <figcaption>Captured from the real ROM at the DS's own 60 frames a second: a shot fired with the stylus. The top screen shows the battlefield; the touch screen holds the controls.</figcaption>
+      <figcaption>Captured from the real ROM: a shot fired with the stylus. The top screen shows the battlefield; the touch screen holds the controls.</figcaption>
     </figure>
   </div>
 
@@ -169,18 +169,12 @@
       ['SHA-256', i.sha256], ['MD5', i.md5]];
     $('ds-kv').innerHTML = rows.map(([k, v]) => '<span>' + k + '</span><span' + (k === 'SHA-256' || k === 'MD5' ? ' class="hash"' : '') + '>' + String(v).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]) + '</span>').join('');
   }).catch(() => {});
-  // One recorded clip (both screens stacked, as the DS draws them) is split onto the two screens of the drawing, so they can
-  // never drift apart. A new picture is drawn only when the video has a new frame, and only while the device is on screen.
-  const v = $('ds-clip'), tops = $('ds-top').getContext('2d'), bots = $('ds-bot').getContext('2d');
-  tops.imageSmoothingEnabled = bots.imageSmoothingEnabled = false;
-  const paint = (src, w, h) => { tops.drawImage(src, 0, 0, w, h / 2, 0, 0, 256, 192); bots.drawImage(src, 0, h / 2, w, h / 2, 0, 0, 256, 192); };
-  const poster = new Image(); poster.onload = () => paint(poster, poster.naturalWidth, poster.naturalHeight); poster.src = v.getAttribute('poster');
-  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const tick = () => { if (v.videoWidth) paint(v, v.videoWidth, v.videoHeight); if (!v.paused) next(); };
-  const next = () => { if (v.requestVideoFrameCallback) v.requestVideoFrameCallback(tick); else requestAnimationFrame(tick); };
-  v.addEventListener('play', next);
-  if (!still) new IntersectionObserver((e) => { if (e[0].isIntersecting) v.play().catch(() => {}); else v.pause(); }, { threshold: 0.2 }).observe($('ds-top'));
-  else document.querySelector('.ds-device').addEventListener('click', () => { if (v.paused) v.play().catch(() => {}); else v.pause(); });
+  // One small video (both screens, with the real gap between them) plays straight through the two screen windows of the
+  // drawn DS: the browser does all the work, no per-frame script. It only plays while the device is on screen.
+  const v = $('ds-clip');
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    new IntersectionObserver((e) => { if (e[0].isIntersecting) v.play().catch(() => {}); else v.pause(); }, { threshold: 0.2 }).observe(v);
+  } else document.querySelector('.ds-device').addEventListener('click', () => { if (v.paused) v.play().catch(() => {}); else v.pause(); });
   const lb = $('ds-lb');
   $('ds-gallery').addEventListener('click', (e) => { const im = e.target.closest('img'); if (!im) return; $('ds-lbi').src = im.src; $('ds-lbi').alt = im.alt; lb.showModal(); });
   $('ds-lbc').onclick = () => lb.close(); lb.addEventListener('click', (e) => { if (e.target === lb) lb.close(); });
