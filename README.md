@@ -30,7 +30,7 @@ Put the new game at `terminaltanks.py`, then:
 
     python3 tools/export_site_data.py           # catalog.json, data/*.json and the generated block in site.js
     python3 tools/render_catalog.py             # pictures/clips in shots/ for anything new or changed
-    python3 tools/render_music.py               # new or changed songs (music/*.mp3, covers, discs); --all to redo every song
+    python3 tools/render_music.py               # new or changed songs, exactly as the desktop engine plays them (about 1.5 h for all)
     python3 tools/render_sfx.py                 # every sound effect into audio/sfx.mp3 + audio/sfx.json (about 3 minutes)
     python3 tools/render_spectrum.py            # each song's analyser readings, music/spec/*.bin (after render_music.py)
     python3 tools/release/build_download.py     # downloads/terminaltanks.zip + downloads/info.json (reproducible)
@@ -71,10 +71,12 @@ With the server running on port 8766 and Playwright installed:
     python3 tools/tests/perf_play.py            # the browser game's frame time with a 4x slower CPU (should stay near 30 fps)
     python3 tools/tests/perf_page.py jukebox.html --play   # how busy a page keeps the browser while it plays
     python3 tools/tests/perf_main.py            # how busy play.html keeps the page on the home screen
+    python3 tools/tests/music_exact.py SONG     # the page's music vs the game engine, sample for sample, through three loops
 
 
 ## Deploy
 
 Commit and push to the branch GitHub Pages serves. Everything is static. Note that `music/` is about
-135 MB (MP3s plus 14 MB of analyser data) (GitHub's limits are 100 MB per file and about 1 GB per Pages site; the largest song is well
+460 MB (every song exactly as the desktop engine plays it, LAME V0, plus loop seams, story-mood versions and 14 MB of
+analyser data) (GitHub's limits are 100 MB per file and about 1 GB per Pages site; the largest song is well
 under the per-file limit).

@@ -56,10 +56,10 @@ def main() -> int:
         f.write(pcm.tobytes()); raw = f.name
     try:
         subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-f", "f32le", "-ar", str(sr), "-ac", "1", "-i", raw,
-                        "-c:a", "libmp3lame", "-q:a", "4", str(out / "sfx.mp3")], check=True)
+                        "-c:a", "libmp3lame", "-q:a", "0", str(out / "sfx.mp3")], check=True)
     finally:
         os.unlink(raw)
-    meta = {"version": t.__version__, "sr": sr, "mark": MARK_AT, "sfx": index}
+    meta = {"version": t.__version__, "sr": sr, "mark": MARK_AT, "duck": sorted(t.SFX_DUCK), "sfx": index}   # duck: effects that dip the music
     (out / "sfx.json").write_text(json.dumps(meta, separators=(",", ":")) + "\n")
     print(f"audio/sfx.mp3: {len(names)} effects, {len(pcm) / sr:.0f} s, {(out / 'sfx.mp3').stat().st_size / 1e6:.2f} MB")
     return 0

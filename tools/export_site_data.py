@@ -304,6 +304,8 @@ def music_slug(tt, sid: str) -> str:
 
 def music_meta(tt) -> dict:
     """One record per song in the in-game jukebox, with where it plays. Audio and cover paths follow render_music.py."""
+    idx = ROOT / "music" / "index.json"
+    rendered = json.loads(idx.read_text()) if idx.exists() else {}
     meters = {"44": "4/4", "34": "3/4", "68": "6/8", "78": "7/8", "54": "5/4", "98": "9/8", "128": "12/8"}
     notes = tt._NOTE_NAMES
     scales = tt._SCALE_NAMES
@@ -341,6 +343,9 @@ def music_meta(tt) -> dict:
             "len": round(song.total / tt.AU_SR, 1), "hand": sid in hand, "w": where, "i": i + 1,
             # where the game loops it: back to section A at the end (the play page loops the MP3 there, like the game does)
             "lp": round(song.secs.get("A", 0) / tt.AU_SR, 4), "le": round(song.total / tt.AU_SR, 4),
+            # exact sample layout of the rendered files (tools/render_music.py), so the play page can loop like the game
+            **({"x": {k: rendered[sid][k] for k in ("n", "a", "p", "ln", "lb", "pad") if k in rendered[sid]}} if isinstance(rendered.get(sid), dict) and "n" in rendered[sid] else {}),
+            **({"story": True} if isinstance(rendered.get(sid), dict) and rendered[sid].get("story") else {}),
             "a": f"music/{slug}.mp3", "cv": f"music/covers/{slug}.png",
             "disc": {k: (list(v) if isinstance(v, tuple) else v) for k, v in tt.song_disc(sid).items() if k in ("kind", "bold", "avg", "second", "label", "rpm")},
         })

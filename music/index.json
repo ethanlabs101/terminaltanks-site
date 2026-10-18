@@ -1,279 +1,2501 @@
 {
-"ash_kingdom": "2365bce5",
-"boss_archon": "f4a2bb46",
-"boss_bastion": "3a010764",
-"boss_colossus": "6f5166e2",
-"boss_corsair": "54814a06",
-"boss_geode": "d063b146",
-"boss_glacier": "bf41a42d",
-"boss_helios": "e50d8846",
-"boss_master": "43ccd3f8",
-"boss_miasma": "07eae425",
-"boss_mirage": "ec862791",
-"boss_obsidian": "98cd8e5c",
-"boss_rattler": "2891ccd4",
-"boss_revenant": "ebda46a5",
-"boss_rush": "3fc57f37",
-"boss_sentinel": "8a8257ae",
-"boss_specter": "cf1eab68",
-"boss_stinger": "2bd29e9d",
-"boss_tempest": "47e9e8b6",
-"boss_tyrant": "047eb3ce",
-"boss_warden": "6fc9200d",
-"boss_zephyr": "b45bd3f0",
-"canopy": "b09ec0a8",
-"cartridge_war": "3db67be6",
-"chronos_clockwork": "d8512a2e",
-"embers_and_ale": "8898ee83",
-"eye_of_the_storm": "95f0b1e8",
-"first_contact": "c39a55bc",
-"frost_lullaby": "cce4db38",
-"frostbite_front": "4f838523",
-"ghost_waltz": "04406be2",
-"glass_desert": "21bcc4cb",
-"glass_dunes_battle": "fd6d4ddd",
-"graveyard_shift": "6c48762c",
-"green_hills": "4357d5fb",
-"h_biolume": "1de34681",
-"h_ghostarmada": "c7615cbd",
-"h_holocity": "b6e39adf",
-"h_jadetemple": "61afed6e",
-"h_kaijubay": "826a2297",
-"h_orrery": "d3d16430",
-"h_shroomgrove": "197ae943",
-"h_spiritshrine": "6036d6da",
-"h_tesseract": "cc25a753",
-"h_wormsea": "2a2cad2f",
-"hedgerow_skirmish": "1c2d796a",
-"home_astralrift": "366e0c16",
-"home_astralsea": "95158df5",
-"home_auroraking": "6e8f9a51",
-"home_autumn": "8f1fe4c1",
-"home_bamboo": "71029bab",
-"home_blackhole": "b8761bbb",
-"home_bloodmoon": "c6882855",
-"home_canyons": "2e24947e",
-"home_celestia": "1db8a8f7",
-"home_celestial": "064b9113",
-"home_chemworks": "5ac443a8",
-"home_clockworks": "524c23c0",
-"home_crystalcave": "477267bb",
-"home_crystalpeak": "c0f35ac3",
-"home_cyberpunk": "ae7153ec",
-"home_dawn": "d1833f1e",
-"home_deadsea": "95448927",
-"home_deepspace": "8d9d5ec1",
-"home_dragonsky": "d7f6d50b",
-"home_eclipse": "d6d8abcb",
-"home_embersanctum": "e2fee594",
-"home_emerald": "8e42867a",
-"home_fogbank": "da2007ad",
-"home_frostcathedral": "6312d8d5",
-"home_goldendunes": "ca2ff633",
-"home_gothickeep": "750af891",
-"home_harbor": "bc29d12e",
-"home_harvest": "9ea153c8",
-"home_hypergate": "b89a2417",
-"home_icepalace": "6946b8c7",
-"home_lagoon": "1eb719a9",
-"home_lakeside": "3315e3a7",
-"home_lavafalls": "7a6b299a",
-"home_maelstrom": "bc7952a2",
-"home_market": "b23e33a7",
-"home_monsoon": "0f71890c",
-"home_nebular": "03263dab",
-"home_nightcity": "a7ebfa4e",
-"home_orbital": "dd391858",
-"home_orbitalcity": "c7cd256e",
-"home_orbitring": "4bc60659",
-"home_outpost": "bf239c6f",
-"home_pagodapeak": "8ec69ac0",
-"home_prairie": "749c8c0d",
-"home_pyramidplain": "cf4c5a7f",
-"home_pyramids": "cdaf292f",
-"home_quasar": "da5fb5d4",
-"home_radar": "0eff9427",
-"home_skyfort": "09fee3e6",
-"home_solarcrown": "db594784",
-"home_solarstorm": "f4a08dc9",
-"home_spring": "9af32f96",
-"home_starfall": "33c576ae",
-"home_steamtown": "27e83bec",
-"home_stormfront": "188f4804",
-"home_sunkencity": "a618644b",
-"home_sunset": "f081d0b4",
-"home_suntemple": "212d8ec8",
-"home_synthwave": "98c36051",
-"home_tempestspires": "8fb316f9",
-"home_thunderhead": "10effc83",
-"home_tokyo": "ab036b8f",
-"home_tundra": "571f9e3b",
-"home_twilight": "0ead6b00",
-"home_vaporwave": "512ba7ed",
-"home_voidrift": "1c6fb9b6",
-"home_voltcity": "55770161",
-"home_warzone": "ce2c95a9",
-"iron_valley": "c94a1161",
-"jungle_drums": "822ea9ce",
-"kernel_panic": "21c7d7e9",
-"lantern_festival": "2e164ea2",
-"lantern_terraces": "6e8c0eaa",
-"m_astrolabe": "2f2c9574",
-"m_ghostreef": "2076fea5",
-"m_gridlock": "3ec8887b",
-"m_kaiju": "70954ea7",
-"m_mariana": "3b67e0bb",
-"m_mycelia": "a3545d94",
-"m_paradox": "07ef3b13",
-"m_serpent": "5c6c9e71",
-"m_torii": "ee7d99cf",
-"m_wormsmaw": "4374e04c",
-"magma_pressure": "ca6d7915",
-"main_theme": "7b310e63",
-"map_anthill": "4ec5f35c",
-"map_asteroid-field": "72ee12aa",
-"map_astral-bastion": "a218d50c",
-"map_aurora-fjord": "ab9d3c94",
-"map_badlands": "266c4c35",
-"map_bone-yard": "40dea5d0",
-"map_boulder-field": "2794232b",
-"map_breakwater": "f3dfc7ff",
-"map_broken-bridge": "b9d2f6a6",
-"map_bumpy-road": "c1c0d105",
-"map_bunker": "c1be899e",
-"map_bunker-line": "a231fdde",
-"map_caldera": "68977d51",
-"map_canyon": "56a3b826",
-"map_cascade": "a20389e3",
-"map_causeway": "acdfc8a8",
-"map_celestial-steps": "aac22118",
-"map_centre-stairs": "21624604",
-"map_citadel": "641d46b6",
-"map_cliffside": "e276603f",
-"map_clockwork": "b20ff3ed",
-"map_copper-mine": "46a73a7c",
-"map_coral-reef": "3d3d5ac9",
-"map_crevasse": "30ac1c15",
-"map_crossroads": "09f88e04",
-"map_crystal-caverns": "ead295ac",
-"map_crystal-sanctum": "3bf0d1d5",
-"map_culvert": "3e8f97cd",
-"map_double-hump": "49ad649f",
-"map_dragon-spine": "77697a29",
-"map_dunes": "843e6390",
-"map_eclipse-gate": "fdc45f6e",
-"map_fang-gap": "b86f475e",
-"map_fang-row": "06bd031b",
-"map_forge": "50a94a72",
-"map_fortress-walls": "fe5531ce",
-"map_foxholes": "380579ff",
-"map_frozen-falls": "b33a379f",
-"map_glitch-zone": "ea3ff7dd",
-"map_hanging-gardens": "c7c5f189",
-"map_haystack": "83c6367e",
-"map_hilltop": "e8c6b631",
-"map_hogback": "d09e55db",
-"map_ice-shelf": "e837e077",
-"map_ice-spikes": "15634638",
-"map_landslide": "b42ed922",
-"map_last-stand": "a90fec01",
-"map_launch-ramps": "bd4feb72",
-"map_lava-flow": "b4f5f450",
-"map_lopsided-peak": "2bcb322e",
-"map_mesa": "3c691af2",
-"map_moon-base": "ec3ad0f3",
-"map_mothership": "09abb456",
-"map_nave": "d1f48f4e",
-"map_nebula-gardens": "0a642dc6",
-"map_oasis": "21a994a4",
-"map_obelisk-field": "06b8c633",
-"map_obsidian-spires": "b553b0db",
-"map_picnic-knoll": "183be1f0",
-"map_pipe-organ": "219b15b3",
-"map_plateau": "e49cb197",
-"map_pyramid": "2041061c",
-"map_quarry": "3c2e7f0d",
-"map_radar-hill": "b936c847",
-"map_rail-yard": "de9c38b7",
-"map_ramparts": "1bab1783",
-"map_rolling-hills": "1f449b27",
-"map_salt-flats": "b5aa6f22",
-"map_sawtooth": "3925440d",
-"map_shark-fin": "07fecd2f",
-"map_shattered-moon": "42150df6",
-"map_shelled-field": "2bea0fb5",
-"map_sinkholes": "e6250055",
-"map_skybridge": "bf54c863",
-"map_skyscraper-row": "4486669b",
-"map_sleepy-hollow": "987c3db0",
-"map_sludge-pits": "37a3b417",
-"map_solar-forge": "8c75ec0b",
-"map_solar-temple": "9e532b01",
-"map_space-elevator": "e76865b1",
-"map_staircase": "69fdf9a4",
-"map_starfall-plateau": "c3d5397a",
-"map_switchback": "e2951b80",
-"map_the-ditch": "272a23ec",
-"map_the-funnel": "6dc68124",
-"map_the-gorge": "e0f28e1c",
-"map_the-labyrinth": "acca6283",
-"map_the-maw": "7b9e770b",
-"map_the-needle": "060d6ee9",
-"map_the-notch": "110fe454",
-"map_the-spiral": "f6315f60",
-"map_tidepools": "463e994a",
-"map_titans-throne": "e3df3357",
-"map_trenches": "e9111e37",
-"map_tundra-waves": "5ed8a8a9",
-"map_twin-cliffs": "ae1f9727",
-"map_twin-forts": "26918224",
-"map_twin-hills": "a43e31bf",
-"map_twin-mesas": "afc5458a",
-"map_void-cathedral": "31113a8e",
-"map_volcano-rim": "22a4eb38",
-"map_watch-ridge": "851970d6",
-"map_watchtower": "4db312c0",
-"map_waves": "277b6da6",
-"map_windmill-field": "45c48bb7",
-"map_zigzag": "b98bf61b",
-"martyr_astral": "0a80f243",
-"martyr_ember": "4e4929fb",
-"martyr_tempest": "e0e1f942",
-"masters_throne": "cacb2be9",
-"mirage_road": "ac333e48",
-"mothership": "ef6e77b1",
-"neon_arcade": "db567cde",
-"orbital_barrage": "c60d7cca",
-"protector": "546e827a",
-"sandstorm_siege": "664844d5",
-"saucer_attack": "5e844ac0",
-"scrapyard_riot": "a37f9af0",
-"shatterline": "5246da74",
-"shatterline_battle": "935e26ac",
-"shop_jingle": "69b95239",
-"sky_whale": "7c9f8fd2",
-"solaris_hymn": "169a9502",
-"squad_up": "5d06726d",
-"starlight_drift": "6e2ad92c",
-"steel_rain": "8e395f3b",
-"t_abyssal": "3a224a8b",
-"t_baron": "1a5fb84e",
-"t_magistrate": "ba961c04",
-"t_overseer": "b0f68c89",
-"t_pharaoh": "6d9e1cd5",
-"t_regent": "3813043b",
-"t_shadow": "a8fd7195",
-"t_solar": "d6d16b47",
-"t_volt": "d45b276b",
-"t_warlord": "53fca68c",
-"the_blessing": "1357963d",
-"tidebreaker": "d6151e13",
-"time_machine": "99d7b054",
-"tutorial": "d943f500",
-"undertow_dub": "d58da085",
-"whalefall": "ef525cdc",
-"whisper": "853b603f",
-"workshop": "10f6c339",
-"worldtree": "f0e22f2d",
-"worldtree_roots": "d9dfbda9"
+"ash_kingdom": {
+"sig": "2365bce5",
+"n": 1984512,
+"a": 198450,
+"p": 1786368,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"boss_archon": {
+"sig": "f4a2bb46",
+"n": 2442752,
+"a": 203538,
+"p": 2238976,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"boss_bastion": {
+"sig": "3a010764",
+"n": 2268160,
+"a": 189000,
+"p": 2079232,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"boss_colossus": {
+"sig": "6f5166e2",
+"n": 2953728,
+"a": 246139,
+"p": 2707968,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"boss_corsair": {
+"sig": "54814a06",
+"n": 1360896,
+"a": 113399,
+"p": 1247744,
+"ln": 114176,
+"lb": 512,
+"pad": 2048
+},
+"boss_geode": {
+"sig": "d063b146",
+"n": 2646016,
+"a": 220500,
+"p": 2425856,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"boss_glacier": {
+"sig": "bf41a42d",
+"n": 1905152,
+"a": 158759,
+"p": 1746432,
+"ln": 159744,
+"lb": 512,
+"pad": 2048
+},
+"boss_helios": {
+"sig": "e50d8846",
+"n": 1924608,
+"a": 160363,
+"p": 1764352,
+"ln": 161280,
+"lb": 512,
+"pad": 2048
+},
+"boss_master": {
+"sig": "43ccd3f8",
+"n": 2737664,
+"a": 182482,
+"p": 2554880,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"boss_miasma": {
+"sig": "07eae425",
+"n": 2646016,
+"a": 220500,
+"p": 2425856,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"boss_mirage": {
+"sig": "ec862791",
+"n": 2761216,
+"a": 230086,
+"p": 2531328,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"boss_obsidian": {
+"sig": "98cd8e5c",
+"n": 2049024,
+"a": 170709,
+"p": 1878016,
+"ln": 171520,
+"lb": 512,
+"pad": 2048
+},
+"boss_rattler": {
+"sig": "2891ccd4",
+"n": 1841152,
+"a": 153391,
+"p": 1687552,
+"ln": 154112,
+"lb": 512,
+"pad": 2048
+},
+"boss_revenant": {
+"sig": "ebda46a5",
+"n": 2071040,
+"a": 172565,
+"p": 1898496,
+"ln": 173568,
+"lb": 512,
+"pad": 2048
+},
+"boss_rush": {
+"sig": "3fc57f37",
+"n": 1563648,
+"a": 120272,
+"p": 1443328,
+"ln": 120832,
+"lb": 512,
+"pad": 2048
+},
+"boss_sentinel": {
+"sig": "8a8257ae",
+"n": 1984512,
+"a": 165375,
+"p": 1819136,
+"ln": 165888,
+"lb": 512,
+"pad": 2048
+},
+"boss_specter": {
+"sig": "cf1eab68",
+"n": 1614848,
+"a": 134542,
+"p": 1480192,
+"ln": 135168,
+"lb": 512,
+"pad": 2048
+},
+"boss_stinger": {
+"sig": "2bd29e9d",
+"n": 1549312,
+"a": 129073,
+"p": 1420288,
+"ln": 130048,
+"lb": 512,
+"pad": 2048
+},
+"boss_tempest": {
+"sig": "47e9e8b6",
+"n": 1460224,
+"a": 121655,
+"p": 1338368,
+"ln": 122368,
+"lb": 512,
+"pad": 2048
+},
+"boss_tyrant": {
+"sig": "047eb3ce",
+"n": 1628672,
+"a": 135692,
+"p": 1492992,
+"ln": 136704,
+"lb": 512,
+"pad": 2048
+},
+"boss_warden": {
+"sig": "6fc9200d",
+"n": 2352128,
+"a": 196000,
+"p": 2156032,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"boss_zephyr": {
+"sig": "b45bd3f0",
+"n": 1389568,
+"a": 115762,
+"p": 1273856,
+"ln": 116736,
+"lb": 512,
+"pad": 2048
+},
+"canopy": {
+"sig": "b09ec0a8",
+"n": 2592256,
+"a": 216000,
+"p": 2376192,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"cartridge_war": {
+"sig": "3db67be6",
+"n": 1693696,
+"a": 141120,
+"p": 1552384,
+"ln": 141824,
+"lb": 512,
+"pad": 2048
+},
+"chronos_clockwork": {
+"sig": "d8512a2e",
+"n": 2352128,
+"a": 196000,
+"p": 2156032,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"embers_and_ale": {
+"sig": "8898ee83",
+"n": 2071040,
+"a": 172565,
+"p": 1898496,
+"ln": 173568,
+"lb": 512,
+"pad": 2048
+},
+"eye_of_the_storm": {
+"sig": "95f0b1e8",
+"n": 1543680,
+"a": 128625,
+"p": 1415168,
+"ln": 129536,
+"lb": 512,
+"pad": 2048
+},
+"first_contact": {
+"sig": "c39a55bc",
+"n": 2822656,
+"a": 235200,
+"p": 2587648,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"frost_lullaby": {
+"sig": "cce4db38",
+"n": 2268160,
+"a": 189000,
+"p": 2079232,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"frostbite_front": {
+"sig": "4f838523",
+"n": 2268160,
+"a": 189000,
+"p": 2079232,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"ghost_waltz": {
+"sig": "04406be2",
+"n": 1984512,
+"a": 165375,
+"p": 1819136,
+"ln": 165888,
+"lb": 512,
+"pad": 2048
+},
+"glass_desert": {
+"sig": "21bcc4cb",
+"n": 3307520,
+"a": 275625,
+"p": 3032064,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"glass_dunes_battle": {
+"sig": "fd6d4ddd",
+"n": 1924608,
+"a": 160363,
+"p": 1764352,
+"ln": 161280,
+"lb": 512,
+"pad": 2048
+},
+"graveyard_shift": {
+"sig": "6c48762c",
+"n": 2540544,
+"a": 211680,
+"p": 2328576,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"green_hills": {
+"sig": "4357d5fb",
+"n": 1831936,
+"a": 152653,
+"p": 1679360,
+"ln": 153600,
+"lb": 512,
+"pad": 2048
+},
+"h_biolume": {
+"sig": "1de34681",
+"n": 2940416,
+"a": 294000,
+"p": 2646016,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"h_ghostarmada": {
+"sig": "c7615cbd",
+"n": 1984512,
+"a": 165375,
+"p": 1819136,
+"ln": 165888,
+"lb": 512,
+"pad": 2048
+},
+"h_holocity": {
+"sig": "b6e39adf",
+"n": 2049024,
+"a": 170709,
+"p": 1878016,
+"ln": 171520,
+"lb": 512,
+"pad": 2048
+},
+"h_jadetemple": {
+"sig": "61afed6e",
+"n": 2268160,
+"a": 189000,
+"p": 2079232,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"h_kaijubay": {
+"sig": "826a2297",
+"n": 2540544,
+"a": 211680,
+"p": 2328576,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"h_orrery": {
+"sig": "d3d16430",
+"n": 2352128,
+"a": 196000,
+"p": 2156032,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"h_shroomgrove": {
+"sig": "197ae943",
+"n": 3342336,
+"a": 278526,
+"p": 3063808,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"h_spiritshrine": {
+"sig": "6036d6da",
+"n": 2442752,
+"a": 203538,
+"p": 2238976,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"h_tesseract": {
+"sig": "cc25a753",
+"n": 3451392,
+"a": 287608,
+"p": 3164160,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"h_wormsea": {
+"sig": "2a2cad2f",
+"n": 2646016,
+"a": 220500,
+"p": 2425856,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"hedgerow_skirmish": {
+"sig": "1c2d796a",
+"n": 1400832,
+"a": 116735,
+"p": 1284096,
+"ln": 117248,
+"lb": 512,
+"pad": 2048
+},
+"home_astralrift": {
+"sig": "366e0c16",
+"n": 2238976,
+"a": 0,
+"p": 2238976,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_astralsea": {
+"sig": "95158df5",
+"n": 2345472,
+"a": 180409,
+"p": 2165248,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_auroraking": {
+"sig": "6e8f9a51",
+"n": 3024384,
+"a": 251999,
+"p": 2772480,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_autumn": {
+"sig": "8f1fe4c1",
+"n": 1764352,
+"a": 0,
+"p": 1764352,
+"ln": 161280,
+"lb": 512,
+"pad": 2048
+},
+"home_bamboo": {
+"sig": "71029bab",
+"n": 2479616,
+"a": 190702,
+"p": 2288640,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_blackhole": {
+"sig": "b8761bbb",
+"n": 1857024,
+"a": 185684,
+"p": 1671168,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_bloodmoon": {
+"sig": "c6882855",
+"n": 3780096,
+"a": 315000,
+"p": 3465216,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_canyons": {
+"sig": "2e24947e",
+"n": 1712128,
+"a": 0,
+"p": 1712128,
+"ln": 156160,
+"lb": 512,
+"pad": 2048
+},
+"home_celestia": {
+"sig": "1db8a8f7",
+"n": 1561600,
+"a": 130131,
+"p": 1431552,
+"ln": 131072,
+"lb": 512,
+"pad": 2048
+},
+"home_celestial": {
+"sig": "064b9113",
+"n": 2016256,
+"a": 168000,
+"p": 1848320,
+"ln": 168960,
+"lb": 512,
+"pad": 2048
+},
+"home_chemworks": {
+"sig": "5ac443a8",
+"n": 1833472,
+"a": 0,
+"p": 1833472,
+"ln": 167424,
+"lb": 512,
+"pad": 2048
+},
+"home_clockworks": {
+"sig": "524c23c0",
+"n": 2238976,
+"a": 0,
+"p": 2238976,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_crystalcave": {
+"sig": "477267bb",
+"n": 2646016,
+"a": 0,
+"p": 2646016,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_crystalpeak": {
+"sig": "c0f35ac3",
+"n": 2117120,
+"a": 176400,
+"p": 1940480,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_cyberpunk": {
+"sig": "ae7153ec",
+"n": 2201600,
+"a": 169344,
+"p": 2032128,
+"ln": 169984,
+"lb": 512,
+"pad": 2048
+},
+"home_dawn": {
+"sig": "d1833f1e",
+"n": 2209280,
+"a": 184069,
+"p": 2024960,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_deadsea": {
+"sig": "95448927",
+"n": 2079232,
+"a": 0,
+"p": 2079232,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_deepspace": {
+"sig": "8d9d5ec1",
+"n": 3315712,
+"a": 255036,
+"p": 3060736,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_dragonsky": {
+"sig": "d7f6d50b",
+"n": 2328576,
+"a": 0,
+"p": 2328576,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_eclipse": {
+"sig": "d6d8abcb",
+"n": 3620864,
+"a": 278526,
+"p": 3342336,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_embersanctum": {
+"sig": "e2fee594",
+"n": 2374144,
+"a": 197831,
+"p": 2176512,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_emerald": {
+"sig": "8e42867a",
+"n": 2506752,
+"a": 208894,
+"p": 2297856,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_fogbank": {
+"sig": "da2007ad",
+"n": 2007552,
+"a": 0,
+"p": 2007552,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_frostcathedral": {
+"sig": "6312d8d5",
+"n": 2646016,
+"a": 264600,
+"p": 2381824,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_goldendunes": {
+"sig": "ca2ff633",
+"n": 2205184,
+"a": 220500,
+"p": 1984512,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_gothickeep": {
+"sig": "750af891",
+"n": 2065408,
+"a": 172097,
+"p": 1893376,
+"ln": 173056,
+"lb": 512,
+"pad": 2048
+},
+"home_harbor": {
+"sig": "bc29d12e",
+"n": 2479616,
+"a": 190702,
+"p": 2288640,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_harvest": {
+"sig": "9ea153c8",
+"n": 2300928,
+"a": 191739,
+"p": 2109440,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_hypergate": {
+"sig": "b89a2417",
+"n": 2646016,
+"a": 220500,
+"p": 2425856,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_icepalace": {
+"sig": "6946b8c7",
+"n": 2268160,
+"a": 189000,
+"p": 2079232,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_lagoon": {
+"sig": "1eb719a9",
+"n": 2135040,
+"a": 177882,
+"p": 1956864,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_lakeside": {
+"sig": "3315e3a7",
+"n": 3299328,
+"a": 274909,
+"p": 3024384,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_lavafalls": {
+"sig": "7a6b299a",
+"n": 2305536,
+"a": 0,
+"p": 2305536,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_maelstrom": {
+"sig": "bc7952a2",
+"n": 2566144,
+"a": 213818,
+"p": 2352128,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_market": {
+"sig": "b23e33a7",
+"n": 2419200,
+"a": 201600,
+"p": 2217984,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_monsoon": {
+"sig": "0f71890c",
+"n": 1402880,
+"a": 0,
+"p": 1402880,
+"ln": 128512,
+"lb": 512,
+"pad": 2048
+},
+"home_nebular": {
+"sig": "03263dab",
+"n": 3987456,
+"a": 0,
+"p": 3987456,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_nightcity": {
+"sig": "a7ebfa4e",
+"n": 2136576,
+"a": 0,
+"p": 2136576,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_orbital": {
+"sig": "dd391858",
+"n": 3528192,
+"a": 271384,
+"p": 3256832,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_orbitalcity": {
+"sig": "c7cd256e",
+"n": 3091968,
+"a": 237842,
+"p": 2854400,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_orbitring": {
+"sig": "4bc60659",
+"n": 1825280,
+"a": 182482,
+"p": 1642496,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_outpost": {
+"sig": "bf239c6f",
+"n": 2976768,
+"a": 248062,
+"p": 2728960,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_pagodapeak": {
+"sig": "8ec69ac0",
+"n": 2515456,
+"a": 209584,
+"p": 2305536,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_prairie": {
+"sig": "749c8c0d",
+"n": 1701376,
+"a": 141750,
+"p": 1559552,
+"ln": 142336,
+"lb": 512,
+"pad": 2048
+},
+"home_pyramidplain": {
+"sig": "cf4c5a7f",
+"n": 2919936,
+"a": 243310,
+"p": 2676736,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_pyramids": {
+"sig": "cdaf292f",
+"n": 2079232,
+"a": 0,
+"p": 2079232,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_quasar": {
+"sig": "da5fb5d4",
+"n": 3098112,
+"a": 258146,
+"p": 2840064,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_radar": {
+"sig": "0eff9427",
+"n": 1881600,
+"a": 144703,
+"p": 1736704,
+"ln": 145408,
+"lb": 512,
+"pad": 2048
+},
+"home_skyfort": {
+"sig": "09fee3e6",
+"n": 3175424,
+"a": 264600,
+"p": 2910720,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_solarcrown": {
+"sig": "db594784",
+"n": 2352128,
+"a": 196000,
+"p": 2156032,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_solarstorm": {
+"sig": "f4a08dc9",
+"n": 1940480,
+"a": 0,
+"p": 1940480,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_spring": {
+"sig": "9af32f96",
+"n": 2215424,
+"a": 184604,
+"p": 2031104,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_starfall": {
+"sig": "33c576ae",
+"n": 1867776,
+"a": 155647,
+"p": 1712128,
+"ln": 156160,
+"lb": 512,
+"pad": 2048
+},
+"home_steamtown": {
+"sig": "27e83bec",
+"n": 2082304,
+"a": 173508,
+"p": 1908736,
+"ln": 174080,
+"lb": 512,
+"pad": 2048
+},
+"home_stormfront": {
+"sig": "188f4804",
+"n": 2540544,
+"a": 211680,
+"p": 2328576,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_sunkencity": {
+"sig": "a618644b",
+"n": 3528192,
+"a": 294000,
+"p": 3234304,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_sunset": {
+"sig": "f081d0b4",
+"n": 2042880,
+"a": 0,
+"p": 2042880,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_suntemple": {
+"sig": "212d8ec8",
+"n": 2054656,
+"a": 0,
+"p": 2054656,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_synthwave": {
+"sig": "98c36051",
+"n": 2374144,
+"a": 197831,
+"p": 2176512,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_tempestspires": {
+"sig": "8fb316f9",
+"n": 2036736,
+"a": 156671,
+"p": 1880064,
+"ln": 157184,
+"lb": 512,
+"pad": 2048
+},
+"home_thunderhead": {
+"sig": "10effc83",
+"n": 2620928,
+"a": 201600,
+"p": 2419200,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_tokyo": {
+"sig": "ab036b8f",
+"n": 1764352,
+"a": 0,
+"p": 1764352,
+"ln": 161280,
+"lb": 512,
+"pad": 2048
+},
+"home_tundra": {
+"sig": "571f9e3b",
+"n": 2328576,
+"a": 0,
+"p": 2328576,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_twilight": {
+"sig": "0ead6b00",
+"n": 2396672,
+"a": 199698,
+"p": 2196992,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_vaporwave": {
+"sig": "512ba7ed",
+"n": 2099712,
+"a": 174942,
+"p": 1924608,
+"ln": 175616,
+"lb": 512,
+"pad": 2048
+},
+"home_voidrift": {
+"sig": "1c6fb9b6",
+"n": 3127296,
+"a": 240545,
+"p": 2886656,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"home_voltcity": {
+"sig": "55770161",
+"n": 2016256,
+"a": 168000,
+"p": 1848320,
+"ln": 168960,
+"lb": 512,
+"pad": 2048
+},
+"home_warzone": {
+"sig": "ce2c95a9",
+"n": 2490368,
+"a": 207529,
+"p": 2283008,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"iron_valley": {
+"sig": "c94a1161",
+"n": 2117120,
+"a": 176400,
+"p": 1940480,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"jungle_drums": {
+"sig": "822ea9ce",
+"n": 2189824,
+"a": 182482,
+"p": 2007552,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"kernel_panic": {
+"sig": "21c7d7e9",
+"n": 1827840,
+"a": 121855,
+"p": 1705984,
+"ln": 122368,
+"lb": 512,
+"pad": 2048
+},
+"lantern_festival": {
+"sig": "2e164ea2",
+"n": 2540544,
+"a": 211680,
+"p": 2328576,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"lantern_terraces": {
+"sig": "6e8c0eaa",
+"n": 1984512,
+"a": 165375,
+"p": 1819136,
+"ln": 165888,
+"lb": 512,
+"pad": 2048
+},
+"m_astrolabe": {
+"sig": "2f2c9574",
+"n": 1924608,
+"a": 160363,
+"p": 1764352,
+"ln": 161280,
+"lb": 512,
+"pad": 2048
+},
+"m_ghostreef": {
+"sig": "2076fea5",
+"n": 1905152,
+"a": 158759,
+"p": 1746432,
+"ln": 159744,
+"lb": 512,
+"pad": 2048
+},
+"m_gridlock": {
+"sig": "3ec8887b",
+"n": 1814528,
+"a": 151200,
+"p": 1663488,
+"ln": 152064,
+"lb": 512,
+"pad": 2048
+},
+"m_kaiju": {
+"sig": "70954ea7",
+"n": 1867776,
+"a": 155647,
+"p": 1712128,
+"ln": 156160,
+"lb": 512,
+"pad": 2048
+},
+"m_mariana": {
+"sig": "3b67e0bb",
+"n": 1477120,
+"a": 123069,
+"p": 1354240,
+"ln": 123904,
+"lb": 512,
+"pad": 2048
+},
+"m_mycelia": {
+"sig": "a3545d94",
+"n": 2442752,
+"a": 203538,
+"p": 2238976,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"m_paradox": {
+"sig": "07ef3b13",
+"n": 1587712,
+"a": 132300,
+"p": 1455616,
+"ln": 133120,
+"lb": 512,
+"pad": 2048
+},
+"m_serpent": {
+"sig": "5c6c9e71",
+"n": 2117120,
+"a": 176400,
+"p": 1940480,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"m_torii": {
+"sig": "ee7d99cf",
+"n": 1984512,
+"a": 165375,
+"p": 1819136,
+"ln": 165888,
+"lb": 512,
+"pad": 2048
+},
+"m_wormsmaw": {
+"sig": "4374e04c",
+"n": 2520064,
+"a": 210000,
+"p": 2310144,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"magma_pressure": {
+"sig": "ca6d7915",
+"n": 1716736,
+"a": 143027,
+"p": 1573376,
+"ln": 143872,
+"lb": 512,
+"pad": 2048
+},
+"main_theme": {
+"sig": "7b310e63",
+"n": 2268160,
+"a": 189000,
+"p": 2079232,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_anthill": {
+"sig": "4ec5f35c",
+"n": 1671168,
+"a": 167115,
+"p": 1504256,
+"ln": 167936,
+"lb": 512,
+"pad": 2048
+},
+"map_asteroid-field": {
+"sig": "72ee12aa",
+"n": 1924608,
+"a": 160363,
+"p": 1764352,
+"ln": 161280,
+"lb": 512,
+"pad": 2048
+},
+"map_astral-bastion": {
+"sig": "a218d50c",
+"n": 1638400,
+"a": 126000,
+"p": 1512448,
+"ln": 126976,
+"lb": 512,
+"pad": 2048
+},
+"map_aurora-fjord": {
+"sig": "ab9d3c94",
+"n": 1541632,
+"a": 154135,
+"p": 1387520,
+"ln": 155136,
+"lb": 512,
+"pad": 2048
+},
+"map_badlands": {
+"sig": "266c4c35",
+"n": 2321408,
+"a": 232105,
+"p": 2088960,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_bone-yard": {
+"sig": "40dea5d0",
+"n": 1725952,
+"a": 172565,
+"p": 1553408,
+"ln": 173568,
+"lb": 512,
+"pad": 2048
+},
+"map_boulder-field": {
+"sig": "2794232b",
+"n": 1150464,
+"a": 115043,
+"p": 1035776,
+"ln": 115712,
+"lb": 512,
+"pad": 2048
+},
+"map_breakwater": {
+"sig": "f3dfc7ff",
+"n": 3669504,
+"a": 282240,
+"p": 3386880,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_broken-bridge": {
+"sig": "b9d2f6a6",
+"n": 1402880,
+"a": 0,
+"p": 1402880,
+"ln": 128512,
+"lb": 512,
+"pad": 2048
+},
+"map_bumpy-road": {
+"sig": "c1c0d105",
+"n": 1753088,
+"a": 134828,
+"p": 1618432,
+"ln": 135680,
+"lb": 512,
+"pad": 2048
+},
+"map_bunker": {
+"sig": "c1be899e",
+"n": 1483776,
+"a": 148373,
+"p": 1335808,
+"ln": 148992,
+"lb": 512,
+"pad": 2048
+},
+"map_bunker-line": {
+"sig": "a231fdde",
+"n": 1794048,
+"a": 179389,
+"p": 1614848,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_caldera": {
+"sig": "68977d51",
+"n": 2515456,
+"a": 209584,
+"p": 2305536,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_canyon": {
+"sig": "56a3b826",
+"n": 2531328,
+"a": 0,
+"p": 2531328,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_cascade": {
+"sig": "a20389e3",
+"n": 2822656,
+"a": 235200,
+"p": 2587648,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_causeway": {
+"sig": "acdfc8a8",
+"n": 2065408,
+"a": 172097,
+"p": 1893376,
+"ln": 173056,
+"lb": 512,
+"pad": 2048
+},
+"map_celestial-steps": {
+"sig": "aac22118",
+"n": 2149888,
+"a": 165375,
+"p": 1984512,
+"ln": 165888,
+"lb": 512,
+"pad": 2048
+},
+"map_centre-stairs": {
+"sig": "21624604",
+"n": 1675264,
+"a": 0,
+"p": 1675264,
+"ln": 153088,
+"lb": 512,
+"pad": 2048
+},
+"map_citadel": {
+"sig": "641d46b6",
+"n": 1893376,
+"a": 0,
+"p": 1893376,
+"ln": 173056,
+"lb": 512,
+"pad": 2048
+},
+"map_cliffside": {
+"sig": "e276603f",
+"n": 1833472,
+"a": 0,
+"p": 1833472,
+"ln": 167424,
+"lb": 512,
+"pad": 2048
+},
+"map_clockwork": {
+"sig": "b20ff3ed",
+"n": 2065408,
+"a": 172097,
+"p": 1893376,
+"ln": 173056,
+"lb": 512,
+"pad": 2048
+},
+"map_copper-mine": {
+"sig": "46a73a7c",
+"n": 2293248,
+"a": 176400,
+"p": 2117120,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_coral-reef": {
+"sig": "3d3d5ac9",
+"n": 1780736,
+"a": 148373,
+"p": 1632256,
+"ln": 148992,
+"lb": 512,
+"pad": 2048
+},
+"map_crevasse": {
+"sig": "30ac1c15",
+"n": 2309632,
+"a": 192436,
+"p": 2117120,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_crossroads": {
+"sig": "09f88e04",
+"n": 1940480,
+"a": 0,
+"p": 1940480,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_crystal-caverns": {
+"sig": "ead295ac",
+"n": 2171392,
+"a": 180923,
+"p": 1990656,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_crystal-sanctum": {
+"sig": "3bf0d1d5",
+"n": 1518592,
+"a": 0,
+"p": 1518592,
+"ln": 138752,
+"lb": 512,
+"pad": 2048
+},
+"map_culvert": {
+"sig": "3e8f97cd",
+"n": 4070912,
+"a": 339230,
+"p": 3731968,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_double-hump": {
+"sig": "49ad649f",
+"n": 1339904,
+"a": 133974,
+"p": 1206272,
+"ln": 134656,
+"lb": 512,
+"pad": 2048
+},
+"map_dragon-spine": {
+"sig": "77697a29",
+"n": 2099712,
+"a": 174942,
+"p": 1924608,
+"ln": 175616,
+"lb": 512,
+"pad": 2048
+},
+"map_dunes": {
+"sig": "843e6390",
+"n": 2274304,
+"a": 174942,
+"p": 2099712,
+"ln": 175616,
+"lb": 512,
+"pad": 2048
+},
+"map_eclipse-gate": {
+"sig": "fdc45f6e",
+"n": 2646016,
+"a": 0,
+"p": 2646016,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_fang-gap": {
+"sig": "b86f475e",
+"n": 1854464,
+"a": 154510,
+"p": 1699840,
+"ln": 155136,
+"lb": 512,
+"pad": 2048
+},
+"map_fang-row": {
+"sig": "06bd031b",
+"n": 2152960,
+"a": 179389,
+"p": 1973760,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_forge": {
+"sig": "50a94a72",
+"n": 1693696,
+"a": 169344,
+"p": 1524224,
+"ln": 169984,
+"lb": 512,
+"pad": 2048
+},
+"map_fortress-walls": {
+"sig": "fe5531ce",
+"n": 2117120,
+"a": 176400,
+"p": 1940480,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_foxholes": {
+"sig": "380579ff",
+"n": 1698816,
+"a": 130666,
+"p": 1568256,
+"ln": 131584,
+"lb": 512,
+"pad": 2048
+},
+"map_frozen-falls": {
+"sig": "b33a379f",
+"n": 1780736,
+"a": 148373,
+"p": 1632256,
+"ln": 148992,
+"lb": 512,
+"pad": 2048
+},
+"map_glitch-zone": {
+"sig": "ea3ff7dd",
+"n": 1590784,
+"a": 122358,
+"p": 1468416,
+"ln": 122880,
+"lb": 512,
+"pad": 2048
+},
+"map_hanging-gardens": {
+"sig": "c7c5f189",
+"n": 3200000,
+"a": 246139,
+"p": 2953728,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_haystack": {
+"sig": "83c6367e",
+"n": 1924608,
+"a": 160363,
+"p": 1764352,
+"ln": 161280,
+"lb": 512,
+"pad": 2048
+},
+"map_hilltop": {
+"sig": "e8c6b631",
+"n": 2896896,
+"a": 222821,
+"p": 2674176,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_hogback": {
+"sig": "d09e55db",
+"n": 2000384,
+"a": 166677,
+"p": 1833472,
+"ln": 167424,
+"lb": 512,
+"pad": 2048
+},
+"map_ice-shelf": {
+"sig": "e837e077",
+"n": 2731520,
+"a": 227612,
+"p": 2504192,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_ice-spikes": {
+"sig": "15634638",
+"n": 1966080,
+"a": 151200,
+"p": 1814528,
+"ln": 152064,
+"lb": 512,
+"pad": 2048
+},
+"map_landslide": {
+"sig": "b42ed922",
+"n": 1735168,
+"a": 173508,
+"p": 1561600,
+"ln": 174080,
+"lb": 512,
+"pad": 2048
+},
+"map_last-stand": {
+"sig": "a90fec01",
+"n": 1911296,
+"a": 147000,
+"p": 1764352,
+"ln": 147968,
+"lb": 512,
+"pad": 2048
+},
+"map_launch-ramps": {
+"sig": "bd4feb72",
+"n": 1617408,
+"a": 0,
+"p": 1617408,
+"ln": 147968,
+"lb": 512,
+"pad": 2048
+},
+"map_lava-flow": {
+"sig": "b4f5f450",
+"n": 1451520,
+"a": 120960,
+"p": 1330688,
+"ln": 121856,
+"lb": 512,
+"pad": 2048
+},
+"map_lopsided-peak": {
+"sig": "2bcb322e",
+"n": 1752064,
+"a": 145986,
+"p": 1606144,
+"ln": 146944,
+"lb": 512,
+"pad": 2048
+},
+"map_mesa": {
+"sig": "3c691af2",
+"n": 2228224,
+"a": 185684,
+"p": 2042880,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_moon-base": {
+"sig": "ec3ad0f3",
+"n": 2182656,
+"a": 218226,
+"p": 1964544,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_mothership": {
+"sig": "09abb456",
+"n": 1752064,
+"a": 145986,
+"p": 1606144,
+"ln": 146944,
+"lb": 512,
+"pad": 2048
+},
+"map_nave": {
+"sig": "d1f48f4e",
+"n": 2024960,
+"a": 0,
+"p": 2024960,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_nebula-gardens": {
+"sig": "0a642dc6",
+"n": 2295808,
+"a": 191277,
+"p": 2104320,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_oasis": {
+"sig": "21a994a4",
+"n": 1614848,
+"a": 134542,
+"p": 1480192,
+"ln": 135168,
+"lb": 512,
+"pad": 2048
+},
+"map_obelisk-field": {
+"sig": "06b8c633",
+"n": 2228224,
+"a": 185684,
+"p": 2042880,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_obsidian-spires": {
+"sig": "b553b0db",
+"n": 2172928,
+"a": 167115,
+"p": 2005504,
+"ln": 167936,
+"lb": 512,
+"pad": 2048
+},
+"map_picnic-knoll": {
+"sig": "183be1f0",
+"n": 1354240,
+"a": 0,
+"p": 1354240,
+"ln": 123904,
+"lb": 512,
+"pad": 2048
+},
+"map_pipe-organ": {
+"sig": "219b15b3",
+"n": 2393088,
+"a": 184069,
+"p": 2209280,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_plateau": {
+"sig": "e49cb197",
+"n": 1735168,
+"a": 173508,
+"p": 1561600,
+"ln": 174080,
+"lb": 512,
+"pad": 2048
+},
+"map_pyramid": {
+"sig": "2041061c",
+"n": 2117120,
+"a": 176400,
+"p": 1940480,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_quarry": {
+"sig": "3c2e7f0d",
+"n": 1850368,
+"a": 185034,
+"p": 1665536,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_radar-hill": {
+"sig": "b936c847",
+"n": 1663488,
+"a": 0,
+"p": 1663488,
+"ln": 152064,
+"lb": 512,
+"pad": 2048
+},
+"map_rail-yard": {
+"sig": "de9c38b7",
+"n": 2457088,
+"a": 189000,
+"p": 2268160,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_ramparts": {
+"sig": "1bab1783",
+"n": 1618432,
+"a": 134828,
+"p": 1483264,
+"ln": 135680,
+"lb": 512,
+"pad": 2048
+},
+"map_rolling-hills": {
+"sig": "1f449b27",
+"n": 1905152,
+"a": 158759,
+"p": 1746432,
+"ln": 159744,
+"lb": 512,
+"pad": 2048
+},
+"map_salt-flats": {
+"sig": "b5aa6f22",
+"n": 2293248,
+"a": 176400,
+"p": 2117120,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_sawtooth": {
+"sig": "3925440d",
+"n": 1791488,
+"a": 0,
+"p": 1791488,
+"ln": 163840,
+"lb": 512,
+"pad": 2048
+},
+"map_shark-fin": {
+"sig": "07fecd2f",
+"n": 1474048,
+"a": 0,
+"p": 1474048,
+"ln": 134656,
+"lb": 512,
+"pad": 2048
+},
+"map_shattered-moon": {
+"sig": "42150df6",
+"n": 2419200,
+"a": 201600,
+"p": 2217984,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_shelled-field": {
+"sig": "2bea0fb5",
+"n": 1346048,
+"a": 0,
+"p": 1346048,
+"ln": 122880,
+"lb": 512,
+"pad": 2048
+},
+"map_sinkholes": {
+"sig": "e6250055",
+"n": 2065408,
+"a": 172097,
+"p": 1893376,
+"ln": 173056,
+"lb": 512,
+"pad": 2048
+},
+"map_skybridge": {
+"sig": "bf54c863",
+"n": 1573376,
+"a": 0,
+"p": 1573376,
+"ln": 143872,
+"lb": 512,
+"pad": 2048
+},
+"map_skyscraper-row": {
+"sig": "4486669b",
+"n": 1927680,
+"a": 0,
+"p": 1927680,
+"ln": 176128,
+"lb": 512,
+"pad": 2048
+},
+"map_sleepy-hollow": {
+"sig": "987c3db0",
+"n": 2065408,
+"a": 172097,
+"p": 1893376,
+"ln": 173056,
+"lb": 512,
+"pad": 2048
+},
+"map_sludge-pits": {
+"sig": "37a3b417",
+"n": 2352128,
+"a": 180923,
+"p": 2171392,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_solar-forge": {
+"sig": "8c75ec0b",
+"n": 2117120,
+"a": 176400,
+"p": 1940480,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_solar-temple": {
+"sig": "9e532b01",
+"n": 2049024,
+"a": 170709,
+"p": 1878016,
+"ln": 171520,
+"lb": 512,
+"pad": 2048
+},
+"map_space-elevator": {
+"sig": "e76865b1",
+"n": 3060736,
+"a": 255036,
+"p": 2805760,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_staircase": {
+"sig": "69fdf9a4",
+"n": 2042880,
+"a": 0,
+"p": 2042880,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_starfall-plateau": {
+"sig": "c3d5397a",
+"n": 1835008,
+"a": 141120,
+"p": 1693696,
+"ln": 141824,
+"lb": 512,
+"pad": 2048
+},
+"map_switchback": {
+"sig": "e2951b80",
+"n": 1776640,
+"a": 148027,
+"p": 1628672,
+"ln": 148992,
+"lb": 512,
+"pad": 2048
+},
+"map_the-ditch": {
+"sig": "272a23ec",
+"n": 1573376,
+"a": 0,
+"p": 1573376,
+"ln": 143872,
+"lb": 512,
+"pad": 2048
+},
+"map_the-funnel": {
+"sig": "6dc68124",
+"n": 1574912,
+"a": 131206,
+"p": 1443328,
+"ln": 132096,
+"lb": 512,
+"pad": 2048
+},
+"map_the-gorge": {
+"sig": "e0f28e1c",
+"n": 1890304,
+"a": 189000,
+"p": 1701376,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_the-labyrinth": {
+"sig": "acca6283",
+"n": 1984512,
+"a": 165375,
+"p": 1819136,
+"ln": 165888,
+"lb": 512,
+"pad": 2048
+},
+"map_the-maw": {
+"sig": "7b9e770b",
+"n": 1780736,
+"a": 148373,
+"p": 1632256,
+"ln": 148992,
+"lb": 512,
+"pad": 2048
+},
+"map_the-needle": {
+"sig": "060d6ee9",
+"n": 2171392,
+"a": 180923,
+"p": 1990656,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_the-notch": {
+"sig": "110fe454",
+"n": 1505792,
+"a": 0,
+"p": 1505792,
+"ln": 137728,
+"lb": 512,
+"pad": 2048
+},
+"map_the-spiral": {
+"sig": "f6315f60",
+"n": 1749504,
+"a": 174942,
+"p": 1574912,
+"ln": 175616,
+"lb": 512,
+"pad": 2048
+},
+"map_tidepools": {
+"sig": "463e994a",
+"n": 2330624,
+"a": 194201,
+"p": 2136576,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_titans-throne": {
+"sig": "e3df3357",
+"n": 1545216,
+"a": 154510,
+"p": 1391104,
+"ln": 155136,
+"lb": 512,
+"pad": 2048
+},
+"map_trenches": {
+"sig": "e9111e37",
+"n": 1618432,
+"a": 134828,
+"p": 1483264,
+"ln": 135680,
+"lb": 512,
+"pad": 2048
+},
+"map_tundra-waves": {
+"sig": "5ed8a8a9",
+"n": 3650048,
+"a": 304137,
+"p": 3345920,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_twin-cliffs": {
+"sig": "ae1f9727",
+"n": 2309632,
+"a": 192436,
+"p": 2117120,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_twin-forts": {
+"sig": "26918224",
+"n": 1752064,
+"a": 145986,
+"p": 1606144,
+"ln": 146944,
+"lb": 512,
+"pad": 2048
+},
+"map_twin-hills": {
+"sig": "a43e31bf",
+"n": 2171392,
+"a": 180923,
+"p": 1990656,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_twin-mesas": {
+"sig": "afc5458a",
+"n": 2309632,
+"a": 192436,
+"p": 2117120,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_void-cathedral": {
+"sig": "31113a8e",
+"n": 1451520,
+"a": 120960,
+"p": 1330688,
+"ln": 121856,
+"lb": 512,
+"pad": 2048
+},
+"map_volcano-rim": {
+"sig": "22a4eb38",
+"n": 2023424,
+"a": 155647,
+"p": 1867776,
+"ln": 156160,
+"lb": 512,
+"pad": 2048
+},
+"map_watch-ridge": {
+"sig": "851970d6",
+"n": 2117120,
+"a": 0,
+"p": 2117120,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"map_watchtower": {
+"sig": "4db312c0",
+"n": 2065408,
+"a": 172097,
+"p": 1893376,
+"ln": 173056,
+"lb": 512,
+"pad": 2048
+},
+"map_waves": {
+"sig": "277b6da6",
+"n": 2274304,
+"a": 174942,
+"p": 2099712,
+"ln": 175616,
+"lb": 512,
+"pad": 2048
+},
+"map_windmill-field": {
+"sig": "45c48bb7",
+"n": 1779712,
+"a": 136862,
+"p": 1642496,
+"ln": 137728,
+"lb": 512,
+"pad": 2048
+},
+"map_zigzag": {
+"sig": "b98bf61b",
+"n": 1749504,
+"a": 174942,
+"p": 1574912,
+"ln": 175616,
+"lb": 512,
+"pad": 2048
+},
+"martyr_astral": {
+"sig": "0a80f243",
+"n": 2268160,
+"a": 151200,
+"p": 2117120,
+"ln": 152064,
+"lb": 512,
+"pad": 2048,
+"story": true
+},
+"martyr_ember": {
+"sig": "4e4929fb",
+"n": 2646016,
+"a": 176400,
+"p": 2469888,
+"ln": 176400,
+"lb": 512,
+"pad": 2048,
+"story": true
+},
+"martyr_tempest": {
+"sig": "e0e1f942",
+"n": 1653760,
+"a": 110250,
+"p": 1543680,
+"ln": 111104,
+"lb": 512,
+"pad": 2048,
+"story": true
+},
+"masters_throne": {
+"sig": "cacb2be9",
+"n": 2419200,
+"a": 302400,
+"p": 2117120,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"mirage_road": {
+"sig": "ac333e48",
+"n": 2886656,
+"a": 240545,
+"p": 2646016,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"mothership": {
+"sig": "ef6e77b1",
+"n": 3240448,
+"a": 216000,
+"p": 3024384,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"neon_arcade": {
+"sig": "db567cde",
+"n": 2152960,
+"a": 179389,
+"p": 1973760,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"orbital_barrage": {
+"sig": "c60d7cca",
+"n": 1984512,
+"a": 165375,
+"p": 1819136,
+"ln": 165888,
+"lb": 512,
+"pad": 2048
+},
+"protector": {
+"sig": "546e827a",
+"n": 2886656,
+"a": 240545,
+"p": 2646016,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"sandstorm_siege": {
+"sig": "664844d5",
+"n": 2016256,
+"a": 168000,
+"p": 1848320,
+"ln": 168960,
+"lb": 512,
+"pad": 2048
+},
+"saucer_attack": {
+"sig": "5e844ac0",
+"n": 1954304,
+"a": 162830,
+"p": 1791488,
+"ln": 163840,
+"lb": 512,
+"pad": 2048
+},
+"scrapyard_riot": {
+"sig": "a37f9af0",
+"n": 2152960,
+"a": 179389,
+"p": 1973760,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"shatterline": {
+"sig": "5246da74",
+"n": 2049024,
+"a": 170709,
+"p": 1878016,
+"ln": 171520,
+"lb": 512,
+"pad": 2048
+},
+"shatterline_battle": {
+"sig": "935e26ac",
+"n": 1814528,
+"a": 151200,
+"p": 1663488,
+"ln": 152064,
+"lb": 512,
+"pad": 2048
+},
+"shop_jingle": {
+"sig": "69b95239",
+"n": 1512448,
+"a": 189000,
+"p": 1323008,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"sky_whale": {
+"sig": "7c9f8fd2",
+"n": 2976768,
+"a": 248062,
+"p": 2728960,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"solaris_hymn": {
+"sig": "169a9502",
+"n": 3024384,
+"a": 252000,
+"p": 2772480,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"squad_up": {
+"sig": "5d06726d",
+"n": 2082304,
+"a": 173508,
+"p": 1908736,
+"ln": 174080,
+"lb": 512,
+"pad": 2048
+},
+"starlight_drift": {
+"sig": "6e2ad92c",
+"n": 4410368,
+"a": 367500,
+"p": 4042752,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"steel_rain": {
+"sig": "8e395f3b",
+"n": 1924608,
+"a": 160363,
+"p": 1764352,
+"ln": 161280,
+"lb": 512,
+"pad": 2048
+},
+"t_abyssal": {
+"sig": "3a224a8b",
+"n": 3024384,
+"a": 252000,
+"p": 2772480,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"t_baron": {
+"sig": "1a5fb84e",
+"n": 1954304,
+"a": 162830,
+"p": 1791488,
+"ln": 163840,
+"lb": 512,
+"pad": 2048
+},
+"t_magistrate": {
+"sig": "ba961c04",
+"n": 2152960,
+"a": 179389,
+"p": 1973760,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"t_overseer": {
+"sig": "b0f68c89",
+"n": 2886656,
+"a": 240545,
+"p": 2646016,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"t_pharaoh": {
+"sig": "6d9e1cd5",
+"n": 2268160,
+"a": 189000,
+"p": 2079232,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"t_regent": {
+"sig": "3813043b",
+"n": 2165248,
+"a": 180409,
+"p": 1984512,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"t_shadow": {
+"sig": "a8fd7195",
+"n": 2442752,
+"a": 203538,
+"p": 2238976,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"t_solar": {
+"sig": "d6d16b47",
+"n": 2117120,
+"a": 176400,
+"p": 1940480,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"t_volt": {
+"sig": "d45b276b",
+"n": 1867776,
+"a": 155647,
+"p": 1712128,
+"ln": 156160,
+"lb": 512,
+"pad": 2048
+},
+"t_warlord": {
+"sig": "53fca68c",
+"n": 2016256,
+"a": 168000,
+"p": 1848320,
+"ln": 168960,
+"lb": 512,
+"pad": 2048
+},
+"the_blessing": {
+"sig": "1357963d",
+"n": 2205184,
+"a": 220500,
+"p": 1984512,
+"ln": 176400,
+"lb": 512,
+"pad": 2048,
+"story": true
+},
+"tidebreaker": {
+"sig": "d6151e13",
+"n": 1477120,
+"a": 123069,
+"p": 1354240,
+"ln": 123904,
+"lb": 512,
+"pad": 2048
+},
+"time_machine": {
+"sig": "99d7b054",
+"n": 2520064,
+"a": 251999,
+"p": 2268160,
+"ln": 176400,
+"lb": 512,
+"pad": 2048,
+"story": true
+},
+"tutorial": {
+"sig": "d943f500",
+"n": 2442752,
+"a": 203538,
+"p": 2238976,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"undertow_dub": {
+"sig": "d58da085",
+"n": 3342336,
+"a": 278526,
+"p": 3063808,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"whalefall": {
+"sig": "ef525cdc",
+"n": 2761216,
+"a": 230086,
+"p": 2531328,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"whisper": {
+"sig": "853b603f",
+"n": 2117120,
+"a": 352800,
+"p": 1764352,
+"ln": 176400,
+"lb": 512,
+"pad": 2048,
+"story": true
+},
+"workshop": {
+"sig": "10f6c339",
+"n": 1764352,
+"a": 220500,
+"p": 1543680,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"worldtree": {
+"sig": "f0e22f2d",
+"n": 2442752,
+"a": 203538,
+"p": 2238976,
+"ln": 176400,
+"lb": 512,
+"pad": 2048
+},
+"worldtree_roots": {
+"sig": "d9dfbda9",
+"n": 1587712,
+"a": 132300,
+"p": 1455616,
+"ln": 133120,
+"lb": 512,
+"pad": 2048
+}
 }

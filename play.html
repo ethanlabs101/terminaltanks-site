@@ -1179,6 +1179,11 @@ def _use_page_audio(mod):
             self._music, self.ended = sid, None
             self._q("m", sid or "", round(float(fade), 2))
 
+        def mood(self, m):
+            if m != getattr(self, "_mood", None):
+                self._mood = m
+                self._q("o", str(m))
+
         def volumes(self, m, mus, sfx):
             self._q("v", round(float(m), 3), round(float(mus), 3), round(float(sfx), 3))
 
@@ -1603,50 +1608,61 @@ addEventListener('resize', fitTerminal);
 matchMedia('(resolution: 1dppx)').addEventListener?.('change', fitTerminal);
 
 // ---- sound ------------------------------------------------------------------------------------------------------------
-// SoundHost plays the game's sound on the page. The game (in the worker) only says what to play - "song X", "effect Y at
-// this volume, pan and pitch" - and the sound itself comes from files rendered ahead of time by the game's own engine, so
-// the game never synthesises audio while you play.
-//  - Music plays through the browser's plain media player (an <audio> element per song), the steadiest path there is: no
-//    Web Audio graph, which can crackle and drop out on slower computers. Songs loop back to the same point the game
-//    loops them (data/music.json). The game's analyser readings come from each song's pre-computed spectrum
-//    (music/spec/*.bin). Only if the in-game EQ is moved off flat does music go through Web Audio filters.
-//  - Effects play from audio/sfx.mp3 (every effect, indexed by audio/sfx.json) on a Web Audio context.
+// SoundHost plays the game's sound on the page, the way the desktop game's audio engine (Mixer) plays it. The game (in the
+// worker) only says what to play - "song X", "mood", "effect Y at this volume, pan and pitch" - and the sound comes from
+// files rendered ahead of time by that same engine (tools/render_music.py, tools/render_sfx.py), so the game never
+// synthesises audio while you play.
+//  - Music: music/<song>.mp3 is the song's first pass exactly as the desktop plays it; music/loop/<song>.mp3 is the seam
+//    where it loops (notes still ringing from the end carry on over section A) plus the last block of a later pass. The
+//    pieces are scheduled to the sample at the game's own 22,050 Hz, so the loop is seamless and keeps the desktop's
+//    timing. Songs the game plays in story scenes have story-mood versions. On a context with the browser's largest
+//    output buffer ('playback'), which is what keeps music from dropping out on slower computers.
+//  - The files hold the music at the game's default volumes; the game's volume settings scale them from there. Effects
+//    marked in audio/sfx.json dip the music for 0.83 s, and the in-game EQ is the engine's own filter, as on the desktop.
+//  - Effects: audio/sfx.mp3 (every effect) on a second, quick-responding context, with the engine's pan law and level.
 // Browsers keep sound off until a click, tap or key press; the first one starts it.
+const SR = 22050, BAKED = 0.85 * 0.7;          /* the game's sample rate; master x music volume rendered into the files */
 const SoundHost = {
-  ctx: null, out: null, sfxBus: null, failed: false, warned: false, ops: 0, errors: 0, played: 0, live: 0,
-  vols: [0.85, 0.7, 0.9], eq: [0, 0, 0], eqOn: false, eqNodes: null, loop: true, gen: 0, cur: null, fading: [], ended: '',
-  songs: null, songsP: null, pre: new Map(), specs: new Map(), pack: null, packIdx: null, packDelay: 0, packP: null, timer: 0, ticker: 0,
+  ctx: null, mctx: null, out: null, mout: null, sfxBus: null, musicBus: null, duckGain: null, eqNode: null, failed: false, warned: false,
+  ops: 0, errors: 0, played: 0, live: 0, vols: [0.85, 0.7, 0.9], eq: [0, 0, 0], loop: true, mood: 'menu', gen: 0, cur: null, ended: '',
+  songs: null, songsP: null, cache: new Map(), specs: new Map(), pack: null, packIdx: null, packDelay: 0, packP: null, duck: new Set(), timer: 0, sched: 0,
+  newCtx(hint) {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    try { return new AC({ latencyHint: hint, sampleRate: SR }); } catch (e) { return new AC({ latencyHint: hint }); }
+  },
   ensure() {
     if (this.ctx || this.failed) return this.ctx;
     try {
-      const AC = window.AudioContext || window.webkitAudioContext;
-      if (!AC) throw new Error('no Web Audio');
-      this.ctx = new AC({ latencyHint: 'balanced' });
-      const c = this.ctx;
+      if (!(window.AudioContext || window.webkitAudioContext)) throw new Error('no Web Audio');
+      this.ctx = this.newCtx('interactive');                       /* effects: quick to respond */
+      this.mctx = this.newCtx('playback');                         /* music: big buffers, no drop-outs */
+      const c = this.ctx, m = this.mctx;
       this.out = c.createGain(); this.out.connect(c.destination);
       this.sfxBus = c.createGain(); this.sfxBus.connect(this.out);
+      this.mout = m.createGain(); this.mout.connect(m.destination);
+      this.duckGain = m.createGain(); this.duckGain.connect(this.mout);
+      this.musicBus = m.createGain(); this.musicBus.connect(this.duckGain);
       this.applyVolume();
-      c.onstatechange = () => renderSound();
+      c.onstatechange = m.onstatechange = () => renderSound();
       const unlock = () => {
         if (document.hidden) return;
-        if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
-        if (this.cur && this.cur.el.paused && !this.cur.done) this.cur.el.play().catch(() => {});
+        for (const x of [this.ctx, this.mctx]) if (x && x.state === 'suspended') x.resume().catch(() => {});
       };
       ['pointerdown', 'keydown', 'touchend', 'mousedown'].forEach((ev) => addEventListener(ev, unlock, { capture: true, passive: true }));
       this.timer = setInterval(() => this.sendState(), 250);
-      this.ticker = setInterval(() => this.tick(), 25);
+      this.sched = setInterval(() => this.schedule(), 400);
       this.loadIndex(); this.loadPack();
     } catch (e) { this.failed = true; if (!this.warned) { this.warned = true; toast('Sound is not available in this browser', 4000); } }
     return this.ctx;
   },
   pageVol() { return prefs.muted ? 0 : prefs.vol; },
-  musicVol(fade) { return Math.max(0, Math.min(1, (this.eqOn ? 1 : this.pageVol()) * this.vols[0] * this.vols[1] * fade)); },
   applyVolume() {
     if (this.out) this.out.gain.setTargetAtTime(this.pageVol(), this.ctx.currentTime, 0.02);
-    if (this.cur) this.cur.el.volume = this.musicVol(this.cur.fade);
+    if (this.mout) this.mout.gain.setTargetAtTime(this.pageVol(), this.mctx.currentTime, 0.02);
+    if (this.musicBus) this.musicBus.gain.setTargetAtTime(this.vols[0] * this.vols[1] / BAKED, this.mctx.currentTime, 0.03);
   },
   fetchBuf(url) { return fetch(url).then((r) => { if (!r.ok) throw new Error(url + ': HTTP ' + r.status); return r.arrayBuffer(); }); },
-  decode(buf) { return new Promise((res, rej) => { const r = this.ctx.decodeAudioData(buf, res, rej); if (r && r.then) r.then(res, rej); }); },
+  decode(ctx, buf) { return new Promise((res, rej) => { const r = ctx.decodeAudioData(buf, res, rej); if (r && r.then) r.then(res, rej); }); },
   loadIndex() {
     if (!this.songsP) this.songsP = fetch('data/music.json').then((r) => r.json()).then((d) => { this.songs = new Map(d.songs.map((x) => [x.id, x])); return this.songs; })
       .catch((e) => { this.songsP = null; console.warn('[sound] no song list', e); return null; });
@@ -1654,12 +1670,12 @@ const SoundHost = {
   },
   loadPack() {
     if (this.packP) return this.packP;
-    this.packP = Promise.all([fetch('audio/sfx.json').then((r) => r.json()), this.fetchBuf('audio/sfx.mp3').then((b) => this.decode(b))]).then(([idx, buf]) => {
+    this.packP = Promise.all([fetch('audio/sfx.json').then((r) => r.json()), this.fetchBuf('audio/sfx.mp3').then((b) => this.decode(this.ctx, b))]).then(([idx, buf]) => {
       // MP3 decoders may add a short delay at the start: the file begins with a single click at a known time, so measure it
       const d = buf.getChannelData(0), sr = buf.sampleRate, want = idx.mark * sr; let at = -1;
       for (let i = 0, n = Math.min(d.length, Math.round(sr * 0.8)); i < n; i++) if (Math.abs(d[i]) > 0.3) { at = i; break; }
       this.packDelay = at < 0 ? 0 : Math.max(-0.1, Math.min(0.2, (at - want) / sr));
-      this.packIdx = idx.sfx; this.pack = buf;
+      this.packIdx = idx.sfx; this.duck = new Set(idx.duck || []); this.pack = buf;
     }).catch((e) => { this.packP = null; console.warn('[sound] no effects', e); });
     return this.packP;
   },
@@ -1672,76 +1688,143 @@ const SoundHost = {
       if (u[0] === 84 && u[1] === 84 && u[2] === 83) this.specs.set(info.id, { fps: u[4], bands: u[5], d: u.subarray(6) });
     }).catch(() => {});
   },
-  element(sid) {                                                  /* a media element for a song: a prefetched one if there is one */
-    let el = this.pre.get(sid);
-    if (el) { this.pre.delete(sid); return el; }
-    el = new Audio(); el.preload = 'auto'; el.src = this.songs.get(sid).a;
-    return el;
+  variant(info) { return info.story && this.mood === 'story' ? 'story' : ''; },
+  loadSong(info, v) {                                             /* both files of a song, decoded: { main, loop, delay } */
+    const key = info.id + ':' + v;
+    if (this.cache.has(key)) { const p = this.cache.get(key); this.cache.delete(key); this.cache.set(key, p); return p; }
+    const base = info.a.replace(/^music\//, ''), dir = v ? 'music/story/' : 'music/';
+    const p = Promise.all([this.fetchBuf(dir + base), this.fetchBuf(dir + 'loop/' + base)])
+      .then(([a, b]) => Promise.all([this.decode(this.mctx, a), this.decode(this.mctx, b)]))
+      .then(([main, loop]) => {
+        // a decoder that keeps the MP3 encoder's start delay makes the file 1,105 samples longer than the song: allow for it
+        const x = info.x || {}, sr = main.sampleRate, want = (x.n || main.length) * sr / SR;
+        const delay = main.length - want > 0.03 * sr ? 1105 / SR : 0, ldelay = loop.length - ((x.ln || 0) + (x.lb || 0) + 4 * (x.pad || 0)) * sr / SR > 0.03 * sr ? 1105 / SR : 0;
+        return { main, loop, delay, ldelay };
+      });
+    p.catch(() => this.cache.delete(key));
+    this.cache.set(key, p);
+    while (this.cache.size > 3) {                                 /* decoded songs are big: keep the newest few */
+      const old = this.cache.keys().next().value;
+      if (this.cur && old === this.cur.key) { this.cache.delete(old); this.cache.set(old, this.cache.get(old) || p); break; }
+      this.cache.delete(old);
+    }
+    return p;
   },
-  connectEq(el) {                                                 /* only once the EQ has been used: the music through filters */
-    if (el._eq || !this.eqNodes) return;
-    try { const src = this.ctx.createMediaElementSource(el); src.connect(this.eqNodes[0]); el._eq = true; } catch (e) {}
+  piece(buf, off, dur, when, gain) {                              /* one sample-accurate piece of a song */
+    const src = this.mctx.createBufferSource(); src.buffer = buf; src.connect(gain);
+    src.start(Math.max(when, this.mctx.currentTime), Math.max(0, off + Math.max(0, this.mctx.currentTime - when)), Math.max(0.001, dur - Math.max(0, this.mctx.currentTime - when)));
+    return src;
   },
-  music(sid, fade) {
+  music(sid, fade, at) {
     const gen = ++this.gen; this.ended = '';
     const old = this.cur; this.cur = null;
-    if (old) { old.fadeTo = 0; old.fadeRate = 1 / Math.max(0.15, Math.min(+fade || 0.3, 2.5)); this.fading.push(old); }
+    if (old) this.release(old, Math.max(0.15, Math.min(+fade || 0.3, 0.35)));
     if (!sid) return;
     this.loadIndex().then(() => {
-      if (gen !== this.gen) return;
-      const info = this.songs && this.songs.get(sid); if (!info) return;
+      const info = this.songs && this.songs.get(sid); if (!info || gen !== this.gen) return null;
       this.loadSpec(info);
-      const el = this.element(sid);
-      const cur = this.cur = { sid, el, lp: info.lp || 0, le: info.le || info.len, fade: 0, fadeTo: 1, fadeRate: 1 / 0.25, done: false };
-      el.loop = false; el.volume = 0;
-      if (this.eqOn) this.connectEq(el);
-      el.onended = () => { if (this.cur === cur && !this.loop) { cur.done = true; this.ended = sid; this.sendState(); } };
-      el.onerror = () => { if (++this.errors < 5) console.warn('[sound] could not load', info.a); };
-      try { el.currentTime = 0; } catch (e) {}
-      if (!document.hidden) el.play().catch(() => {});        /* before the first click or key this waits for the unlock */
-    });
+      const v = this.variant(info);
+      return this.loadSong(info, v).then((b) => {
+        if (gen !== this.gen) return;
+        const m = this.mctx, g = m.createGain(), x = info.x || { n: Math.round(info.le * SR), a: Math.round(info.lp * SR), p: Math.round((info.le - info.lp) * SR), ln: 0, lb: 0 };
+        g.gain.setValueAtTime(0, m.currentTime); g.gain.setTargetAtTime(1, m.currentTime, 0.05);
+        g.connect(this.eqNode || this.musicBus);
+        const fr = m.sampleRate, start = Math.ceil((m.currentTime + 0.05 - (at || 0)) * fr) / fr;   /* on a whole sample, so every piece lines up exactly; `at`: carry on from there (a mood change) */
+        const cur = this.cur = { sid, key: info.id + ':' + v, v, info, b, x, g, t0: start, srcs: [], next: 0, done: false, gen };
+        this.schedule();
+      });
+    }).catch((e) => { if (++this.errors < 5) console.warn('[sound] song', sid, e); });
   },
-  tick() {                                                        /* every 25 ms: song loop points and fades */
-    const cur = this.cur, step = 0.025;
-    if (cur) {
-      const el = cur.el;
-      if (this.loop && cur.le > cur.lp + 1 && el.currentTime >= cur.le - 0.02) { try { el.currentTime = cur.lp + Math.max(0, el.currentTime - cur.le); } catch (e) {} }
-      if (cur.fade !== cur.fadeTo) { cur.fade = Math.min(1, cur.fade + step * cur.fadeRate); }
-      el.volume = this.musicVol(cur.fade);
+  release(cur, fade) {
+    const m = this.mctx, t = m.currentTime;
+    try { cur.g.gain.cancelScheduledValues(t); cur.g.gain.setValueAtTime(cur.g.gain.value, t); cur.g.gain.setTargetAtTime(0, t, fade / 3); } catch (e) {}
+    setTimeout(() => { cur.srcs.forEach((s) => { try { s.stop(); } catch (e) {} }); try { cur.g.disconnect(); } catch (e) {} }, (fade * 3 + 0.2) * 1000);
+  },
+  schedule() {                                                    /* keep the next pieces of the song queued, a few seconds ahead */
+    const cur = this.cur; if (!cur || cur.done) return;
+    const m = this.mctx, { b, x, g } = cur, ahead = m.currentTime + 3;
+    if (cur.next === 0) {                                         /* the first pass */
+      cur.srcs.push(this.piece(b.main, b.delay, x.n / SR, cur.t0, g));
+      cur.next = 1;
     }
-    for (const f of this.fading) {
-      f.fade = Math.max(0, f.fade - step * f.fadeRate); f.el.volume = this.musicVol(f.fade);
-      if (f.fade <= 0) { f.el.pause(); f.el.removeAttribute('src'); try { f.el.load(); } catch (e) {} f.gone = true; }
+    while (!cur.done) {
+      const passStart = cur.t0 + (x.n + (cur.next - 1) * x.p) / SR;  /* when the next pass begins */
+      if (passStart - 1 > ahead) break;
+      if (!this.loop || !x.ln) {                                  /* not looping: let the song end, as the desktop does */
+        if (!this.loop) {
+          const end = cur.t0 + (x.n + (cur.next - 1) * x.p) / SR;
+          g.gain.setTargetAtTime(0, end, 0.05);
+          cur.done = true;
+          setTimeout(() => { if (this.cur === cur) { this.ended = cur.sid; this.sendState(); } }, Math.max(0, (end - m.currentTime) * 1000 + 300));
+          break;
+        }
+        cur.srcs.push(this.piece(b.main, b.delay + x.a / SR, x.p / SR, passStart, g));   /* no seam file: plain loop */
+      } else {
+        const pad = (x.pad || 0) / SR;                            /* loop file: pad | seam | pad | last block | pad */
+        cur.srcs.push(this.piece(b.loop, b.ldelay + pad, x.ln / SR, passStart, g));                                          // the seam
+        cur.srcs.push(this.piece(b.main, b.delay + (x.a + x.ln) / SR, (x.p - x.lb - x.ln) / SR, passStart + x.ln / SR, g));  // the song
+        cur.srcs.push(this.piece(b.loop, b.ldelay + 3 * pad + x.ln / SR, x.lb / SR, passStart + (x.p - x.lb) / SR, g));      // last block
+      }
+      cur.next++;
+      if (cur.srcs.length > 12) cur.srcs.splice(0, cur.srcs.length - 12);
     }
-    if (this.fading.length) this.fading = this.fading.filter((f) => !f.gone);
+  },
+  setLoop(on) {
+    const was = this.loop; this.loop = on;
+    const cur = this.cur; if (!cur || was === on) return;
+    if (!on) {                                                    /* drop pieces already queued for the next pass */
+      const pass = cur.t0 + (cur.info.x ? (cur.info.x.n + Math.max(0, this.pass(cur)) * cur.info.x.p) / SR : 0);
+      cur.srcs.forEach((s) => { try { s.stop(pass); } catch (e) {} });
+      cur.next = this.pass(cur) + 1; this.schedule();
+    } else this.schedule();
+  },
+  pass(cur) { const t = this.mctx.currentTime - cur.t0, x = cur.x; return t < x.n / SR ? 0 : 1 + Math.floor((t - x.n / SR) / (x.p / SR)); },
+  setMood(mood) {
+    const was = this.mood; this.mood = mood;
+    const cur = this.cur; if (!cur || !cur.info.story || this.variant(cur.info) === cur.v || was === mood) return;
+    const [pos] = this.position();                               /* the story-mood version, from the same place */
+    this.music(cur.sid, 0.3, this.timeline(cur));
+  },
+  timeline(cur) { return Math.max(0, this.mctx.currentTime - cur.t0); },
+  duckNow() {                                                     /* the engine's ducking: -45%, back over 0.83 s */
+    const m = this.mctx, t = m.currentTime, d = this.duckGain.gain;
+    d.cancelScheduledValues(t); d.setValueAtTime(0.55, t); d.linearRampToValueAtTime(1, t + 1 / 1.2);
+  },
+  setEq(b, mid, t) {
+    this.eq = [b, mid, t];
+    const m = this.mctx, on = this.eq.some((v) => Math.abs(v) > 0.05);
+    const old = this.eqNode;
+    // the engine's EQ: one-pole low-passes at 250 Hz and 3 kHz, out = gb*lo + gm*(mid band) + gt*(the rest)
+    if (on && m.createIIRFilter) {
+      const [gb, gm, gt] = this.eq.map((v) => Math.pow(10, v / 20)), sr = m.sampleRate;
+      const a1 = 1 - Math.exp(-2 * Math.PI * 250 / sr), a2 = 1 - Math.exp(-2 * Math.PI * 3000 / sr), p1 = 1 - a1, p2 = 1 - a2;
+      const ff = [(gb - gm) * a1 + (gm - gt) * a2 + gt, -(gb - gm) * a1 * p2 - (gm - gt) * a2 * p1 - gt * (p1 + p2), gt * p1 * p2];
+      this.eqNode = m.createIIRFilter(ff, [1, -(p1 + p2), p1 * p2]);
+      this.eqNode.connect(this.musicBus);
+    } else this.eqNode = null;
+    const to = this.eqNode || this.musicBus;
+    for (const c of [this.cur].filter(Boolean)) { try { c.g.disconnect(); } catch (e) {} c.g.connect(to); }
+    if (old) setTimeout(() => { try { old.disconnect(); } catch (e) {} }, 1500);
   },
   sfx(name, vol, pan, rate) {
     const c = this.ctx, at = this.packIdx && this.packIdx[name];
-    if (!at || this.live > 24) return;                            /* not loaded yet, unknown, or already very busy */
+    if (!at || this.live > 32) return;                            /* not loaded yet, unknown, or already very busy */
+    if (this.duck.has(name) && this.mctx) this.duckNow();
     const src = c.createBufferSource(); src.buffer = this.pack; src.playbackRate.value = rate > 0 ? rate : 1;
-    const g = c.createGain(); g.gain.value = vol * this.vols[0] * this.vols[2];
-    let tail = g;
-    if (pan && c.createStereoPanner) { const p = c.createStereoPanner(); p.pan.value = pan; g.connect(p); tail = p; }
-    src.connect(g); tail.connect(this.sfxBus);
+    // the engine's level (int16 at 30000, x1.1, then its output stage) and pan law (the far side drops by up to 85%)
+    const g = vol * this.vols[2] * this.vols[0] * 1.06, gl = c.createGain(), gr = c.createGain(), mg = c.createChannelMerger(2);
+    gl.gain.value = g * (1 - Math.max(0, pan) * 0.85); gr.gain.value = g * (1 + Math.min(0, pan) * 0.85);
+    src.connect(gl); src.connect(gr); gl.connect(mg, 0, 0); gr.connect(mg, 0, 1); mg.connect(this.sfxBus);
     this.live++; this.played++;
-    src.onended = () => { this.live--; try { tail.disconnect(); } catch (e) {} };
+    src.onended = () => { this.live--; try { mg.disconnect(); } catch (e) {} };
     src.start(0, Math.max(0, at[0] + this.packDelay), at[1] + 0.02);
-  },
-  setEq(b, m, t) {
-    this.eq = [b, m, t];
-    if (!this.eqOn && this.eq.every((v) => !v)) return;            /* flat and never used: music stays on the plain player */
-    const c = this.ctx;
-    if (!this.eqNodes) {
-      const lo = c.createBiquadFilter(), mid = c.createBiquadFilter(), hi = c.createBiquadFilter();
-      lo.type = 'lowshelf'; lo.frequency.value = 250; mid.type = 'peaking'; mid.frequency.value = 1000; mid.Q.value = 0.7; hi.type = 'highshelf'; hi.frequency.value = 3000;
-      lo.connect(mid); mid.connect(hi); hi.connect(this.out); this.eqNodes = [lo, mid, hi]; this.eqOn = true;
-      if (this.cur) this.connectEq(this.cur.el);
-    }
-    this.eqNodes.forEach((f, i) => f.gain.setTargetAtTime(this.eq[i], c.currentTime, 0.03));
   },
   run(json) {
     let ops; try { ops = JSON.parse(json); } catch (e) { return; }
     if (!this.ensure()) return;
+    for (const op of ops) {                                       /* the mood first: a new song may need its story version */
+      if (op[0] === 'o') { this.ops++; this.setMood(op[1]); }
+    }
     for (const op of ops) {
       this.ops++;
       try {
@@ -1750,25 +1833,27 @@ const SoundHost = {
           case 'm': this.music(op[1], op[2]); break;
           case 'v': this.vols = [op[1], op[2], op[3]]; this.applyVolume(); break;
           case 'e': this.setEq(op[1], op[2], op[3]); break;
-          case 'l': this.loop = !!op[1]; break;
+          case 'l': this.setLoop(!!op[1]); break;
           case 'p': this.loadIndex().then(() => {                 /* warm up a song the game expects to play next */
-            if (this.pre.has(op[1]) || !this.songs.get(op[1]) || this.pre.size >= 2) return;
-            const el = new Audio(); el.preload = 'auto'; el.src = this.songs.get(op[1]).a; this.pre.set(op[1], el); this.loadSpec(this.songs.get(op[1]));
+            const info = this.songs.get(op[1]); if (!info || this.cache.size >= 3) return;
+            this.loadSong(info, this.variant(info)).catch(() => {}); this.loadSpec(info);
           }).catch(() => {}); break;
-          case 'r': if (this.ctx.state === 'suspended' && navigator.userActivation && navigator.userActivation.hasBeenActive) this.ctx.resume().catch(() => {}); break;
+          case 'r': for (const x of [this.ctx, this.mctx]) if (x.state === 'suspended' && navigator.userActivation && navigator.userActivation.hasBeenActive) x.resume().catch(() => {}); break;
           case 'x': case 'reset': this.music('', 0.3); this.ended = ''; break;
         }
       } catch (e) { if (++this.errors < 5) console.warn('[sound]', op[0], e); }
     }
   },
-  position() {
+  position() {                                                    /* where in the song we are, in seconds, and its length */
     const cur = this.cur; if (!cur) return [0, 0];
-    return [Math.max(0, Math.min(cur.el.currentTime || 0, cur.le)), cur.le];
+    const x = cur.x, t = this.timeline(cur), first = x.n / SR;
+    const pos = t < first ? t : (x.a + ((t - first) * SR) % x.p) / SR;
+    return [Math.max(0, pos), cur.info.le || first];
   },
   spectrum() {                                                    /* the game's 16 bands, 0-9, from the song's spectrum file */
-    const cur = this.cur; if (!cur || cur.el.paused) return '';
+    const cur = this.cur; if (!cur || !this.mctx || this.mctx.state !== 'running') return '';
     const sp = this.specs.get(cur.sid); if (!sp) return '';
-    const n = sp.bands, rows = sp.d.length / n, i = Math.min(rows - 1, Math.max(0, Math.floor(cur.el.currentTime * sp.fps)));
+    const n = sp.bands, rows = sp.d.length / n, i = Math.min(rows - 1, Math.max(0, Math.floor(this.position()[0] * sp.fps)));
     let s = ''; for (let k = 0; k < 16; k++) { const v = Math.max(sp.d[i * n + Math.min(n - 1, 2 * k)], sp.d[i * n + Math.min(n - 1, 2 * k + 1)]); s += Math.min(9, Math.floor(v / 28)); }
     return s;
   },
@@ -1777,17 +1862,19 @@ const SoundHost = {
     const [pos, dur] = this.position();
     worker.postMessage({ t: 'sndstate', sid: this.cur ? this.cur.sid : '', pos: Math.floor(pos), dur: Math.floor(dur), spec: this.spectrum(), ended: this.ended });
   },
-  pauseAll(hidden) {                                              /* the tab is hidden: everything rests */
-    if (this.cur) { if (hidden) this.cur.el.pause(); else if (!this.cur.done) this.cur.el.play().catch(() => {}); }
+  pauseAll(hidden) {                                              /* the tab is hidden: everything rests, and carries on after */
+    for (const x of [this.ctx, this.mctx]) {
+      if (!x) continue;
+      if (hidden && x.state === 'running') x.suspend().catch(() => {});
+      else if (!hidden && x.state === 'suspended' && navigator.userActivation && navigator.userActivation.hasBeenActive) x.resume().catch(() => {});
+    }
   },
 };
 const AudioHost = SoundHost;                // older name, still used by the sound dialog and tests
 window.__audio = SoundHost;                 // for the diagnostics overlay and automated tests
 document.addEventListener('visibilitychange', () => {
-  const c = AudioHost.ctx; if (!c) return;
+  if (!SoundHost.ctx) return;
   SoundHost.pauseAll(document.hidden);
-  if (document.hidden && c.state === 'running') c.suspend().catch(() => {});
-  else if (!document.hidden && c.state === 'suspended' && navigator.userActivation && navigator.userActivation.hasBeenActive) c.resume().catch(() => {});
 });
 
 // the game rings the terminal bell on impacts when its AUDIO setting is BELL ONLY
@@ -1810,7 +1897,7 @@ function renderSound() {
   if ($('m-sound').hidden) return;
   const kv = $('sound-kv'); kv.textContent = '';
   const st = AudioHost.failed ? ['Unavailable in this browser', 'bad'] : !AudioHost.ctx ? ['Starting with the game', ''] : AudioHost.ctx.state === 'running' ? ['Playing', 'good'] : ['Waiting for a click, tap or key press', 'warn'];
-  [['Status', st[0], st[1]], ['Engine', 'The game’s own music and effects, rendered ahead of time: music through the browser’s media player, effects through Web Audio'], ['Output', AudioHost.ctx ? AudioHost.ctx.sampleRate + ' Hz' : '-']].forEach(([k, v, c]) => {
+  [['Status', st[0], st[1]], ['Engine', 'The game’s own audio engine, rendered ahead of time and played to the sample (music on a large, drop-out-proof buffer)'], ['Output', AudioHost.ctx ? AudioHost.ctx.sampleRate + ' Hz' : '-']].forEach(([k, v, c]) => {
     const a = document.createElement('span'), bb = document.createElement('span'); a.textContent = k; bb.textContent = v; if (c) bb.className = c; kv.append(a, bb);
   });
   $('s-vol').value = Math.round(prefs.vol * 100); $('s-volv').textContent = Math.round(prefs.vol * 100) + '%';
