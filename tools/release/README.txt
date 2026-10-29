@@ -21,6 +21,7 @@ START THE GAME
                  python3 terminaltanks.py
   (On macOS and Linux, ./play.sh does the same and checks your Python version first.
    If it says "permission denied", run: chmod +x play.sh)
+  Keep terminaltanks.py and the tanks folder together: the game is both.
 
 INSTALL PYTHON IF YOU DO NOT HAVE IT
   Windows    https://www.python.org/downloads/  (tick "Add python.exe to PATH"), or the Microsoft Store.

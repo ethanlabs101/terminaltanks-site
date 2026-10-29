@@ -203,7 +203,8 @@ def main() -> int:
         "screens": len(tt.HOME_ORDER), "parts": comps, "accents": len(comp["accent"]), "customMax": tt.CUSTOM_TANK_MAX,
         "unlockables": len(U), "grantable": sum(1 for u in U if u.uid != f"ammo:{blessing}"), "catalog": len(cat), "cheats": len(tt.CHEATS),
         "ticketCoins": tt.TICKET_PRICE[0], "ticketCredits": tt.TICKET_PRICE[1], "martyrCoins": tt.MARTYR_PRICE[0], "martyrCredits": tt.MARTYR_PRICE[1],
-        "customFee": tt.CUSTOM_TANK_FEE, "hoverFee": tt.HOVER_COINS, "saveVersion": tt.SaveData.VERSION, "lines": sum(1 for _ in open(tt.__file__, encoding="utf-8")),
+        "customFee": tt.CUSTOM_TANK_FEE, "hoverFee": tt.HOVER_COINS, "saveVersion": tt.SaveData.VERSION, "lines": sum(sum(1 for _ in open(f, encoding="utf-8"))
+                                                        for f in [tt.__file__] + [m.__file__ for m in getattr(tt, "__package_modules__", [])]),
         "menuTanks": len(official_t), "menuAmmo": len(official_a), "startMaps": len(tt.MAPS), "paints": len(tt.ANIM_PAINTS), "songs": music_count,
         "profiles": tt.PROFILE_MAX, "missions": len(tt.MISSIONS), "levels": len(tt.TOURNAMENT), "bosses": sum(1 for e in cat if e["k"] == "boss"),
     }

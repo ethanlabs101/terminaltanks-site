@@ -437,15 +437,17 @@ async function getFile(base, rel) {
 async function gather(entrySource, base) {
   const files = new Map(), tried = new Set(['terminaltanks']), dec = new TextDecoder();
   const mf = await getFile(base, 'terminaltanks.json');
+  let complete = false;
   if (mf) {
     try {
-      for (const p of (JSON.parse(dec.decode(mf)).files || [])) {
-        if (!SAFE_REL.test(p)) continue;
-        const d = await getFile(base, p);
-        if (d) files.set(p, d); else post('log', { msg: 'manifest file not found: ' + p });
-      }
+      const man = JSON.parse(dec.decode(mf)), list = (man.files || []).filter((p) => SAFE_REL.test(p));
+      const got = await Promise.all(list.map(async (p) => [p, await getFile(base, p)]));   // all at once, not one by one
+      let missing = 0;
+      for (const [p, d] of got) { if (d) files.set(p, d); else { missing++; post('log', { msg: 'manifest file not found: ' + p }); } }
+      complete = !!man.complete && !missing;    // the manifest names every module: no need to follow imports
     } catch (e) { post('log', { msg: 'bad terminaltanks.json: ' + e }); }
   }
+  if (complete) return files;
   let queue = [['terminaltanks.py', entrySource]];
   while (queue.length && files.size < 400) {
     const batch = queue; queue = [];
@@ -876,6 +878,24 @@ def _game_modules():
     return mods
 
 
+def _game_attr(name, default=None):
+    """A name the game defines, wherever it lives: on the entry module (a single-file game) or in one of its package's
+    modules (terminaltanks.py + tanks/). The module that defines it wins over modules that merely import it."""
+    mod = _state.get("mod")
+    if mod is not None and hasattr(mod, name):
+        return getattr(mod, name)
+    found = default
+    for m in _game_modules():
+        obj = getattr(m, name, None)
+        if obj is None:
+            continue
+        if getattr(obj, "__module__", None) == m.__name__:
+            return obj
+        if found is default:
+            found = obj
+    return found
+
+
 def _functions(mods):
     """(owner, name, function) for every function and method the game defines, across all its modules."""
     for mod in mods:
@@ -1020,12 +1040,12 @@ def tt_boot(source, argv):
                     sys.modules.pop(k, None)
                 else:
                     sys.modules[k] = v
-        _state["version"] = str(getattr(mod, "__version__", ""))
         _state["mod"] = mod
+        _state["version"] = str(_game_attr("__version__", ""))
         _state["app"] = None
         _use_page_audio(mod)
         _speedups(mod)
-        app_cls = getattr(mod, "Application", None)
+        app_cls = _game_attr("Application")
         if isinstance(app_cls, type) and "__init__" in vars(app_cls):   # remember the running game so tt_state() can read it
             real_init = app_cls.__init__
 
@@ -1071,7 +1091,7 @@ def _speedups(mod):
     SaveData.home_modes() (which home screens you own) checks every home screen's unlock rule, and each check rebuilds
     the whole reward list; the home screen and the music director ask it about eight times a frame. The answer cannot
     change inside a frame, so it is kept for the rest of the frame, and forgotten whenever the save is written."""
-    sd = getattr(mod, "SaveData", None)
+    sd = _game_attr("SaveData")
     if sd is None or not callable(getattr(sd, "home_modes", None)) or not callable(getattr(sd, "flush", None)):
         return
     real_modes, real_flush, memo = sd.home_modes, sd.flush, {}
@@ -1123,12 +1143,12 @@ def tt_state():
         if app is None or not app.stack:
             return ""
         sc = app.stack[-1]
-        battle = getattr(mod, "BattleScene", None)
+        battle = _game_attr("BattleScene")
         if battle is None or not isinstance(sc, battle) or getattr(app, "transition", None) is not None:
             return type(sc).__name__
         cfg = sc.session.config
         cur = getattr(sc, "current", None)
-        aiming = getattr(sc, "phase", None) is getattr(getattr(mod, "Phase", None), "AIMING", 0) and cur is not None \
+        aiming = getattr(sc, "phase", None) is getattr(_game_attr("Phase"), "AIMING", 0) and cur is not None \
             and sc._control(cur) == "local"
         return "battle:%d:%d:%d:%d" % (1 if cfg.special else 0, 1 if aiming else 0, getattr(cur, "charge", 0) if cur is not None else 0,
                                        getattr(cfg, "special_wait", 2))
@@ -1147,8 +1167,8 @@ _AUDIO = {"q": [], "obj": None}
 
 
 def _use_page_audio(mod):
-    base = getattr(mod, "NullAudio", None)
-    if base is None or not hasattr(mod, "WebAudio"):
+    base = _game_attr("NullAudio")
+    if base is None or _game_attr("WebAudio") is None:
         return
 
     class PageAudio(base):
@@ -1206,7 +1226,9 @@ def _use_page_audio(mod):
             self._music = None
             self._q("x")
 
-    mod.WebAudio = PageAudio
+    for m in [mod] + _game_modules():          # make_audio() looks WebAudio up in its own module
+        if hasattr(m, "WebAudio"):
+            m.WebAudio = PageAudio
 
 
 def tt_audio_take():

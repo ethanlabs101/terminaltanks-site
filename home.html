@@ -20,8 +20,17 @@
   <h2>TANK ARTILLERY, DRAWN IN A TERMINAL</h2>
   <p class="lead">Set your angle, set your power, read the wind, and fire.</p>
   <figure class="clip" id="clip">
-    <img class="cover" src="preview.png" width="1200" height="630" alt="TerminalTanks: a cyan tank on a ridge under a night sky">
+    <img class="cover" src="trailer-poster.jpg" width="1280" height="800" alt="TerminalTanks: boss battles, missions and battlefields from the launch trailer">
+    <video id="vid" muted loop playsinline preload="metadata" poster="trailer-poster.jpg" hidden aria-label="Launch trailer highlights (no sound)">
+      <source src="trailer-loop.webm" type="video/webm">
+      <source src="trailer-loop.mp4" type="video/mp4">
+    </video>
   </figure>
+  <div class="row"><button class="btn" id="watch" type="button">&#9654; Watch the launch trailer (with sound)</button></div>
+  <dialog id="trailer" aria-label="Terminal Tanks launch trailer">
+    <video id="trailer-vid" controls playsinline preload="none" poster="trailer-poster.jpg"><source src="trailer.webm" type="video/webm"><source src="trailer.mp4" type="video/mp4"></video>
+    <div class="row"><button class="btn" id="trailer-close" type="button">Close</button></div>
+  </dialog>
   <p><strong>Read the wind. Shape the battlefield. Make the shot. </strong></p>
   <p>Every turn changes the conditions, and every shell leaves its mark carving through terrain and damaging anything caught in the blast. No install required. Play TerminalTanks in your browser with a keyboard, touchscreen, or gamepad.</p>
   <div class="row">
@@ -97,6 +106,15 @@
 </script>
 <script>
 (function () {
+  const dlg = document.getElementById('trailer'), tv = document.getElementById('trailer-vid');
+  const vidLoop = document.getElementById('vid');
+  document.getElementById('watch').addEventListener('click', () => {
+    if (vidLoop) vidLoop.pause();
+    if (typeof dlg.showModal === 'function') { dlg.showModal(); tv.play().catch(() => {}); } else { location.href = 'trailer.mp4'; }
+  });
+  document.getElementById('trailer-close').addEventListener('click', () => dlg.close());
+  dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+  dlg.addEventListener('close', () => { tv.pause(); if (vidLoop && !matchMedia('(prefers-reduced-motion: reduce)').matches) vidLoop.play().catch(() => {}); });
   const v = document.getElementById('vid'); if (!v) return;
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
   v.addEventListener('loadeddata', () => { v.hidden = false; if (still) v.controls = true; });

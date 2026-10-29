@@ -1,6 +1,6 @@
 # Terminal Tanks — website
 
-The static website for **Terminal Tanks** (desktop game 1.6.0, DS port 1.5.0), served by GitHub Pages.
+The static website for **Terminal Tanks** (desktop game 2.0.0, DS port 1.5.0), served by GitHub Pages.
 Every page is plain HTML that shares `site.css` and `site.js`; there is no build step to serve it.
 
 ## Run it locally
@@ -14,7 +14,7 @@ Jukebox and the video previews need for seeking.
 
 | page | what it is |
 |---|---|
-| play.html | the real `terminaltanks.py` running in the browser (Pyodide in a Web Worker), with sound, the X special button and saves in the browser. Sound plays from files rendered ahead of time: music through the browser's plain media player (`music/`), effects through Web Audio (`audio/sfx.mp3`), analyser bars from `music/spec/`. The game never synthesises audio while you play |
+| play.html | the real game (`terminaltanks.py` and the `tanks/` package) running in the browser (Pyodide in a Web Worker), with sound, the X special button and saves in the browser. Sound plays from files rendered ahead of time: music through the browser's plain media player (`music/`), effects through Web Audio (`audio/sfx.mp3`), analyser bars from `music/spec/`. The game never synthesises audio while you play |
 | catalog.html | every tank, ammo, paint, map, home screen, workshop part, unlockable and boss (`catalog.json`, `shots/`) |
 | workshop.html | build a tank from parts, including animated paints and HOVER (`tank.js` draws tanks exactly like the game) |
 | jukebox.html | all 277 songs, with analyser, EQ and a persistent playbar (`data/music.json`, `music/`). Music plays on the plain media player; the analyser reads `music/spec/`; only a non-flat EQ uses Web Audio |
@@ -22,12 +22,13 @@ Jukebox and the video previews need for seeking.
 | save-forge.html | read, edit and write real save files and backups (`forge.js`) |
 | install.html | desktop download (`downloads/terminaltanks.zip`, `downloads/info.json`) |
 | ds.html | the Nintendo DS port, with real screenshots and the ROM (`downloads/terminaltanks-ds.nds`) |
-| about.html, home.html, links.html | story (including Martyr's Blessing), news (`news.json`), roadmap (`roadmap.json`) |
+| about.html, home.html, links.html | story (including Martyr's Blessing), news (`news.json`), roadmap (`roadmap.json`); the home page plays the launch trailer (`trailer-loop.*` silent loop, `trailer.mp4` with sound) |
 
 ## Updating after a new game version
 
-Put the new game at `terminaltanks.py`, then:
+Put the new game's `terminaltanks.py` and `tanks/` folder in the site root, then:
 
+    python3 tools/release/game_manifest.py      # terminaltanks.json: the package files play.html loads
     python3 tools/export_site_data.py           # catalog.json, data/*.json and the generated block in site.js
     python3 tools/render_catalog.py             # pictures/clips in shots/ for anything new or changed
     python3 tools/render_music.py               # new or changed songs, exactly as the desktop engine plays them (about 1.5 h for all)

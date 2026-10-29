@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Builds downloads/terminaltanks.zip (the desktop download) from the site's terminaltanks.py and writes downloads/info.json.
+"""Builds downloads/terminaltanks.zip (the desktop download) from the site's game (terminaltanks.py and, since 2.0.0, the
+tanks/ package next to it) and writes downloads/info.json.
     python3 tools/release/build_download.py
 The zip is reproducible: fixed timestamps and order, so rebuilding an unchanged game gives an identical file."""
 import hashlib, json, re, sys, zipfile
@@ -7,10 +8,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 HERE = Path(__file__).resolve().parent
 game = (ROOT / "terminaltanks.py").read_bytes()
-version = re.search(rb'^__version__\s*=\s*["\']([^"\']+)', game, re.M).group(1).decode()
+pkg = sorted(p for p in (ROOT / "tanks").rglob("*.py")) if (ROOT / "tanks").is_dir() else []
+version_src = (ROOT / "tanks" / "__init__.py").read_bytes() if pkg else game
+version = re.search(rb'^__version__\s*=\s*["\']([^"\']+)', version_src, re.M).group(1).decode()
 out = ROOT / "downloads" / "terminaltanks.zip"
 files = [("README.txt", (HERE / "README.txt").read_text().replace("{VERSION}", version).encode(), 0o644),
          ("terminaltanks.py", game, 0o644), ("play.sh", (HERE / "play.sh").read_bytes(), 0o755), ("play.bat", (HERE / "play.bat").read_bytes(), 0o644)]
+files += [(p.relative_to(ROOT).as_posix(), p.read_bytes(), 0o644) for p in pkg]
 with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as z:
     for name, data, mode in files:
         zi = zipfile.ZipInfo("TerminalTanks/" + name, date_time=(2026, 1, 1, 0, 0, 0))

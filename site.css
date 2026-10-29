@@ -124,6 +124,10 @@ input[type=number]:focus { border-color:var(--primary); outline:none; }
 #peek img { display:block; width:320px; max-width:60vw; height:auto; }
 dialog#lb { border:3px double var(--line); background:var(--panel); color:var(--text); padding:0; width:min(96vw,980px); max-height:94vh; font:inherit; overflow:auto; }
 dialog#lb::backdrop { background:rgba(2,5,10,.82); }
+dialog#trailer { border:3px double var(--line); background:#000; color:var(--text); padding:0; width:min(96vw,1100px); max-height:94vh; font:inherit; }
+dialog#trailer::backdrop { background:rgba(2,5,10,.88); }
+dialog#trailer video { display:block; width:100%; height:auto; max-height:84vh; background:#000; }
+dialog#trailer .row { justify-content:flex-end; padding:6px; margin:0; }
 #lb header { display:flex; align-items:center; gap:10px; padding:8px 12px; border-bottom:1px solid var(--line-dim); flex-wrap:wrap; }
 #lb header b { color:var(--primary); letter-spacing:.14em; } #lb header .sp { flex:1; }
 #lb img { display:block; width:100%; height:auto; background:#000; }

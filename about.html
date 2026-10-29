@@ -182,14 +182,14 @@
 <span>Multiplayer</span><span>LAN play over TCP, with UDP discovery so hosts appear on their own</span>
 <span>Fairness</span><span>The simulation is seeded and deterministic, and visual effects use their own random generator so they cannot change an outcome</span>
 <span>Saves</span><span>One small JSON file, versioned, with migration for older saves and room for fields from newer ones</span>
-<span>In the browser</span><span>The same game file on the Pyodide Python runtime, drawn by a hand-written canvas renderer, with its sound played through Web Audio</span>
+<span>In the browser</span><span>The same game code on the Pyodide Python runtime, drawn by a hand-written canvas renderer, with its sound played through Web Audio</span>
 <span>Sound</span><span>Every song and effect synthesized by the game itself, in pure Python</span>
 <span>On the DS</span><span>A native homebrew port for the Nintendo DS (<a href="ds.html">Terminal Tanks DS</a>)</span>
 </div>
 <p>The deterministic design is what makes LAN play work: both machines run the same simulation from the same starting setup, so a shot only needs to send its angle and power. It also keeps matches reproducible.</p>
 
 <h3>HOW THE BROWSER VERSION WORKS</h3>
-<p>The browser version runs the same <code>terminaltanks.py</code> as the terminal, but not literally untouched. The page supplies stand-ins for the operating-system terminal modules the game imports and paces the game one frame at a time. Scenes, physics, AI and saves are the same code in both places.</p>
+<p>The browser version runs the same game as the terminal (<code>terminaltanks.py</code> and its <code>tanks</code> package), but not literally untouched. The page supplies stand-ins for the operating-system terminal modules the game imports and paces the game one frame at a time. Scenes, physics, AI and saves are the same code in both places.</p>
 <p>The page draws the game with its own canvas renderer, with no terminal library and no other third-party code. The one outside piece is Pyodide, the Python runtime itself, which downloads on your first visit and is cached after that. The game and its renderer still follow the project's rule of no dependencies of their own.</p>
 <p>Saves have changed shape over time, and the game still reads older versions and converts them. Custom tanks are stored by stable part names rather than positions in a list, so a tank you build today still loads after new parts are added, and a part that is ever removed falls back to a safe default instead of breaking the save.</p>
 

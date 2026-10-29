@@ -1,7 +1,18 @@
 {
-  "version": "1.6.0",
+  "version": "2.0.0",
   "next": [],
   "notes": [
+    {
+      "version": "2.0.0",
+      "items": [
+        "The Martyr is a real final boss now: 340, 525 and 550 health across his three phases, and you get 200 health for the last one. Lose a phase and the summary points you to special ammo and Armageddon",
+        "UFO hunts get tougher as you go, from 8 to 24 health; co-op saucers have 24, 30, 40 and 45, and the Mothership has 30",
+        "The full-size TERMINAL TANKS logo shows on the main menu on most screens, and the game now colours the whole window, edges included",
+        "Mission 49 is BROTHERS IN ARMS, rock-paper-scissors says YOU WIN!, and the shop's item panel is cleaner",
+        "Under the hood the game is now a proper Python package, with a player's guide, developer docs and automated tests. It plays exactly as before, and every save carries over"
+      ],
+      "text": "What changed in version 2.0.0, the release this site is built from. Version 1.5.0 is the one ported to the Nintendo DS."
+    },
     {
       "version": "1.6.0",
       "items": [
@@ -14,7 +25,8 @@
         "Up to three profiles, story whispers, a tutorial and an advanced practice range, and the Workshop HOVER upgrade",
         "122 tanks and 121 ammo types in the menus, 147 maps and 100 home screens in all. Save format 5: existing saves carry over"
       ],
-      "text": "What the game holds as of version 1.6.0, the release this site is built from. Version 1.5.0 is the one ported to the Nintendo DS."
+      "text": "What version 1.6.0 added. Version 1.5.0 is the one ported to the Nintendo DS.",
+      "title": "The last chapter"
     },
     {
       "title": "The big expansion",
