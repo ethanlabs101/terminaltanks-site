@@ -24,6 +24,11 @@ class Refs(HTMLParser):
             if a.get(k): self.refs.append(a[k])
 
 
+# 0. GitHub Pages runs Jekyll unless .nojekyll exists, and Jekyll drops every file whose name starts with "_". That would
+#    remove the game's tanks/**/__init__.py files and break play.html on the live site even though it works locally.
+if not (ROOT / ".nojekyll").exists() and any(p.name.startswith("_") for p in ROOT.rglob("*") if ".git" not in p.parts):
+    bad.append(".nojekyll is missing: GitHub Pages would leave out every file starting with '_' (tanks/__init__.py)")
+
 # 1. static: every local href/src points at a file that exists (and #anchors on the same page exist)
 for page in PAGES:
     p = Refs(); p.feed((ROOT / page).read_text(encoding="utf-8"))

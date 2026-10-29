@@ -1927,10 +1927,8 @@ function renderSound() {
 }
 
 // ---- worker ----------------------------------------------------------------------------------------------
-let gameTag = '';
 async function fetchGame() {
   const r = await fetch(CFG.game, { cache: 'no-cache' });
-  gameTag = r.headers.get('etag') || r.headers.get('last-modified') || '';
   if (!r.ok) throw new Error(`could not load ${CFG.game} (HTTP ${r.status}). Put terminaltanks.py next to index.html.`);
   const text = await r.text();
   gameVersion = (text.match(/^__version__\s*=\s*["']([^"']+)["']/m) || [])[1] || '';
@@ -1957,7 +1955,8 @@ function onWorker(e) {
     case 'stats': lastStats = m; renderDebug(); break;
     case 'running':
       gameMode = m.mode || ''; running = true; stage('ai', 'ok'); setChip('ONLINE', 'ok');
-      els.ver.textContent = (m.version || gameVersion) ? 'GAME v' + (m.version || gameVersion) : '';
+      runningVersion = m.version || gameVersion || runningVersion;
+      els.ver.textContent = runningVersion ? 'GAME v' + runningVersion : '';
       els.ended.hidden = true; els.ended.classList.add('fade');
       els.loader.classList.add('fade'); setTimeout(() => { els.loader.hidden = true; }, 520);
       term.focus(); break;
@@ -2011,14 +2010,25 @@ async function restartGame() {
 function firstFrameReset() { running = false; }
 
 // ---- "a new version of the game is available" notice (the game file is swapped on GitHub, not in this page) -----
-let updateShown = false;
+// Compares version numbers, not file headers: a CDN can answer the same file with different ETag / Last-Modified values
+// (compressed or not, another edge server), which used to raise this notice when nothing had changed.
+let updateShown = false, runningVersion = '';
+const VERSION_RE = /^__version__\s*=\s*["']([^"']+)["']/m;
+async function latestVersion() {
+  for (const url of [GAME_BASE + 'tanks/__init__.py', CFG.game]) {          // a package game keeps its version in tanks/
+    try {
+      const r = await fetch(url, { cache: 'no-cache' });
+      if (!r.ok) continue;
+      const v = ((await r.text()).match(VERSION_RE) || [])[1];
+      if (v) return v;
+    } catch (e) { /* offline: try the next one */ }
+  }
+  return '';
+}
 async function checkForUpdate() {
-  if (updateShown || !gameTag) return;
-  try {
-    const r = await fetch(CFG.game, { method: 'HEAD', cache: 'no-cache' });
-    const tag = r.headers.get('etag') || r.headers.get('last-modified') || '';
-    if (tag && tag !== gameTag) { updateShown = true; $('b-restart').classList.add('hot'); toast('A new version of the game is available - press Restart to load it', 9000); }
-  } catch (e) { /* offline: ignore */ }
+  if (updateShown || !runningVersion) return;
+  const v = await latestVersion();
+  if (v && v !== runningVersion) { updateShown = true; $('b-restart').classList.add('hot'); toast('Version ' + v + ' of the game is available - press Restart to load it', 9000); }
 }
 setInterval(checkForUpdate, 4 * 60 * 1000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) checkForUpdate(); });
