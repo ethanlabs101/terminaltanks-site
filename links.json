@@ -8,6 +8,12 @@
     },
     {
       "group": "Get the game",
+      "name": "Steam fund (Cash App)",
+      "text": "Tip toward the one-time $100 fee to put Terminal Tanks on Steam.",
+      "url": "https://cash.app/$CPMmoneyman"
+    },
+    {
+      "group": "Get the game",
       "name": "itch.io",
       "text": "Play in the browser or download, and tip toward the Steam release.",
       "url": "https://ethanlabs101.itch.io/terminal-tanks"

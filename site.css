@@ -323,3 +323,9 @@ figure.blessing figcaption { padding:6px 10px; font-size:11px; color:var(--muted
 @media (max-width:760px) { .btn.big { white-space:normal; max-width:100%; text-align:center; } }
 
 .eq-note { font-size:11px; margin:6px 0 0; }
+
+/* home: Steam fund */
+.fund h2 { margin-top:0; }
+.fund-bar { height:14px; border:1px solid var(--line); background:var(--bg); margin:12px 0 6px; overflow:hidden; }
+.fund-bar > i { display:block; height:100%; background:repeating-linear-gradient(90deg, var(--amber) 0 10px, #e09a20 10px 12px); box-shadow:0 0 12px rgba(255,184,64,.45); transition:width .6s; }
+.fund-num { margin:0 0 10px; }

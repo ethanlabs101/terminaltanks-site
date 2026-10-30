@@ -39,6 +39,14 @@
     <a class="btn big" href="https://ethanlabs101.itch.io/terminal-tanks" target="_blank" rel="noopener">Get it on itch.io</a>
   </div>
 
+  <section class="card fund" id="fund" aria-labelledby="fund-h">
+    <h2 id="fund-h">STEAM FUND</h2>
+    <p>Terminal Tanks is free and always will be. Putting it on Steam costs a one-time <b>$100</b> fee. If you enjoy the game, a tip of any size helps get it there.</p>
+    <div class="fund-bar" role="progressbar" aria-label="Raised toward the $100 Steam fee" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i style="width:0%"></i></div>
+    <p class="fund-num"><b id="fund-raised">$0</b> <span class="muted">of</span> <b id="fund-goal">$100</b> <span class="muted">raised</span></p>
+    <div class="row"><a class="btn big hot" id="fund-link" href="https://cash.app/$CPMmoneyman" target="_blank" rel="noopener">Tip on Cash App ($CPMmoneyman)</a></div>
+  </section>
+
   <section id="shots">
     <h2>IN THE FIELD</h2>
     <div class="gallery">
@@ -87,6 +95,18 @@
   <p><a href="about.html">About</a> covers the story and how the game was built. <a href="links.html">Links</a> lists where to find the game and its developer, and <a href="coming-soon.html">Coming soon</a> shows what's next.</p>
 </main>
 <script src="site.js"></script>
+<script>
+fetch('fund.json', { cache: 'no-cache' }).then((r) => r.ok ? r.json() : null).then((f) => {
+  if (!f || !(f.goal > 0)) return;
+  const raised = Math.max(0, +f.raised || 0), pct = Math.min(100, Math.round(raised / f.goal * 100));
+  const usd = (n) => '$' + n.toLocaleString(undefined, { maximumFractionDigits: 2 });
+  document.getElementById('fund-raised').textContent = usd(raised);
+  document.getElementById('fund-goal').textContent = usd(f.goal);
+  const bar = document.querySelector('#fund .fund-bar');
+  bar.setAttribute('aria-valuenow', pct); bar.firstElementChild.style.width = pct + '%';
+  if (raised >= f.goal) document.getElementById('fund-h').textContent = 'STEAM FUND: GOAL REACHED, THANK YOU!';
+}).catch(() => {});
+</script>
 <script>
 (function () {
   const N = TT.counts, f = (n) => n.toLocaleString();

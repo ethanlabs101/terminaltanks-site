@@ -1,0 +1,7 @@
+{
+  "_how": "Update 'raised' (in US dollars) whenever money comes in. The home page reads this file.",
+  "goal": 100,
+  "raised": 0,
+  "url": "https://cash.app/$CPMmoneyman",
+  "label": "Cash App $CPMmoneyman"
+}
