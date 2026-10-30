@@ -2,6 +2,13 @@
  "posts": [
   {
    "date": "2026-10-29",
+   "title": "Terminal Tanks is on itch.io and YouTube",
+   "text": "Terminal Tanks now has a home on itch.io. You can play the full game right on the page, download the desktop version, and leave a tip. Every tip goes toward the one-time $100 fee to put the game on Steam.\n\nBoth trailers are on YouTube too: the 79-second launch trailer and the 3½-minute story trailer, which walks through the lore and every mode.\n\nVersion 2.0.1 adds both to the game's LINKS screen. Nothing else changes, and your saves carry over as they are.",
+   "link": "https://ethanlabs101.itch.io/terminal-tanks",
+   "linkText": "Terminal Tanks on itch.io"
+  },
+  {
+   "date": "2026-10-29",
    "title": "Terminal Tanks 2.0 is out, with a launch trailer",
    "text": "Version 2.0.0 is here, and the browser game, the download and every page of this site are built from it. The Martyr is now a true final boss, the UFO hunts ramp up properly, and the main menu shows the full TERMINAL TANKS logo on most screens. Your saves carry over as they are.\n\nUnder the hood the game has become a proper Python package with a player's guide and docs for anyone who wants to add tanks, ammo or maps of their own. It plays exactly as before.\n\nThere is also a launch trailer at the top of this page: a real session from launch to the first win, then everything that comes after.",
    "link": "play.html",

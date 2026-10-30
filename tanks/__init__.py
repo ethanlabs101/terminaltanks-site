@@ -15,6 +15,6 @@ The game lives in this package; run it with `python3 terminaltanks.py` from the 
 from __future__ import annotations
 
 
-__version__ = "2.0.0"
+__version__ = "2.0.1"
 CREDIT_NAME = "ethanlabs101"
 CREDIT_URL = "github.com/ethanlabs101"

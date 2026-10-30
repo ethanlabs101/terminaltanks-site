@@ -1516,6 +1516,9 @@ window.CanvasTerm = CanvasTerm;
 const CFG = {
   pyodide: ['https://cdn.jsdelivr.net/pyodide/v0.26.4/full/', 'https://pyodide-cdn2.iodide.io/v0.26.4/full/'],
   game: (() => { const g = new URLSearchParams(location.search).get('game'); return g && /^(?!\/)(?!.*(^|\/)\.\.(\/|$))[\w.\/-]+\.py$/.test(g) ? g : 'terminaltanks.py'; })(),   // ?game=old/terminaltanks.py picks another copy in this repo
+  // where the pre-rendered songs live: this site, unless the page says otherwise (the itch.io build streams them from the
+  // site with <meta name="tt-music-base" content="https://.../">, because itch.io allows 1,000 files per game)
+  music: (document.querySelector('meta[name="tt-music-base"]') || {}).content || '',
   targetCols: 110, targetRows: 30,
   minCols: 96, minRows: 28, maxCols: 150, maxRows: 44,      // the game is tuned for roughly this range
   font: '"JetBrains Mono","Cascadia Mono","Fira Code","DejaVu Sans Mono","SF Mono",Menlo,Consolas,"Liberation Mono",monospace',
@@ -1705,7 +1708,7 @@ const SoundHost = {
     if (this.specs.has(info.id)) return;
     this.specs.set(info.id, null);
     while (this.specs.size > 4) this.specs.delete(this.specs.keys().next().value);
-    fetch(info.a.replace('music/', 'music/spec/').replace(/\.mp3$/, '.bin')).then((r) => (r.ok ? r.arrayBuffer() : null)).then((b) => {
+    fetch(CFG.music + info.a.replace('music/', 'music/spec/').replace(/\.mp3$/, '.bin')).then((r) => (r.ok ? r.arrayBuffer() : null)).then((b) => {
       if (!b) return; const u = new Uint8Array(b);
       if (u[0] === 84 && u[1] === 84 && u[2] === 83) this.specs.set(info.id, { fps: u[4], bands: u[5], d: u.subarray(6) });
     }).catch(() => {});
@@ -1714,7 +1717,7 @@ const SoundHost = {
   loadSong(info, v) {                                             /* both files of a song, decoded: { main, loop, delay } */
     const key = info.id + ':' + v;
     if (this.cache.has(key)) { const p = this.cache.get(key); this.cache.delete(key); this.cache.set(key, p); return p; }
-    const base = info.a.replace(/^music\//, ''), dir = v ? 'music/story/' : 'music/';
+    const base = info.a.replace(/^music\//, ''), dir = CFG.music + (v ? 'music/story/' : 'music/');
     const p = Promise.all([this.fetchBuf(dir + base), this.fetchBuf(dir + 'loop/' + base)])
       .then(([a, b]) => Promise.all([this.decode(this.mctx, a), this.decode(this.mctx, b)]))
       .then(([main, loop]) => {

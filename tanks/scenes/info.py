@@ -74,12 +74,13 @@ class HowToScene(BackdropScene):
 
 class LinksScene(BackdropScene):
     """Where to find the source, the website and the other storefronts."""
-    LINKS = (("SOURCE CODE", "github.com/ethanlabs101/TerminalTanks", True),
+    LINKS = (("WEBSITE", "ethanlabs101.github.io/terminaltanks-site", True),
+             ("ITCH.IO", "ethanlabs101.itch.io/terminal-tanks", True),
+             ("TRAILER", "youtu.be/fp_Ca-Zxc98", True),
+             ("SOURCE CODE", "github.com/ethanlabs101/TerminalTanks", True),
              ("WEBSITE REPO", "github.com/ethanlabs101/terminaltanks-site", True),
-             ("WEBSITE", "ethanlabs101.github.io/terminaltanks-site", True),
              ("DS PORT", "github.com/ethanlabs101/TerminalTanks-DS", True),
              ("ALL PROJECTS", "github.com/ethanlabs101", True),
-             ("ITCH.IO", "COMING SOON", False),
              ("STEAM", "COMING SOON", False))
 
     def __init__(self, app) -> None:
@@ -116,7 +117,7 @@ class LinksScene(BackdropScene):
 
     def draw(self, screen: Screen) -> None:
         super().draw(screen)
-        w, h = 72, 23
+        w, h = 72, 25
         x, y = panel(screen, w, h, "TERMINAL TANKS  ·  FIND US")
         screen.center(y + 2, "Free, open source and built by one developer.", Palette.TEXT, Palette.PANEL, x, w)
         screen.center(y + 3, "Play it, read it, fork it, share it.", Palette.MUTED, Palette.PANEL, x, w)
@@ -126,6 +127,6 @@ class LinksScene(BackdropScene):
             screen.fill(x + 2, ry, w - 4, 1, bg)
             screen.text(x + 4, ry, lab, Palette.WHITE if sel else Palette.MUTED, bg)
             screen.text(x + 20, ry, url, (GOLD if sel else Palette.PRIMARY) if live else Palette.AMBER, bg)
-        screen.center(y + 20, self.msg if self.msg_t > 0 else "More games from ethanlabs101 are on the way.",
+        screen.center(y + 22, self.msg if self.msg_t > 0 else "More games from ethanlabs101 are on the way.",
                       Palette.OK if self.msg_t > 0 and "OPENED" in self.msg else (Palette.AMBER if self.msg_t > 0 else Palette.MUTED), Palette.PANEL, x, w)
-        draw_keycaps(screen, x + 14, y + 21, (("W/S", "SELECT"), ("ENTER", "OPEN"), ("ESC", "BACK")), Palette.PANEL)
+        draw_keycaps(screen, x + 14, y + 23, (("W/S", "SELECT"), ("ENTER", "OPEN"), ("ESC", "BACK")), Palette.PANEL)

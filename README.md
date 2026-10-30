@@ -35,6 +35,7 @@ Put the new game's `terminaltanks.py` and `tanks/` folder in the site root, then
     python3 tools/render_sfx.py                 # every sound effect into audio/sfx.mp3 + audio/sfx.json (about 3 minutes)
     python3 tools/render_spectrum.py            # each song's analyser readings, music/spec/*.bin (after render_music.py)
     python3 tools/release/build_download.py     # downloads/terminaltanks.zip + downloads/info.json (reproducible)
+    python3 tools/release/build_itch.py         # downloads/terminaltanks-itch.zip: the browser game for itch.io (not committed)
     python3 tools/export_site_data.py --check   # fails if the generated files are out of date
 
 All of these read the game itself (`tools/ttgame.py` loads it without sound), so names, prices, stats and
@@ -68,12 +69,20 @@ With the server running on port 8766 and Playwright installed:
     python3 tools/tests/jukebox_test.py
     python3 tools/tests/catalog_test.py
     python3 tools/tests/workshop_test.py
+    python3 tools/release/build_itch.py --music-base http://127.0.0.1:8791/ && python3 tools/tests/itch_build.py   # the itch.io build in an iframe, songs cross-origin (rebuild without --music-base before uploading)
     python3 tools/tests/site_check.py           # every page: links/files exist, no script errors, no sideways scroll at 375 px
     python3 tools/tests/perf_play.py            # the browser game's frame time with a 4x slower CPU (should stay near 30 fps)
     python3 tools/tests/perf_page.py jukebox.html --play   # how busy a page keeps the browser while it plays
     python3 tools/tests/perf_main.py            # how busy play.html keeps the page on the home screen
     python3 tools/tests/music_exact.py SONG     # the page's music vs the game engine, sample for sample, through three loops
 
+
+## itch.io
+
+The itch.io page runs the same browser game: upload `downloads/terminaltanks-itch.zip` as an HTML5 file ("This file will be
+played in the browser"). itch.io allows 1,000 files per game, so the zip holds the page, the game and the effects, and
+the songs stream from this site (GitHub Pages sends `Access-Control-Allow-Origin: *`, which that needs). Embed
+settings that fit: click to launch in fullscreen, or embed at 1280 x 800 with the fullscreen button and mobile friendly on.
 
 ## Deploy
 

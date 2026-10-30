@@ -9,8 +9,8 @@
     {
       "group": "Get the game",
       "name": "itch.io",
-      "text": "Download TerminalTanks from itch.io.",
-      "url": ""
+      "text": "Play in the browser or download, and tip toward the Steam release.",
+      "url": "https://ethanlabs101.itch.io/terminal-tanks"
     },
     {
       "group": "Get the game",
@@ -39,8 +39,8 @@
     {
       "group": "Follow along",
       "name": "YouTube",
-      "text": "Gameplay videos and development updates.",
-      "url": ""
+      "text": "The launch trailer, the story trailer and more videos to come.",
+      "url": "https://youtu.be/fp_Ca-Zxc98"
     },
     {
       "group": "Follow along",

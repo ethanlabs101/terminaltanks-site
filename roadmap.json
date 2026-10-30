@@ -1,7 +1,14 @@
 {
-  "version": "2.0.0",
+  "version": "2.0.1",
   "next": [],
   "notes": [
+    {
+      "version": "2.0.1",
+      "items": [
+        "The LINKS screen lists the game's itch.io page and the launch trailer, with the website and itch.io at the top"
+      ],
+      "text": "What changed in version 2.0.1, the release this site is built from. Version 1.5.0 is the one ported to the Nintendo DS."
+    },
     {
       "version": "2.0.0",
       "items": [
@@ -11,7 +18,7 @@
         "Mission 49 is BROTHERS IN ARMS, rock-paper-scissors says YOU WIN!, and the shop's item panel is cleaner",
         "Under the hood the game is now a proper Python package, with a player's guide, developer docs and automated tests. It plays exactly as before, and every save carries over"
       ],
-      "text": "What changed in version 2.0.0, the release this site is built from. Version 1.5.0 is the one ported to the Nintendo DS."
+      "text": "What changed in version 2.0.0."
     },
     {
       "version": "1.6.0",
