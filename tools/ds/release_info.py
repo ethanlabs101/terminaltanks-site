@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
 """Checks the DS release and writes downloads/ds-info.json for the DS page.
-    python3 tools/ds/release_info.py [downloads/terminaltanks-ds.nds]
+    python3 tools/ds/release_info.py ROM.nds [--url DOWNLOAD_URL] [--version X.Y.Z]
+The ROM itself can live elsewhere (since 2.0 it is ~240 MB with the music, too big for GitHub Pages): --url is where
+the page sends people to download it, normally the GitHub release asset.
 Verifies the ROM header checksum (the CRC-16 every DS checks before it boots a cartridge image) and reads the title,
 version and icon text from the banner, so the page never states anything the file does not."""
 import hashlib, json, struct, sys
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
-rom = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "downloads" / "terminaltanks-ds.nds"
+args = sys.argv[1:]
+opt = {k: args[i + 1] for i, k in enumerate(args) if k in ("--url", "--version") and i + 1 < len(args)}
+pos = [a for i, a in enumerate(args) if not a.startswith("--") and (i == 0 or args[i - 1] not in ("--url", "--version"))]
+rom = Path(pos[0]) if pos else ROOT / "downloads" / "terminaltanks-ds.nds"
 d = rom.read_bytes()
 
 
@@ -36,6 +41,11 @@ info = {
                                        ("DSWiFi for DS-to-DS wireless", b"wifi_arm9")) if needle in d],
     "save_folder": "/data/TerminalTanks/" if b"/data/TerminalTanks" in d else "",
 }
+if "--url" in opt:
+    info["file"] = rom.name
+    info["url"] = opt["--url"]
+if "--version" in opt:
+    info["version"] = opt["--version"]
 out = ROOT / "downloads" / "ds-info.json"
 out.write_text(json.dumps(info, indent=1) + "\n")
 print(json.dumps(info, indent=1))

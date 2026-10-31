@@ -2,6 +2,13 @@
  "posts": [
   {
    "date": "2026-10-30",
+   "title": "Terminal Tanks DS 2.0.1",
+   "text": "The Nintendo DS version has caught up with the PC game. It now has all of the 2.0 content, the full soundtrack and sound effects, a Jukebox, and saves that carry over from the old DS version.\n\nLocal wireless play is sturdier too: pausing no longer drops the other player, and if the signal cuts out the match waits and reconnects on its own.\n\nThe ROM is about 230 MB because of the music. Copy it to your flashcart and play.",
+   "link": "ds.html",
+   "linkText": "Get Terminal Tanks DS"
+  },
+  {
+   "date": "2026-10-30",
    "title": "Help put Terminal Tanks on Steam",
    "text": "Terminal Tanks is free and always will be. Putting it on Steam costs a one-time $100 fee, so there is now a Steam fund. Every tip goes straight toward that fee, and the bar on this page shows how close it is.\n\nTips go through Cash App ($CPMmoneyman). Thank you to everyone who plays, shares or chips in.",
    "link": "https://cash.app/$CPMmoneyman",

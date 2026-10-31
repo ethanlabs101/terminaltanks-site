@@ -1,21 +1,21 @@
 {
- "file": "downloads/terminaltanks-ds.nds",
- "bytes": 851968,
- "sha256": "856a94b7d078956335df50af1c04ea4fafebd313d7fa9404a56ed163d0ce3fab",
- "md5": "bf2d77003d69d5a43023ad890478647c",
+ "file": "TerminalTanksDS-v2.0.1.nds",
+ "bytes": 241095680,
+ "sha256": "9496ad22bcdda3608612279ef58bf77e6cd3749774ea549c89b6683cd860e50b",
+ "md5": "b00b45a21510d8c54356307ba9a3aa69",
  "title": "Terminal Tanks DS",
- "version": "1.5.0",
+ "version": "2.0.1",
  "banner": [
   "Terminal Tanks DS",
-  "v1.5.0 port",
+  "v2.0 port",
   "ethanlabs101"
  ],
  "header": {
   "title": "HOMEBREW",
   "code": "####",
   "unit": "Nintendo DS and DSi",
-  "crc16": "B4B7",
-  "arm9_bytes": 759936,
+  "crc16": "5F28",
+  "arm9_bytes": 982160,
   "arm7_bytes": 40248
  },
  "built_with": [
@@ -23,5 +23,6 @@
   "NitroFS for game data",
   "DSWiFi for DS-to-DS wireless"
  ],
- "save_folder": "/data/TerminalTanks/"
+ "save_folder": "/data/TerminalTanks/",
+ "url": "https://github.com/ethanlabs101/TerminalTanks-DS/releases/download/v2.0.1/TerminalTanksDS-v2.0.1.nds"
 }
