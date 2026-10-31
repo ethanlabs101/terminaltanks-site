@@ -96,3 +96,4 @@ that runs in your terminal and your browser.
 - Game source code: [github.com/ethanlabs101/TerminalTanks](https://github.com/ethanlabs101/TerminalTanks)
 - Nintendo DS version: [github.com/ethanlabs101/TerminalTanks-DS](https://github.com/ethanlabs101/TerminalTanks-DS)
 - itch.io: [ethanlabs101.itch.io/terminal-tanks](https://ethanlabs101.itch.io/terminal-tanks)
+- YouTube: [https://www.youtube.com/@ethanlabs101](https://www.youtube.com/@ethanlabs101)
