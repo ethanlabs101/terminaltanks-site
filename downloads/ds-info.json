@@ -13,7 +13,7 @@
  "header": {
   "title": "HOMEBREW",
   "code": "####",
-  "unit": "Nintendo DS and DSi",
+  "unit": "Nintendo DS, DSi and 3DS",
   "crc16": "5F28",
   "arm9_bytes": 982160,
   "arm7_bytes": 40248
