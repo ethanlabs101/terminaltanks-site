@@ -3,6 +3,8 @@
 The static website for **Terminal Tanks** (desktop game 2.0.0, DS port 1.5.0), served by GitHub Pages.
 Every page is plain HTML that shares `site.css` and `site.js`; there is no build step to serve it.
 
+***The website is currently hosted off GitHub Pages. Check it out [here](https://ethanlabs101.github.io/terminaltanks-site)***
+
 ## Run it locally
 
     python3 tools/serve.py 8766          # then open http://127.0.0.1:8766/home.html
