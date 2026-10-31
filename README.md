@@ -19,7 +19,13 @@ that runs in your terminal and your browser.
 <details>
 <summary>View Screenshots</summary>
 
+<details>
+<summary>Home-1</summary>
+  
 ![Home-1](https://github.com/ethanlabs101/terminaltanks-site/blob/main/Media/screenshot_016.png)
+
+</details>
+
 ![Home-2](https://github.com/ethanlabs101/terminaltanks-site/blob/main/Media/screenshot_017.png)
 ![Catalog](https://github.com/ethanlabs101/terminaltanks-site/blob/main/Media/screenshot_018.png)
 ![Workshop](https://github.com/ethanlabs101/terminaltanks-site/blob/main/Media/screenshot_019.png)
