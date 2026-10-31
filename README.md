@@ -26,15 +26,68 @@ that runs in your terminal and your browser.
 
 </details>
 
+<details>
+<summary>Home-2</summary>
+  
 ![Home-2](https://github.com/ethanlabs101/terminaltanks-site/blob/main/Media/screenshot_017.png)
+
+</details>
+
+<details>
+<summary>Catalog</summary>
+  
 ![Catalog](https://github.com/ethanlabs101/terminaltanks-site/blob/main/Media/screenshot_018.png)
+
+</details>
+
+<details>
+<summary>Workshop</summary>
+  
 ![Workshop](https://github.com/ethanlabs101/terminaltanks-site/blob/main/Media/screenshot_019.png)
+
+</details>
+
+<details>
+<summary>Jukebox</summary>
+  
 ![Jukebox](https://github.com/ethanlabs101/terminaltanks-site/blob/main/Media/screenshot_020.png)
+
+</details>
+
+<details>
+<summary>Cheats</summary>
+  
 ![Cheats](https://github.com/ethanlabs101/terminaltanks-site/blob/main/Media/screenshot_021.png)
+
+</details>
+
+<details>
+<summary>Save Forge</summary>
+  
 ![Save Forge](https://github.com/ethanlabs101/terminaltanks-site/blob/main/Media/screenshot_022.png)
+
+</details>
+
+<details>
+<summary>DS</summary>
+  
 ![DS](https://github.com/ethanlabs101/terminaltanks-site/blob/main/Media/screenshot_023.png)
+
+</details>
+
+<details>
+<summary>Play-1</summary>
+  
 ![Play-1](https://github.com/ethanlabs101/terminaltanks-site/blob/main/Media/screenshot_024.png)
+
+</details>
+
+<details>
+<summary>Play-2</summary>
+  
 ![Play-2](https://github.com/ethanlabs101/terminaltanks-site/blob/main/Media/screenshot_025.png)
+
+</details>
 
 </details>
 
