@@ -16,6 +16,9 @@ that runs in your terminal and your browser.
 
 ## Screenshots
 
+<details>
+<summary>View Screenshots</summary>
+
 ![Home-1](https://github.com/ethanlabs101/terminaltanks-site/blob/main/Media/screenshot_016.png)
 ![Home-2](https://github.com/ethanlabs101/terminaltanks-site/blob/main/Media/screenshot_017.png)
 ![Catalog](https://github.com/ethanlabs101/terminaltanks-site/blob/main/Media/screenshot_018.png)
@@ -26,6 +29,8 @@ that runs in your terminal and your browser.
 ![DS](https://github.com/ethanlabs101/terminaltanks-site/blob/main/Media/screenshot_023.png)
 ![Play-1](https://github.com/ethanlabs101/terminaltanks-site/blob/main/Media/screenshot_024.png)
 ![Play-2](https://github.com/ethanlabs101/terminaltanks-site/blob/main/Media/screenshot_025.png)
+
+</details>
 
 ## Other links
 
